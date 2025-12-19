@@ -25,6 +25,7 @@ export default defineConfig({
 				"./src/component-builder/components",
 			),
 			"@utils": path.resolve(__dirname, "./src/component-builder/utils"),
+			"@types": path.resolve(__dirname, "./src/component-builder/types"),
 			"@src-components": path.resolve(__dirname, "./components"),
 		},
 	},
