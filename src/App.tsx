@@ -1,4 +1,4 @@
-import MyComponent from "./components/MyComponent";
+import MyComponent from "./component-creator/components/MyComponent";
 
 function App() {
 	return <MyComponent />;

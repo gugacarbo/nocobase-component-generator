@@ -8,8 +8,14 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			"@components": path.resolve(__dirname, "./src/components"),
-			"@utils": path.resolve(__dirname, "./src/utils"),
+			"@bundler": path.resolve(__dirname, "./src/bundler"),
+			"@builder": path.resolve(__dirname, "./src/component-builder"),
+			"@components": path.resolve(
+				__dirname,
+				"./src/component-builder/components",
+			),
+			"@src-components": path.resolve(__dirname, "./src/components"),
+			"@utils": path.resolve(__dirname, "./src/component-builder/utils"),
 		},
 	},
 	build: {
