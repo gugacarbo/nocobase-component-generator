@@ -1,19 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ComponentInfo } from "./types";
+import { CopyCodeButton } from "./copy-code-button";
 
-function CodeModal({
-	code,
-	onClose,
-}: {
-	code: string;
-	onClose: () => void;
-}) {
+function CodeModal({ code, onClose }: { code: string; onClose: () => void }) {
 	const copyToClipboard = async () => {
 		try {
 			await navigator.clipboard.writeText(code);
-			alert("✅ Código copiado para a área de transferência!");
+			return true;
 		} catch (error) {
-			alert("❌ Erro ao copiar código");
+			return false;
 		}
 	};
 
@@ -24,20 +19,14 @@ function CodeModal({
 		>
 			<div
 				className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden max-w-4xl w-full max-h-[80vh] flex flex-col"
-				onClick={(e) => e.stopPropagation()}
+				onClick={e => e.stopPropagation()}
 			>
 				<div className="flex justify-between items-center py-3 px-5 bg-[#2d2d2d] border-b border-[#333]">
 					<span className="text-[#ccc] text-sm font-medium">
 						📄 Código Gerado
 					</span>
 					<div className="flex gap-2">
-						<button
-							className="bg-[#0066cc] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#0052a3]"
-							onClick={copyToClipboard}
-							title="Copiar código"
-						>
-							📋 Copiar
-						</button>
+						<CopyCodeButton copyToClipboard={copyToClipboard} />
 						<button
 							className="bg-[#444] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#555]"
 							onClick={onClose}
@@ -66,6 +55,13 @@ function ContentHeader({
 	const [bundleResult, setBundleResult] = useState<string>("");
 	const [bundleCode, setBundleCode] = useState<string>("");
 	const [showModal, setShowModal] = useState(false);
+
+	// Reinicia estados quando muda de componente
+	useEffect(() => {
+		setBundleResult("");
+		setBundleCode("");
+		setShowModal(false);
+	}, [selectedComponent]);
 
 	const handleBundle = async () => {
 		if (!selectedComponent) return;
@@ -119,7 +115,10 @@ function ContentHeader({
 			<div className="mt-auto pt-4 border-t border-[#333]">
 				{selectedComponent && (
 					<>
-						<div className="mb-2 text-xs text-gray-400 truncate" title={components.find(c => c.path === selectedComponent)?.name}>
+						<div
+							className="mb-2 text-xs text-gray-400 truncate"
+							title={components.find(c => c.path === selectedComponent)?.name}
+						>
 							{components.find(c => c.path === selectedComponent)?.name}
 						</div>
 						<button
@@ -130,9 +129,7 @@ function ContentHeader({
 							{bundling ? "Gerando..." : "📦 Gerar Bundle"}
 						</button>
 						{bundleResult && (
-							<div className="mt-2 text-xs text-gray-400">
-								{bundleResult}
-							</div>
+							<div className="mt-2 text-xs text-gray-400">{bundleResult}</div>
 						)}
 					</>
 				)}
