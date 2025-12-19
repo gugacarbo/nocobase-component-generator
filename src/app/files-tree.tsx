@@ -30,7 +30,7 @@ function FilesTree({
 		});
 	};
 	return (
-		<aside className="w-70 bg-[#1e1e1e] text-white p-5 overflow-y-auto border-r border-[#333] flex flex-col">
+		<aside className="w-full  bg-[#1e1e1e] text-white p-5 overflow-y-auto border-r border-[#333] flex flex-col">
 			<h1 className="text-xl mb-5 pb-4 border-b border-[#333]">Components</h1>
 			<div className="flex flex-col flex-1 overflow-y-auto">
 				{treeData.map((node, index) => (

@@ -30,14 +30,30 @@
         "composite": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"],
-            "@bundler/*": ["./src/bundler/*"],
-            "@app/*": ["./src/app/*"],
-            "@builder/*": ["./src/component-builder/*"],
-            "@components/*": ["./src/component-builder/components/*"],
-            "@utils/*": ["./src/component-builder/utils/*"],
-            "@types/*": ["./src/component-builder/types/*"],
-            "@src-components/*": ["./components/*"]
+            "@/*": [
+                "./src/*"
+            ],
+            "@bundler/*": [
+                "./src/bundler/*"
+            ],
+            "@app/*": [
+                "./src/app/*"
+            ],
+            "@builder/*": [
+                "./src/component-builder/*"
+            ],
+            "@components/*": [
+                "./src/component-builder/components/*"
+            ],
+            "@utils/*": [
+                "./src/component-builder/utils/*"
+            ],
+            "@types/*": [
+                "./src/component-builder/types/*"
+            ],
+            "@src-components/*": [
+                "./components/*"
+            ]
         }
     },
     "include": [

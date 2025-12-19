@@ -36,7 +36,7 @@ function App() {
 		: null;
 
 	return (
-		<div className="flex h-screen overflow-hidden">
+		<div className="grid grid-cols-[300px_1fr] h-screen overflow-hidden">
 			<FilesTree
 				components={components}
 				selectedComponent={selectedComponent}
