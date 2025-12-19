@@ -17,6 +17,7 @@ export default defineConfig({
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
 			"@bundler": path.resolve(__dirname, "./src/bundler"),
+			"@app": path.resolve(__dirname, "./src/app"),
 			"@builder": path.resolve(__dirname, "./src/component-builder"),
 			"@components": path.resolve(
 				__dirname,

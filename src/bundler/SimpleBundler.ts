@@ -36,11 +36,15 @@ export class SimpleBundler {
 	 */
 	private loadFiles(): void {
 		if (this.isFile) {
-			// Se for um arquivo específico, carrega apenas ele
+			// Se for um arquivo específico, carrega ele e suas dependências
 			const baseDir = path.dirname(this.srcPath);
-			const fileInfo = FileProcessor.loadFileInfo(this.srcPath, baseDir);
-			this.files.set(this.srcPath, fileInfo);
-			this.firstFileRelativePath = fileInfo.relativePath;
+			this.loadFileWithDependencies(this.srcPath, baseDir);
+			
+			// Define o primeiro arquivo
+			const fileInfo = this.files.get(this.srcPath);
+			if (fileInfo) {
+				this.firstFileRelativePath = fileInfo.relativePath;
+			}
 		} else {
 			// Se for um diretório, processa todos os arquivos
 			const allFiles = FileProcessor.findFiles(this.srcPath);
@@ -55,6 +59,33 @@ export class SimpleBundler {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Carrega um arquivo e todas as suas dependências recursivamente
+	 */
+	private loadFileWithDependencies(filePath: string, baseDir: string): void {
+		// Evita processar o mesmo arquivo duas vezes
+		if (this.files.has(filePath)) {
+			return;
+		}
+
+		// Carrega o arquivo
+		const fileInfo = FileProcessor.loadFileInfo(filePath, baseDir);
+		this.files.set(filePath, fileInfo);
+
+		// Processa todas as dependências (imports relativos)
+		fileInfo.imports.forEach(importPath => {
+			const resolvedPath = DependencyResolver.resolveImportPath(
+				filePath,
+				importPath,
+			);
+			
+			if (resolvedPath && fs.existsSync(resolvedPath)) {
+				// Carrega a dependência recursivamente
+				this.loadFileWithDependencies(resolvedPath, baseDir);
+			}
+		});
 	}
 
 	/**
