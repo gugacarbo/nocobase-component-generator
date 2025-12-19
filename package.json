@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx watch src/server/index.ts",
     "build": "tsc && vite build",
     "bundle": "tsx src/scripts/bundler.ts",
     "preview": "vite preview"
@@ -20,12 +21,14 @@
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
+    "@types/express": "^4.17.21",
     "@vitejs/plugin-react": "^4.2.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.8",
     "esbuild": "^0.19.10",
     "tsx": "^4.7.0",
-    "prettier": "^3.1.1"
+    "prettier": "^3.1.1",
+    "express": "^4.18.2"
   },
   "packageManager": "pnpm@10.25.0",
   "keywords": [

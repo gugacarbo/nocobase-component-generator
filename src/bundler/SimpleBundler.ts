@@ -1,29 +1,32 @@
 import * as fs from "fs";
 import * as path from "path";
-import {FileInfo, BundleOptions} from "./types";
-import {FileProcessor} from "./FileProcessor";
-import {DependencyResolver} from "./DependencyResolver";
-import {CodeAnalyzer} from "./CodeAnalyzer";
-import {TreeShaker} from "./TreeShaker";
-import {ComponentDetector} from "./ComponentDetector";
-import {CodeFormatter} from "./CodeFormatter";
-import {NocoBaseTransformer} from "./NocoBaseTransformer";
+import { FileInfo, BundleOptions } from "./types";
+import { FileProcessor } from "./FileProcessor";
+import { DependencyResolver } from "./DependencyResolver";
+import { CodeAnalyzer } from "./CodeAnalyzer";
+import { TreeShaker } from "./TreeShaker";
+import { ComponentDetector } from "./ComponentDetector";
+import { CodeFormatter } from "./CodeFormatter";
+import { NocoBaseTransformer } from "./NocoBaseTransformer";
 
 /**
  * Bundler simples que concatena arquivos em ordem de dependência
  */
 export class SimpleBundler {
-	private srcDir: string;
+	private srcPath: string;
 	private outputDir: string;
 	private files: Map<string, FileInfo> = new Map();
 	private dependencyResolver: DependencyResolver;
 	private codeAnalyzer: CodeAnalyzer;
 	private treeShaker: TreeShaker;
-	private firstFileDir: string = '';
+	private firstFileRelativePath: string = "";
+	private isFile: boolean;
+	private srcBaseDir: string = "";
 
-	constructor(srcDir: string, outputDir: string) {
-		this.srcDir = srcDir;
+	constructor(srcPath: string, outputDir: string) {
+		this.srcPath = srcPath;
 		this.outputDir = outputDir;
+		this.isFile = fs.existsSync(srcPath) && fs.statSync(srcPath).isFile();
 		this.dependencyResolver = new DependencyResolver();
 		this.codeAnalyzer = new CodeAnalyzer();
 		this.treeShaker = new TreeShaker();
@@ -33,18 +36,28 @@ export class SimpleBundler {
 	 * Carrega todos os arquivos do projeto
 	 */
 	private loadFiles(): void {
-		const allFiles = FileProcessor.findFiles(this.srcDir);
+		if (this.isFile) {
+			// Se for um arquivo específico, carrega apenas ele
+			const baseDir = path.dirname(this.srcPath);
+			this.srcBaseDir = baseDir;
+			const fileInfo = FileProcessor.loadFileInfo(this.srcPath, baseDir);
+			this.files.set(this.srcPath, fileInfo);
+			this.firstFileRelativePath = fileInfo.relativePath;
+		} else {
+			// Se for um diretório, processa todos os arquivos
+			this.srcBaseDir = this.srcPath;
+			const allFiles = FileProcessor.findFiles(this.srcPath);
 
-		allFiles.forEach((filePath, index) => {
-			const fileInfo = FileProcessor.loadFileInfo(filePath, this.srcDir);
-			this.files.set(filePath, fileInfo);
-			
-			// Captura o diretório do primeiro arquivo
-			if (index === 0) {
-				const relativePath = path.relative(this.srcDir, filePath);
-				this.firstFileDir = path.dirname(relativePath);
-			}
-		});
+			allFiles.forEach((filePath, index) => {
+				const fileInfo = FileProcessor.loadFileInfo(filePath, this.srcPath);
+				this.files.set(filePath, fileInfo);
+
+				// Captura o caminho relativo do primeiro arquivo
+				if (index === 0) {
+					this.firstFileRelativePath = fileInfo.relativePath;
+				}
+			});
+		}
 	}
 
 	/**
@@ -142,8 +155,8 @@ export class SimpleBundler {
 	 */
 	private toKebabCase(str: string): string {
 		return str
-			.replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-			.replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+			.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+			.replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
 			.toLowerCase();
 	}
 
@@ -152,16 +165,18 @@ export class SimpleBundler {
 	 */
 	private async saveBundle(content: string, fileName: string): Promise<string> {
 		// Cria o caminho de saída preservando a estrutura de diretórios da origem
-		const outputSubDir = path.join(this.outputDir, this.firstFileDir);
-		
+		// Extrai o diretório do primeiro arquivo processado
+		const firstFileDir = path.dirname(this.firstFileRelativePath);
+		const outputSubDir = path.join(this.outputDir, firstFileDir);
+
 		// Garante que a pasta output existe com a estrutura de diretórios
 		if (!fs.existsSync(outputSubDir)) {
-			fs.mkdirSync(outputSubDir, {recursive: true});
+			fs.mkdirSync(outputSubDir, { recursive: true });
 		}
 
 		// Formata o código antes de salvar
-		const isTypeScript = fileName.endsWith('.tsx')
-		const formattedContent = await CodeFormatter.format(content, isTypeScript)
+		const isTypeScript = fileName.endsWith(".tsx");
+		const formattedContent = await CodeFormatter.format(content, isTypeScript);
 
 		const outputPath = path.join(outputSubDir, fileName);
 		fs.writeFileSync(outputPath, formattedContent, "utf-8");
@@ -193,7 +208,9 @@ export class SimpleBundler {
 			}
 		});
 		const mainComponent = ComponentDetector.findMainComponent(fileContents);
-		const componentFileName = mainComponent ? this.toKebabCase(mainComponent) : 'bundled-component';
+		const componentFileName = mainComponent
+			? this.toKebabCase(mainComponent)
+			: "bundled-component";
 
 		// Gera versão TypeScript
 		const bundledContentTS = this.generateBundleContent(sortedFiles, {

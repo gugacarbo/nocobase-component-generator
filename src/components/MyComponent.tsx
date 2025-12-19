@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { formatDate } from "../utils/dateUtils";
-import { Button } from "./ui/Button";
+import { formatDate } from "../component-builder/utils/dateUtils";
+import { Button } from "../component-builder/components/ui/Button";
 
 interface MyComponentProps {
 	title?: string;
 }
 
-const MyComponent2: React.FC<MyComponentProps> = ({
+const MyComponent: React.FC<MyComponentProps> = ({
 	title = "Exemplo de Componente",
 }) => {
 	const [count, setCount] = useState(0);
@@ -23,4 +23,4 @@ const MyComponent2: React.FC<MyComponentProps> = ({
 	);
 };
 
-export default MyComponent2;
+export default MyComponent;
