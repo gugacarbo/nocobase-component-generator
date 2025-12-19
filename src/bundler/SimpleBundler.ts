@@ -19,6 +19,7 @@ export class SimpleBundler {
 	private dependencyResolver: DependencyResolver;
 	private codeAnalyzer: CodeAnalyzer;
 	private treeShaker: TreeShaker;
+	private firstFileDir: string = '';
 
 	constructor(srcDir: string, outputDir: string) {
 		this.srcDir = srcDir;
@@ -34,9 +35,15 @@ export class SimpleBundler {
 	private loadFiles(): void {
 		const allFiles = FileProcessor.findFiles(this.srcDir);
 
-		allFiles.forEach(filePath => {
+		allFiles.forEach((filePath, index) => {
 			const fileInfo = FileProcessor.loadFileInfo(filePath, this.srcDir);
 			this.files.set(filePath, fileInfo);
+			
+			// Captura o diretório do primeiro arquivo
+			if (index === 0) {
+				const relativePath = path.relative(this.srcDir, filePath);
+				this.firstFileDir = path.dirname(relativePath);
+			}
 		});
 	}
 
@@ -131,19 +138,32 @@ export class SimpleBundler {
 	}
 
 	/**
+	 * Converte nome do componente para kebab-case
+	 */
+	private toKebabCase(str: string): string {
+		return str
+			.replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+			.replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+			.toLowerCase();
+	}
+
+	/**
 	 * Salva o bundle no disco com formatação
 	 */
 	private async saveBundle(content: string, fileName: string): Promise<string> {
-		// Garante que a pasta output existe
-		if (!fs.existsSync(this.outputDir)) {
-			fs.mkdirSync(this.outputDir, {recursive: true});
+		// Cria o caminho de saída preservando a estrutura de diretórios da origem
+		const outputSubDir = path.join(this.outputDir, this.firstFileDir);
+		
+		// Garante que a pasta output existe com a estrutura de diretórios
+		if (!fs.existsSync(outputSubDir)) {
+			fs.mkdirSync(outputSubDir, {recursive: true});
 		}
 
 		// Formata o código antes de salvar
 		const isTypeScript = fileName.endsWith('.tsx')
 		const formattedContent = await CodeFormatter.format(content, isTypeScript)
 
-		const outputPath = path.join(this.outputDir, fileName);
+		const outputPath = path.join(outputSubDir, fileName);
 		fs.writeFileSync(outputPath, formattedContent, "utf-8");
 
 		return outputPath;
@@ -164,26 +184,37 @@ export class SimpleBundler {
 			this.files,
 		);
 
+		// Detecta o componente principal para usar como nome do arquivo
+		const fileContents = new Map<string, string>();
+		sortedFiles.forEach(filePath => {
+			const fileInfo = this.files.get(filePath);
+			if (fileInfo) {
+				fileContents.set(filePath, fileInfo.content);
+			}
+		});
+		const mainComponent = ComponentDetector.findMainComponent(fileContents);
+		const componentFileName = mainComponent ? this.toKebabCase(mainComponent) : 'bundled-component';
+
 		// Gera versão TypeScript
 		const bundledContentTS = this.generateBundleContent(sortedFiles, {
 			removeTypes: false,
-			outputFileName: "bundled-component.tsx",
+			outputFileName: `${componentFileName}.tsx`,
 		});
 
 		// Gera versão JavaScript
 		const bundledContentJS = this.generateBundleContent(sortedFiles, {
 			removeTypes: true,
-			outputFileName: "bundled-component.jsx",
+			outputFileName: `${componentFileName}.jsx`,
 		});
 
 		// Salva os arquivos com formatação
 		const outputPathTS = await this.saveBundle(
 			bundledContentTS,
-			"bundled-component.tsx",
+			`${componentFileName}.tsx`,
 		);
 		const outputPathJS = await this.saveBundle(
 			bundledContentJS,
-			"bundled-component.jsx",
+			`${componentFileName}.jsx`,
 		);
 
 		// Exibe resultados

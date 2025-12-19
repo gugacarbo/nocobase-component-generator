@@ -1,6 +1,6 @@
-import React, {useState} from "react";
-import {formatDate} from "../utils/dateUtils";
-import {Button} from "./ui/Button";
+import React, { useState } from "react";
+import { formatDate } from "../utils/dateUtils";
+import { Button } from "./ui/Button";
 
 interface MyComponentProps {
 	title?: string;
