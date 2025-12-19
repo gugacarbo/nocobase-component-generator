@@ -1,6 +1,60 @@
 import { useState } from "react";
 import { ComponentInfo } from "./types";
 
+function CodeModal({
+	code,
+	onClose,
+}: {
+	code: string;
+	onClose: () => void;
+}) {
+	const copyToClipboard = async () => {
+		try {
+			await navigator.clipboard.writeText(code);
+			alert("✅ Código copiado para a área de transferência!");
+		} catch (error) {
+			alert("❌ Erro ao copiar código");
+		}
+	};
+
+	return (
+		<div
+			className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+			onClick={onClose}
+		>
+			<div
+				className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden max-w-4xl w-full max-h-[80vh] flex flex-col"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="flex justify-between items-center py-3 px-5 bg-[#2d2d2d] border-b border-[#333]">
+					<span className="text-[#ccc] text-sm font-medium">
+						📄 Código Gerado
+					</span>
+					<div className="flex gap-2">
+						<button
+							className="bg-[#0066cc] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#0052a3]"
+							onClick={copyToClipboard}
+							title="Copiar código"
+						>
+							📋 Copiar
+						</button>
+						<button
+							className="bg-[#444] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#555]"
+							onClick={onClose}
+							title="Fechar"
+						>
+							✕ Fechar
+						</button>
+					</div>
+				</div>
+				<pre className="flex-1 overflow-auto p-5 m-0 text-[#d4d4d4] font-mono text-[13px] leading-relaxed whitespace-pre">
+					<code className="block">{code}</code>
+				</pre>
+			</div>
+		</div>
+	);
+}
+
 function ContentHeader({
 	components,
 	selectedComponent,
@@ -11,16 +65,7 @@ function ContentHeader({
 	const [bundling, setBundling] = useState(false);
 	const [bundleResult, setBundleResult] = useState<string>("");
 	const [bundleCode, setBundleCode] = useState<string>("");
-
-	const copyToClipboard = async () => {
-		if (!bundleCode) return;
-		try {
-			await navigator.clipboard.writeText(bundleCode);
-			setBundleResult("✅ Código copiado para a área de transferência!");
-		} catch (error) {
-			setBundleResult("❌ Erro ao copiar código");
-		}
-	};
+	const [showModal, setShowModal] = useState(false);
 
 	const handleBundle = async () => {
 		if (!selectedComponent) return;
@@ -52,9 +97,10 @@ function ContentHeader({
 			};
 
 			if (response.ok && result.success) {
-				setBundleResult(`✅ Bundle gerado com sucesso!\n${result.message}`);
+				setBundleResult(`✅ Bundle gerado com sucesso!`);
 				if (result.code) {
 					setBundleCode(result.code);
+					setShowModal(true);
 				}
 			} else {
 				setBundleResult(`❌ Erro: ${result.error}`);
@@ -67,41 +113,33 @@ function ContentHeader({
 			setBundling(false);
 		}
 	};
+
 	return (
 		<>
-			<div className="flex justify-between items-center p-5 px-8 bg-white border-t border-gray-200 shadow-[2px_-2px_4px_rgba(0,0,0,0.05)]">
-				<h2 className="text-2xl text-gray-800">{components.find(c => c.path === selectedComponent)?.name}</h2>
-				<button
-					className="bg-[#0066cc] text-white border-0 py-2.5 px-5 rounded-md cursor-pointer text-sm font-medium transition-colors duration-200 hover:bg-[#0052a3] disabled:bg-gray-300 disabled:cursor-not-allowed"
-					onClick={handleBundle}
-					disabled={bundling}
-				>
-					{bundling ? "Gerando..." : "📦 Gerar Bundle"}
-				</button>
+			<div className="mt-auto pt-4 border-t border-[#333]">
+				{selectedComponent && (
+					<>
+						<div className="mb-2 text-xs text-gray-400 truncate" title={components.find(c => c.path === selectedComponent)?.name}>
+							{components.find(c => c.path === selectedComponent)?.name}
+						</div>
+						<button
+							className="w-full bg-[#0066cc] text-white border-0 py-2.5 px-4 rounded-md cursor-pointer text-sm font-medium transition-colors duration-200 hover:bg-[#0052a3] disabled:bg-gray-600 disabled:cursor-not-allowed"
+							onClick={handleBundle}
+							disabled={bundling}
+						>
+							{bundling ? "Gerando..." : "📦 Gerar Bundle"}
+						</button>
+						{bundleResult && (
+							<div className="mt-2 text-xs text-gray-400">
+								{bundleResult}
+							</div>
+						)}
+					</>
+				)}
 			</div>
 
-			{bundleResult && (
-				<div className="m-5 mx-8 p-4 w-[calc(100%-64px)] bg-gray-100 border border-gray-200 rounded-md font-mono text-[13px]">
-					<pre className="whitespace-pre-wrap m-0">{bundleResult}</pre>
-				</div>
-			)}
-
-			{bundleCode && (
-				<div className="m-5 mx-8 bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden max-h-[500px] flex flex-col">
-					<div className="flex justify-between items-center py-3 px-5 bg-[#2d2d2d] border-b border-[#333]">
-						<span className="text-[#ccc] text-sm font-medium">📄 Código Gerado</span>
-						<button
-							className="bg-[#0066cc] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#0052a3]"
-							onClick={copyToClipboard}
-							title="Copiar código"
-						>
-							📋 Copiar
-						</button>
-					</div>
-					<pre className="flex-1 overflow-auto p-5 m-0 text-[#d4d4d4] font-mono text-[13px] leading-relaxed whitespace-pre">
-						<code className="block">{bundleCode}</code>
-					</pre>
-				</div>
+			{showModal && bundleCode && (
+				<CodeModal code={bundleCode} onClose={() => setShowModal(false)} />
 			)}
 		</>
 	);
