@@ -1,9 +1,17 @@
 import { SimpleBundler } from "../bundler/SimpleBundler";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import * as fs from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+function toKebabCase(str: string): string {
+	return str
+		.replace(/([a-z])([A-Z])/g, "$1-$2")
+		.replace(/[\s_]+/g, "-")
+		.toLowerCase();
+}
 
 export interface BundleRequest {
 	componentPath: string;
@@ -13,6 +21,7 @@ export interface BundleResponse {
 	success: boolean;
 	message?: string;
 	error?: string;
+	code?: string;
 }
 
 export async function handleBundleRequest(
@@ -57,9 +66,22 @@ export async function handleBundleRequest(
 		const bundler = new SimpleBundler(componentFilePath, outputDir);
 		await bundler.bundle();
 
+		// Ler o arquivo gerado
+		const baseFileName = path.basename(componentFilePath, path.extname(componentFilePath));
+		const outputFileName = toKebabCase(baseFileName) + ".jsx";
+		const outputFilePath = path.join(outputDir, outputFileName);
+		
+		let code: string | undefined;
+		try {
+			code = await fs.readFile(outputFilePath, "utf-8");
+		} catch (readError) {
+			console.warn(`Aviso: Não foi possível ler o arquivo gerado em ${outputFilePath}`);
+		}
+
 		return {
 			success: true,
 			message: `Bundle gerado com sucesso para ${componentPath}`,
+			code,
 		};
 	} catch (error) {
 		console.error("Erro ao gerar bundle:", error);

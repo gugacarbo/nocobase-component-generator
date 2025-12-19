@@ -196,6 +196,64 @@ body {
     margin: 0;
 }
 
+.code-viewer {
+    margin: 20px 30px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: #2d2d2d;
+    border-bottom: 1px solid #333;
+}
+
+.code-title {
+    color: #ccc;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.copy-button {
+    background: #0066cc;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.copy-button:hover {
+    background: #0052a3;
+}
+
+.code-content {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    margin: 0;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.code-content code {
+    display: block;
+}
+
 .component-preview {
     flex: 1;
     overflow: auto;

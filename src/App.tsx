@@ -147,6 +147,7 @@ function App() {
 	);
 	const [bundling, setBundling] = useState(false);
 	const [bundleResult, setBundleResult] = useState<string>("");
+	const [bundleCode, setBundleCode] = useState<string>("");
 	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
 		new Set(),
 	);
@@ -193,6 +194,7 @@ function App() {
 
 		setBundling(true);
 		setBundleResult("");
+		setBundleCode("");
 
 		try {
 			const extensionMatch = selectedComponent.match(/\.(tsx|jsx)$/);
@@ -209,14 +211,18 @@ function App() {
 				}),
 			});
 
-			const result = response?.body as unknown as {
+			const result = (await response.json()) as {
 				success: boolean;
 				message?: string;
 				error?: string;
+				code?: string;
 			};
 
-			if (response.ok) {
+			if (response.ok && result.success) {
 				setBundleResult(`✅ Bundle gerado com sucesso!\n${result.message}`);
+				if (result.code) {
+					setBundleCode(result.code);
+				}
 			} else {
 				setBundleResult(`❌ Erro: ${result.error}`);
 			}
@@ -226,6 +232,16 @@ function App() {
 			);
 		} finally {
 			setBundling(false);
+		}
+	};
+
+	const copyToClipboard = async () => {
+		if (!bundleCode) return;
+		try {
+			await navigator.clipboard.writeText(bundleCode);
+			setBundleResult("✅ Código copiado para a área de transferência!");
+		} catch (error) {
+			setBundleResult("❌ Erro ao copiar código");
 		}
 	};
 
@@ -257,21 +273,10 @@ function App() {
 			<main className="main-content">
 				{selectedComponent ? (
 					<>
-						<div className="component-preview">
-							<Suspense fallback={<div>Carregando...</div>}>
-								{SelectedComponentView && <SelectedComponentView />}
-							</Suspense>
-						</div>
-
 						<div className="component-header">
 							<h2>
 								{components.find(c => c.path === selectedComponent)?.name}
 							</h2>
-							{bundleResult && (
-								<div className="bundle-result">
-									<pre>{bundleResult}</pre>
-								</div>
-							)}
 							<button
 								className="bundle-button"
 								onClick={handleBundle}
@@ -279,6 +284,36 @@ function App() {
 							>
 								{bundling ? "Gerando..." : "📦 Gerar Bundle"}
 							</button>
+						</div>
+
+						{bundleResult && (
+							<div className="bundle-result">
+								<pre>{bundleResult}</pre>
+							</div>
+						)}
+
+						{bundleCode && (
+							<div className="code-viewer">
+								<div className="code-header">
+									<span className="code-title">📄 Código Gerado</span>
+									<button
+										className="copy-button"
+										onClick={copyToClipboard}
+										title="Copiar código"
+									>
+										📋 Copiar
+									</button>
+								</div>
+								<pre className="code-content">
+									<code>{bundleCode}</code>
+								</pre>
+							</div>
+						)}
+
+						<div className="component-preview">
+							<Suspense fallback={<div>Carregando...</div>}>
+								{SelectedComponentView && <SelectedComponentView />}
+							</Suspense>
 						</div>
 					</>
 				) : (
