@@ -30,9 +30,9 @@ function FilesTree({
 		});
 	};
 	return (
-		<aside className="sidebar">
-			<h1>Components</h1>
-			<div className="component-tree">
+		<aside className="w-[280px] bg-[#1e1e1e] text-white p-5 overflow-y-auto border-r border-[#333]">
+			<h1 className="text-xl mb-5 pb-4 border-b border-[#333]">Components</h1>
+			<div className="flex flex-col">
 				{treeData.map((node, index) => (
 					<TreeItem
 						key={`${node.name}-${index}`}

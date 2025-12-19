@@ -36,23 +36,23 @@ function App() {
 		: null;
 
 	return (
-		<div className="app-container">
+		<div className="flex h-screen overflow-hidden">
 			<FilesTree
 				components={components}
 				selectedComponent={selectedComponent}
 				setSelectedComponent={setSelectedComponent}
 			/>
-			<main className="main-content">
+			<main className="flex-1 flex flex-col overflow-hidden">
 				{selectedComponent ? (
-					<div className="component-preview">
+					<div className="flex-1 overflow-auto p-8 bg-white">
 						<Suspense fallback={<div>Carregando...</div>}>
 							{SelectedComponentView && <SelectedComponentView />}
 						</Suspense>
 					</div>
 				) : (
-					<div className="empty-state">
+					<div className="flex flex-col items-center justify-center h-full text-gray-600 gap-2.5">
 						<p>Nenhum componente encontrado em components</p>
-						<p className="hint">
+						<p className="text-gray-400 text-sm">
 							Crie seus componentes em components/ para começar
 						</p>
 					</div>

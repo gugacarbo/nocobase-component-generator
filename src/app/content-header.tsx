@@ -69,10 +69,10 @@ function ContentHeader({
 	};
 	return (
 		<>
-			<div className="component-header">
-				<h2>{components.find(c => c.path === selectedComponent)?.name}</h2>
+			<div className="flex justify-between items-center p-5 px-8 bg-white border-t border-gray-200 shadow-[2px_-2px_4px_rgba(0,0,0,0.05)]">
+				<h2 className="text-2xl text-gray-800">{components.find(c => c.path === selectedComponent)?.name}</h2>
 				<button
-					className="bundle-button"
+					className="bg-[#0066cc] text-white border-0 py-2.5 px-5 rounded-md cursor-pointer text-sm font-medium transition-colors duration-200 hover:bg-[#0052a3] disabled:bg-gray-300 disabled:cursor-not-allowed"
 					onClick={handleBundle}
 					disabled={bundling}
 				>
@@ -81,25 +81,25 @@ function ContentHeader({
 			</div>
 
 			{bundleResult && (
-				<div className="bundle-result">
-					<pre>{bundleResult}</pre>
+				<div className="m-5 mx-8 p-4 w-[calc(100%-64px)] bg-gray-100 border border-gray-200 rounded-md font-mono text-[13px]">
+					<pre className="whitespace-pre-wrap m-0">{bundleResult}</pre>
 				</div>
 			)}
 
 			{bundleCode && (
-				<div className="code-viewer">
-					<div className="code-header">
-						<span className="code-title">📄 Código Gerado</span>
+				<div className="m-5 mx-8 bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden max-h-[500px] flex flex-col">
+					<div className="flex justify-between items-center py-3 px-5 bg-[#2d2d2d] border-b border-[#333]">
+						<span className="text-[#ccc] text-sm font-medium">📄 Código Gerado</span>
 						<button
-							className="copy-button"
+							className="bg-[#0066cc] text-white border-0 py-1.5 px-4 rounded cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:bg-[#0052a3]"
 							onClick={copyToClipboard}
 							title="Copiar código"
 						>
 							📋 Copiar
 						</button>
 					</div>
-					<pre className="code-content">
-						<code>{bundleCode}</code>
+					<pre className="flex-1 overflow-auto p-5 m-0 text-[#d4d4d4] font-mono text-[13px] leading-relaxed whitespace-pre">
+						<code className="block">{bundleCode}</code>
 					</pre>
 				</div>
 			)}
