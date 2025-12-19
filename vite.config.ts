@@ -9,9 +9,9 @@ export default defineConfig({
 		proxy: {
 			"/api": {
 				target: "http://localhost:3001",
-				changeOrigin: true
-			}
-		}
+				changeOrigin: true,
+			},
+		},
 	},
 	resolve: {
 		alias: {
@@ -22,8 +22,8 @@ export default defineConfig({
 				__dirname,
 				"./src/component-builder/components",
 			),
-			"@src-components": path.resolve(__dirname, "./src/components"),
 			"@utils": path.resolve(__dirname, "./src/component-builder/utils"),
+			"@src-components": path.resolve(__dirname, "./components"),
 		},
 	},
 	build: {

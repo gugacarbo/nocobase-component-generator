@@ -21,7 +21,6 @@ export class SimpleBundler {
 	private treeShaker: TreeShaker;
 	private firstFileRelativePath: string = "";
 	private isFile: boolean;
-	private srcBaseDir: string = "";
 
 	constructor(srcPath: string, outputDir: string) {
 		this.srcPath = srcPath;
@@ -39,13 +38,11 @@ export class SimpleBundler {
 		if (this.isFile) {
 			// Se for um arquivo específico, carrega apenas ele
 			const baseDir = path.dirname(this.srcPath);
-			this.srcBaseDir = baseDir;
 			const fileInfo = FileProcessor.loadFileInfo(this.srcPath, baseDir);
 			this.files.set(this.srcPath, fileInfo);
 			this.firstFileRelativePath = fileInfo.relativePath;
 		} else {
 			// Se for um diretório, processa todos os arquivos
-			this.srcBaseDir = this.srcPath;
 			const allFiles = FileProcessor.findFiles(this.srcPath);
 
 			allFiles.forEach((filePath, index) => {
