@@ -7,6 +7,7 @@ import {CodeAnalyzer} from "./CodeAnalyzer";
 import {TreeShaker} from "./TreeShaker";
 import {ComponentDetector} from "./ComponentDetector";
 import {CodeFormatter} from "./CodeFormatter";
+import {NocoBaseTransformer} from "./NocoBaseTransformer";
 
 /**
  * Bundler simples que concatena arquivos em ordem de dependência
@@ -108,6 +109,11 @@ export class SimpleBundler {
 		// Verifica quais imports são realmente usados no código final
 		const usedIdentifiers = this.codeAnalyzer.analyzeUsage(content);
 		content = this.codeAnalyzer.removeUnusedImports(content, usedIdentifiers);
+
+		// Transforma imports para usar a API do NocoBase (ctx.libraries)
+		if (withoutTypes) {
+			content = NocoBaseTransformer.transformImports(content);
+		}
 
 		// Identifica o componente principal
 		const mainComponent = ComponentDetector.findMainComponent(fileContents);
