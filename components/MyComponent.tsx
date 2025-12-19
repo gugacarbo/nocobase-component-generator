@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { formatDate } from "../component-builder/utils/dateUtils";
-import { Button } from "../component-builder/components/ui/Button";
+import { formatDate } from "../src/component-builder/utils/dateUtils";
+import { Button } from "../src/component-builder/components/ui/Button";
 
 interface MyComponentProps {
 	title?: string;

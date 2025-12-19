@@ -17,19 +17,19 @@ function App() {
 
 	useEffect(() => {
 		// Descobrir componentes automaticamente
-		const componentModules = import.meta.glob("./components/**/*.{tsx,jsx}", {
+		const componentModules = import.meta.glob("../components/**/*.{tsx,jsx}", {
 			eager: false,
 		});
 
 		const foundComponents: ComponentInfo[] = Object.keys(componentModules).map(
 			path => {
 				const name = path
-					.replace("./components/", "")
+					.replace("../components/", "")
 					.replace(/\.(tsx|jsx)$/, "");
 				return {
 					name,
 					path,
-					relativePath: path.replace("./", "src/"),
+					relativePath: path.replace("../", ""),
 				};
 			},
 		);
@@ -50,14 +50,14 @@ function App() {
 			const extensionMatch = selectedComponent.match(/\.(tsx|jsx)$/);
 			const extension = extensionMatch ? extensionMatch[0] : ".tsx";
 			const componentPath = selectedComponent
-				.replace("./components/", "")
+				.replace("../components/", "")
 				.replace(/\.(tsx|jsx)$/, "");
 
 			const response = await fetch("/api/bundle", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					componentPath: `src/components/${componentPath}${extension}`,
+					componentPath: `components/${componentPath}${extension}`,
 				}),
 			});
 
@@ -136,9 +136,9 @@ function App() {
 					</>
 				) : (
 					<div className="empty-state">
-						<p>Nenhum componente encontrado em src/components</p>
+						<p>Nenhum componente encontrado em components</p>
 						<p className="hint">
-							Crie seus componentes em src/components/ para começar
+							Crie seus componentes em components/ para começar
 						</p>
 					</div>
 				)}

@@ -29,7 +29,7 @@ export async function handleBundleRequest(
 		}
 
 		const normalizedComponentPath = componentPath.replace(/\\/g, "/");
-		const componentsMarker = "src/components/";
+		const componentsMarker = "components/";
 		const componentSubPath = normalizedComponentPath.includes(componentsMarker)
 			? normalizedComponentPath.substring(
 					normalizedComponentPath.indexOf(componentsMarker) +
@@ -37,7 +37,7 @@ export async function handleBundleRequest(
 				)
 			: normalizedComponentPath;
 
-		// Diretório relativo a partir de src/components (sem nome do arquivo)
+		// Diretório relativo a partir de components (sem nome do arquivo)
 		const componentSubDirTmp = path.posix.dirname(componentSubPath);
 		const componentSubDir =
 			componentSubDirTmp === "." ? "" : componentSubDirTmp;
