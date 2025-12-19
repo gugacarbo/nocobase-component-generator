@@ -1,0 +1,37 @@
+{
+  "name": "nocobase-component-generator",
+  "version": "1.0.0",
+  "description": "Build NocoBase components with multiple files and bundle to single file",
+  "author": "",
+  "license": "ISC",
+  "main": "src/bundle.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "bundle": "tsx src/scripts/bundler.ts",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "esbuild": "^0.19.10",
+    "tsx": "^4.7.0",
+    "prettier": "^3.1.1"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "keywords": [
+    "nocobase",
+    "react",
+    "component",
+    "bundler"
+  ]
+}

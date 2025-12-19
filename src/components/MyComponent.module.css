@@ -1,0 +1,16 @@
+.container {
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.container h3 {
+  color: #1976d2;
+  margin-bottom: 10px;
+}
+
+.container p {
+  margin: 10px 0;
+  color: #555;
+}
