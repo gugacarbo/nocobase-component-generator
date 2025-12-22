@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ComponentInfo } from "../types";
-import { APP_CONFIG, removeComponentsPrefix } from "../config";
+import { ComponentInfo } from "../../types";
+import { APP_CONFIG, removeComponentsPrefix } from "../../config";
 import { AppContext } from "./context";
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {

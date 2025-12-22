@@ -260,6 +260,11 @@ export class SimpleBundler {
 			const fileInfo = this.files.get(filePath);
 			if (!fileInfo) return;
 
+			// Ignora arquivos mock, test, spec
+			if (fileInfo.relativePath.match(/\.(mock|test|spec)\.(tsx?|jsx?)$/)) {
+				return;
+			}
+
 			const cleanedContent = FileProcessor.cleanContent(
 				fileInfo.content,
 				fileInfo.relativePath,

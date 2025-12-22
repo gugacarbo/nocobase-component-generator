@@ -125,10 +125,11 @@ export class ImportTransformer {
 				if (parsed) {
 					const { moduleName, importedNames } = parsed;
 
-					// Ignora imports do ctx (@/nocobase/ctx)
+					// Ignora imports do ctx (@/nocobase/ctx) e arquivos mock/test
 					if (
 						moduleName === "@/nocobase/ctx" ||
-						moduleName.includes("/nocobase/ctx")
+						moduleName.includes("/nocobase/ctx") ||
+						moduleName.match(/\.(mock|test|spec)(\.(tsx?|jsx?))?$/)
 					) {
 						continue;
 					}

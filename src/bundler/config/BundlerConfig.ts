@@ -3,11 +3,7 @@
  */
 export class BundlerConfig {
 	/** Arquivos excluídos do processo de bundling */
-	public static readonly EXCLUDED_FILES = [
-		"main.tsx",
-		"App.tsx",
-		"index.ts",
-	];
+	public static readonly EXCLUDED_FILES = ["main.tsx", "App.tsx", "index.ts", "ctx.mock.ts"];
 
 	/** Diretórios excluídos do processo de bundling */
 	public static readonly EXCLUDED_DIRS = [
