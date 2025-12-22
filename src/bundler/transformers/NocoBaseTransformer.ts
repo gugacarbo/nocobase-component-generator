@@ -125,6 +125,11 @@ export class ImportTransformer {
 				if (parsed) {
 					const { moduleName, importedNames } = parsed;
 
+					// Ignora imports do ctx (@/nocobase/ctx)
+					if (moduleName === "@/nocobase/ctx" || moduleName.includes("/nocobase/ctx")) {
+						continue;
+					}
+
 					if (!libraries.has(moduleName)) {
 						libraries.set(moduleName, new Set());
 					}

@@ -13,7 +13,7 @@ function SelectedComponent() {
 		return null;
 	}
 	return (
-		<div className="flex-1 overflow-auto p-8 bg-white">
+		<div className="flex-1 overflow-auto p-4 m-4 bg-white border-2 border-gray-300 rounded-lg">
 			<ErrorBoundary>
 				<Suspense
 					fallback={
