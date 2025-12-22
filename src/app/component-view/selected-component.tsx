@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { useAppContext } from "../context/app-context/use-app-context";
+import { useAppContext } from "../context/use-app-context";
 import { ErrorBoundary } from "./error-boundary";
 
 function SelectedComponent() {

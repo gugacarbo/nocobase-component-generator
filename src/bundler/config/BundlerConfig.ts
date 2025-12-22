@@ -30,6 +30,7 @@ export class BundlerConfig {
 		react: "React",
 		"react-dom": "ReactDOM",
 		antd: "antd",
+		"@ant-design/icons": "antdIcons",
 		"@formily/core": "formily",
 		"@formily/react": "formily",
 		"@nocobase/client": "nocobase",

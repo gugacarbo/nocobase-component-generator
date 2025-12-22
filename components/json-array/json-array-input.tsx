@@ -6,11 +6,11 @@ import { CamposTipo, Tipo } from "./types";
 import { renderField } from "./render-field";
 
 function JsonArrayInput() {
+	const value = ctx.getValue();
+
 	const [typesList, setTypesList] = useState<Tipo[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
-
-	const value = ctx.getValue();
 
 	// Carregar tipos de demanda
 	useEffect(() => {
@@ -100,8 +100,9 @@ function JsonArrayInput() {
 			{fields.map((field, index) => (
 				<Form.Item
 					key={field.name || index}
+					layout="vertical"
 					label={
-						<span>
+						<span style={{ fontWeight: "bold" }}>
 							{field.label || field.name}
 							{field.required && <span style={{ color: "red" }}> *</span>}
 						</span>
