@@ -1,13 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ComponentInfo } from "../types";
 import { APP_CONFIG, removeComponentsPrefix } from "../config";
-
-const AppContext = createContext({
-	config: {},
-	components: [] as ComponentInfo[],
-	selectedComponent: null as string | null,
-	setSelectedComponent: (_: string | null) => {},
-});
+import { AppContext } from "./context";
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	const config = {};
@@ -27,7 +21,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 				path.startsWith("../../../" + APP_CONFIG.componentsPath),
 			),
 		);
-		console.log({ componentModules });
+
 		const foundComponents: ComponentInfo[] = Object.keys(componentModules).map(
 			path => {
 				const relativePath = removeComponentsPrefix(path);
@@ -62,7 +56,3 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 		</AppContext.Provider>
 	);
 };
-
-export function useAppContext() {
-	return useContext(AppContext);
-}

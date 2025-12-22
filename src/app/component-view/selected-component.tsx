@@ -1,0 +1,35 @@
+import { lazy, Suspense } from "react";
+import { useAppContext } from "../context/use-app-context";
+import { ErrorBoundary } from "./error-boundary";
+
+function SelectedComponent() {
+	const { selectedComponent } = useAppContext();
+
+	const SelectedComponentView = selectedComponent
+		? lazy(() => import(/* @vite-ignore */ selectedComponent))
+		: null;
+
+	if (!SelectedComponentView) {
+		return null;
+	}
+	return (
+		<div className="flex-1 overflow-auto p-8 bg-white">
+			<ErrorBoundary>
+				<Suspense
+					fallback={
+						<div className="flex items-center justify-center h-full">
+							<div className="text-center">
+								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+								<p className="text-gray-600">Carregando componente...</p>
+							</div>
+						</div>
+					}
+				>
+					{SelectedComponentView && <SelectedComponentView />}
+				</Suspense>
+			</ErrorBoundary>
+		</div>
+	);
+}
+
+export { SelectedComponent };
