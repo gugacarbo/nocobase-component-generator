@@ -13,4 +13,4 @@ function ButtonExample() {
 	);
 }
 
-export default ButtonExample;
+export { ButtonExample };

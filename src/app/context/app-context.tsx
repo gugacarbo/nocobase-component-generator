@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ComponentInfo } from "../types";
 import { APP_CONFIG, removeComponentsPrefix } from "../config";
 
-export const AppContext = createContext({
+const AppContext = createContext({
 	config: {},
 	components: [] as ComponentInfo[],
 	selectedComponent: null as string | null,

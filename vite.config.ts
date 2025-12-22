@@ -25,12 +25,6 @@ export default defineConfig({
 		},
 	},
 	build: {
-		lib: {
-			entry: path.resolve(__dirname, "src/bundler.ts"),
-			name: "NocoBaseBundler",
-			fileName: "bundler",
-			formats: ["es"],
-		},
 		rollupOptions: {
 			external: ["fs", "path", "esbuild", "typescript", "prettier"],
 		},

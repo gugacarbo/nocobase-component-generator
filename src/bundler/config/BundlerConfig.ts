@@ -6,7 +6,6 @@ export class BundlerConfig {
 	public static readonly EXCLUDED_FILES = [
 		"main.tsx",
 		"App.tsx",
-		"bundler.ts",
 		"index.ts",
 	];
 
