@@ -67,9 +67,13 @@ export class TreeShaker {
 	 */
 	private findUsages(content: string, declarations: Set<string>): Set<string> {
 		const usages = new Set<string>();
+		
+		// Remove comentários especiais (//bundle-only:) para analisar o código real
+		const processedContent = this.removeSpecialComments(content);
+		
 		const sourceFile = ts.createSourceFile(
 			"temp.tsx",
-			content,
+			processedContent,
 			ts.ScriptTarget.Latest,
 			true,
 			ts.ScriptKind.TSX
@@ -94,6 +98,14 @@ export class TreeShaker {
 
 		visit(sourceFile);
 		return usages;
+	}
+
+	/**
+	 * Remove comentários especiais do tipo //bundle-only: para análise
+	 */
+	private removeSpecialComments(content: string): string {
+		// Remove //bundle-only: mas mantém o código
+		return content.replace(/\/\/bundle-only:\s*/g, "");
 	}
 
 	/**

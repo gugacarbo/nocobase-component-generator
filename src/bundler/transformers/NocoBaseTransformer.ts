@@ -126,7 +126,10 @@ export class ImportTransformer {
 					const { moduleName, importedNames } = parsed;
 
 					// Ignora imports do ctx (@/nocobase/ctx)
-					if (moduleName === "@/nocobase/ctx" || moduleName.includes("/nocobase/ctx")) {
+					if (
+						moduleName === "@/nocobase/ctx" ||
+						moduleName.includes("/nocobase/ctx")
+					) {
 						continue;
 					}
 
@@ -134,7 +137,7 @@ export class ImportTransformer {
 						libraries.set(moduleName, new Set());
 					}
 
-					importedNames.forEach((name) => libraries.get(moduleName)!.add(name));
+					importedNames.forEach(name => libraries.get(moduleName)!.add(name));
 				}
 				continue; // Não adiciona a linha original
 			}
@@ -156,7 +159,7 @@ export class ImportTransformer {
 	 * Faz parse de uma linha de import
 	 */
 	private static parseImportLine(
-		line: string
+		line: string,
 	): { moduleName: string; importedNames: string[] } | null {
 		const moduleMatch = line.match(/from\s+['"]([^'"]+)['"]/);
 		if (!moduleMatch) return null;
@@ -175,8 +178,8 @@ export class ImportTransformer {
 		if (namedMatch) {
 			const names = namedMatch[1]
 				.split(",")
-				.map((n) => n.trim())
-				.filter((n) => n);
+				.map(n => n.trim())
+				.filter(n => n);
 			importedNames.push(...names);
 		}
 
@@ -188,8 +191,8 @@ export class ImportTransformer {
 				importedNames.push(defaultNamedMatch[1]);
 				const names = defaultNamedMatch[2]
 					.split(",")
-					.map((n) => n.trim())
-					.filter((n) => n);
+					.map(n => n.trim())
+					.filter(n => n);
 				importedNames.push(...names);
 			}
 		}
@@ -201,7 +204,7 @@ export class ImportTransformer {
 	 * Gera linhas de destructuring do ctx.libs
 	 */
 	private static generateDestructuring(
-		libraries: Map<string, Set<string>>
+		libraries: Map<string, Set<string>>,
 	): string[] {
 		const lines: string[] = [];
 

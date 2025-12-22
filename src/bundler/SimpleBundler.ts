@@ -108,6 +108,7 @@ export class SimpleBundler {
 		});
 
 		const externalImports = this.codeAnalyzer.analyzeImports(fileContents);
+
 		const importStatements =
 			this.codeAnalyzer.generateImportStatements(externalImports);
 
@@ -131,11 +132,16 @@ export class SimpleBundler {
 			const fileInfo = this.files.get(filePath);
 			if (!fileInfo) return;
 
-			const cleanedContent = FileProcessor.cleanContent(
+			let cleanedContent = FileProcessor.cleanContent(
 				fileInfo.content,
 				fileInfo.relativePath,
 				withoutTypes,
 			);
+
+			// Processa comentários bundle-only ANTES da análise de uso
+			if (withoutTypes) {
+				cleanedContent = NocoBaseTransformer.processComments(cleanedContent);
+			}
 
 			if (!withoutTypes) {
 				codeContent += `// ========================================\n`;
@@ -158,11 +164,6 @@ export class SimpleBundler {
 		// Transforma imports para usar a API do NocoBase (ctx.libraries)
 		if (withoutTypes) {
 			content = NocoBaseTransformer.transformImports(content);
-		}
-
-		// Processa comentários bundle-only e remove outros comentários
-		if (withoutTypes) {
-			content = NocoBaseTransformer.processComments(content);
 		}
 
 		// Identifica o componente principal
