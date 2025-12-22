@@ -1,17 +1,11 @@
-import { SimpleBundler } from "../bundler/SimpleBundler";
 import * as path from "path";
-import { fileURLToPath } from "url";
 import * as fs from "fs/promises";
+import { fileURLToPath } from "url";
+import { SimpleBundler } from "../bundler/core/SimpleBundler";
+import { StringUtils } from "../bundler/utils/StringUtils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-function toKebabCase(str: string): string {
-	return str
-		.replace(/([a-z])([A-Z])/g, "$1-$2")
-		.replace(/[\s_]+/g, "-")
-		.toLowerCase();
-}
 
 export interface BundleRequest {
 	componentPath: string;
@@ -46,12 +40,10 @@ export async function handleBundleRequest(
 				)
 			: normalizedComponentPath;
 
-		// Diretório relativo a partir de components (sem nome do arquivo)
 		const componentSubDirTmp = path.posix.dirname(componentSubPath);
 		const componentSubDir =
 			componentSubDirTmp === "." ? "" : componentSubDirTmp;
 
-		// Resolve o caminho completo do arquivo do componente
 		const projectRoot = path.resolve(__dirname, "../../");
 		const componentFilePath = path.resolve(projectRoot, componentPath);
 		const outputDir = path.resolve(projectRoot, "output", componentSubDir);
@@ -67,15 +59,20 @@ export async function handleBundleRequest(
 		await bundler.bundle();
 
 		// Ler o arquivo gerado
-		const baseFileName = path.basename(componentFilePath, path.extname(componentFilePath));
-		const outputFileName = toKebabCase(baseFileName) + ".jsx";
+		const baseFileName = path.basename(
+			componentFilePath,
+			path.extname(componentFilePath),
+		);
+		const outputFileName = StringUtils.toKebabCase(baseFileName) + ".jsx";
 		const outputFilePath = path.join(outputDir, outputFileName);
-		
+
 		let code: string | undefined;
 		try {
 			code = await fs.readFile(outputFilePath, "utf-8");
 		} catch (readError) {
-			console.warn(`Aviso: Não foi possível ler o arquivo gerado em ${outputFilePath}`);
+			console.warn(
+				`Aviso: Não foi possível ler o arquivo gerado em ${outputFilePath}`,
+			);
 		}
 
 		return {

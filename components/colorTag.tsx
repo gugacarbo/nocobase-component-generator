@@ -8,7 +8,7 @@
 import {
 	darkenColor,
 	getTextColor,
-} from "../src/component-builder/utils/color";
+} from "./utils/color";
 
 function ColorTag({
 	color = "#09c",

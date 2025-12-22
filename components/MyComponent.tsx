@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { formatDate } from "../src/component-builder/utils/dateUtils";
-import { Button } from "../src/component-builder/components/ui/Button";
+import { formatDate } from "./utils/dateUtils";
+import { Button } from "./ui/Button";
+import FullDiv from "./full-div";
 
 interface MyComponentProps {
 	title?: string;
@@ -13,13 +14,13 @@ const MyComponent: React.FC<MyComponentProps> = ({
 	const currentDate = formatDate(new Date());
 
 	return (
-		<div className="">
+		<FullDiv>
 			<h3>{title}</h3>
 			<p>Data atual: {currentDate}</p>
 			<p>Contador: {count}</p>
 			<p></p>
 			<Button onClick={() => setCount(count + 1)}>Incrementar</Button>
-		</div>
+		</FullDiv>
 	);
 };
 

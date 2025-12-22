@@ -17,16 +17,11 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			"@bundler": path.resolve(__dirname, "./src/bundler"),
 			"@app": path.resolve(__dirname, "./src/app"),
-			"@builder": path.resolve(__dirname, "./src/component-builder"),
-			"@components": path.resolve(
-				__dirname,
-				"./src/component-builder/components",
-			),
-			"@utils": path.resolve(__dirname, "./src/component-builder/utils"),
-			"@types": path.resolve(__dirname, "./src/component-builder/types"),
-			"@src-components": path.resolve(__dirname, "./components"),
+			"@bundler": path.resolve(__dirname, "./src/bundler"),
+			"@nocobase": path.resolve(__dirname, "./src/nocobase"),
+			"@components": path.resolve(__dirname, "./components"),
+			"@utils": path.resolve(__dirname, "./components/utils"),
 		},
 	},
 	build: {

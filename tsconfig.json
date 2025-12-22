@@ -33,27 +33,21 @@
             "@/*": [
                 "./src/*"
             ],
-            "@bundler/*": [
-                "./src/bundler/*"
-            ],
             "@app/*": [
                 "./src/app/*"
             ],
-            "@builder/*": [
-                "./src/component-builder/*"
+            "@bundler/*": [
+                "./src/bundler/*"
+            ],
+            "@nocobase/*": [
+                "./src/nocobase/*"
             ],
             "@components/*": [
-                "./src/component-builder/components/*"
+                "./components/*"
             ],
             "@utils/*": [
-                "./src/component-builder/utils/*"
+                "components/utils/*"
             ],
-            "@types/*": [
-                "./src/component-builder/types/*"
-            ],
-            "@src-components/*": [
-                "./components/*"
-            ]
         }
     },
     "include": [

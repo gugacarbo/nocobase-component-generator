@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { ComponentInfo } from "../types";
 import { CodeModal } from "../code-modal/code-modal";
+import {
+	APP_CONFIG,
+	removeComponentsPrefix,
+	buildComponentApiPath,
+} from "../config";
 
 function BundleComponent({
 	components,
@@ -29,17 +34,21 @@ function BundleComponent({
 		setBundleCode("");
 
 		try {
-			const extensionMatch = selectedComponent.match(/\.(tsx|jsx)$/);
-			const extension = extensionMatch ? extensionMatch[0] : ".tsx";
-			const componentPath = selectedComponent
-				.replace("../../../components/", "")
-				.replace(/\.(tsx|jsx)$/, "");
+			const extensionPattern = new RegExp(
+				`\\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})`,
+			);
+			const extensionMatch = selectedComponent.match(extensionPattern);
+			const extension = extensionMatch
+				? extensionMatch[0]
+				: APP_CONFIG.supportedExtensions[0];
+			const componentRelativePath = removeComponentsPrefix(selectedComponent);
+			const componentPath = componentRelativePath.replace(extensionPattern, "");
 
-			const response = await fetch("/api/bundle", {
+			const response = await fetch(APP_CONFIG.bundleApiEndpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					componentPath: `components/${componentPath}${extension}`,
+					componentPath: buildComponentApiPath(`${componentPath}${extension}`),
 				}),
 			});
 

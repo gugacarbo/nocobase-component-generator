@@ -1,17 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
-import { FileInfo, BundleOptions } from "./types";
-import { FileProcessor } from "./FileProcessor";
-import { DependencyResolver } from "./DependencyResolver";
-import { CodeAnalyzer } from "./CodeAnalyzer";
-import { TreeShaker } from "./TreeShaker";
-import { ComponentDetector } from "./ComponentDetector";
-import { CodeFormatter } from "./CodeFormatter";
-import { NocoBaseTransformer } from "./NocoBaseTransformer";
+import { FileInfo, BundleOptions } from "./core/types";
+import { FileProcessor } from "./";
+import { DependencyResolver } from "./";
+import { CodeAnalyzer } from "./";
+import { TreeShaker } from "./";
+import { ComponentDetector } from "./";
+import { CodeFormatter } from "./";
+import { NocoBaseTransformer } from "./";
 
-/**
- * Bundler simples que concatena arquivos em ordem de dependência
- */
 export class SimpleBundler {
 	private srcPath: string;
 	private outputDir: string;
@@ -39,7 +36,7 @@ export class SimpleBundler {
 			// Se for um arquivo específico, carrega ele e suas dependências
 			const baseDir = path.dirname(this.srcPath);
 			this.loadFileWithDependencies(this.srcPath, baseDir);
-			
+
 			// Define o primeiro arquivo
 			const fileInfo = this.files.get(this.srcPath);
 			if (fileInfo) {
@@ -80,7 +77,7 @@ export class SimpleBundler {
 				filePath,
 				importPath,
 			);
-			
+
 			if (resolvedPath && fs.existsSync(resolvedPath)) {
 				// Carrega a dependência recursivamente
 				this.loadFileWithDependencies(resolvedPath, baseDir);
@@ -161,6 +158,11 @@ export class SimpleBundler {
 		// Transforma imports para usar a API do NocoBase (ctx.libraries)
 		if (withoutTypes) {
 			content = NocoBaseTransformer.transformImports(content);
+		}
+
+		// Processa comentários bundle-only e remove outros comentários
+		if (withoutTypes) {
+			content = NocoBaseTransformer.processComments(content);
 		}
 
 		// Identifica o componente principal

@@ -10,7 +10,6 @@
     "dev": "vite",
     "dev:server": "tsx watch src/server/index.ts",
     "build": "tsc && vite build",
-    "bundle": "tsx src/scripts/bundler.ts",
     "preview": "vite preview"
   },
   "dependencies": {

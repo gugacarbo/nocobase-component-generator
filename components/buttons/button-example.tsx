@@ -1,4 +1,4 @@
-import { Button } from "@components/ui/Button";
+import { Button } from "@src-components/ui/Button";
 
 function ButtonExample() {
 	const handleClick = () => {

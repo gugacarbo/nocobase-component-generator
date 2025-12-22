@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ComponentInfo } from "../types";
+import { APP_CONFIG, removeComponentsPrefix } from "../config";
 
 export const AppContext = createContext({
 	config: {},
@@ -17,21 +18,28 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	);
 
 	useEffect(() => {
-		const componentModules = import.meta.glob(
-			"../../../components/**/*.{tsx,jsx}",
-			{
-				eager: false,
-			},
+		const componentModules = Object.fromEntries(
+			Object.entries(
+				import.meta.glob("../../../**/*.{tsx,jsx}", {
+					eager: false,
+				}),
+			).filter(([path]) =>
+				path.startsWith("../../../" + APP_CONFIG.componentsPath),
+			),
 		);
+		console.log({ componentModules });
 		const foundComponents: ComponentInfo[] = Object.keys(componentModules).map(
 			path => {
-				const name = path
-					.replace("../../../components/", "")
-					.replace(/\.(tsx|jsx)$/, "");
+				const relativePath = removeComponentsPrefix(path);
+				const extensionPattern = new RegExp(
+					`\\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
+				);
+				const name = relativePath.replace(extensionPattern, "");
+
 				return {
 					name,
 					path,
-					relativePath: path.replace("../../../components/", ""),
+					relativePath,
 				};
 			},
 		);
