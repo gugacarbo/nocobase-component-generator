@@ -1,4 +1,4 @@
-import { ComponentInfo, TreeNode } from "./types";
+import { ComponentInfo, TreeNode } from "../types";
 
 function countFiles(node: TreeNode): number {
 	if (node.isFile) return 1;

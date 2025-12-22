@@ -1,21 +1,17 @@
 import { buildTree } from "./utils";
 import { TreeItem } from "./tree-item";
-import { ComponentInfo } from "./types";
 import { useState } from "react";
-import { ContentHeader } from "./content-header";
+import { BundleComponent } from "../bundle-component/bundle-component";
+import { useAppContext } from "../context/app-context";
 
-function FilesTree({
-	components,
-	selectedComponent,
-	setSelectedComponent,
-}: {
-	components: ComponentInfo[];
-	selectedComponent: string | null;
-	setSelectedComponent: (componentName: string | null) => void;
-}) {
+function FilesTree() {
+	const { components, selectedComponent, setSelectedComponent } =
+		useAppContext();
+		
 	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
 		new Set(),
 	);
+
 	const treeData = buildTree(components);
 
 	const toggleFolder = (folderPath: string) => {
@@ -45,7 +41,7 @@ function FilesTree({
 					/>
 				))}
 			</div>
-			<ContentHeader
+			<BundleComponent
 				components={components}
 				selectedComponent={selectedComponent}
 			/>

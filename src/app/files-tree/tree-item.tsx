@@ -1,4 +1,4 @@
-import { TreeItemProps } from "./types";
+import { TreeItemProps } from "../types";
 
 function TreeItem({
 	node,
@@ -24,7 +24,9 @@ function TreeItem({
 				onClick={() => onSelect(node.path!)}
 			>
 				<span className="text-base shrink-0">📄</span>
-				<span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{node.name}</span>
+				<span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+					{node.name}
+				</span>
 			</button>
 		);
 	}
@@ -37,9 +39,13 @@ function TreeItem({
 				onClick={() => onToggleFolder(currentPath)}
 			>
 				<span className="text-base shrink-0">{isExpanded ? "📂" : "📁"}</span>
-				<span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{node.name}</span>
+				<span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+					{node.name}
+				</span>
 				{node.fileCount !== undefined && (
-					<span className="bg-white/10 text-gray-400 px-2 py-0.5 rounded-full text-xs font-medium shrink-0 group-hover:bg-white/15 group-hover:text-[#ccc]">{node.fileCount}</span>
+					<span className="bg-white/10 text-gray-400 px-2 py-0.5 rounded-full text-xs font-medium shrink-0 group-hover:bg-white/15 group-hover:text-[#ccc]">
+						{node.fileCount}
+					</span>
 				)}
 			</button>
 			{isExpanded && node.children && (
