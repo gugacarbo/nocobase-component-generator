@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { FileInfo } from "../types";
+import { FileInfo } from "../core/types";
 import { PathUtils } from "../utils/PathUtils";
 import { BundlerConfig } from "../config/BundlerConfig";
 
