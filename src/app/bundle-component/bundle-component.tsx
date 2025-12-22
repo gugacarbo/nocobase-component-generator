@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { ComponentInfo } from "../types";
-import { CodeModal } from "../code-modal/code-modal";
+import { CodeModal } from "./code-modal/code-modal";
 import {
 	APP_CONFIG,
 	removeComponentsPrefix,
 	buildComponentApiPath,
 } from "../config";
+import { CodeButtons } from "./code-buttonts";
 
 function BundleComponent({
 	components,
@@ -63,7 +64,6 @@ function BundleComponent({
 				setBundleResult(`✅ Bundle gerado com sucesso!`);
 				if (result.code) {
 					setBundleCode(result.code);
-					setShowModal(true);
 				}
 			} else {
 				setBundleResult(`❌ Erro: ${result.error}`);
@@ -88,16 +88,15 @@ function BundleComponent({
 						>
 							{components.find(c => c.path === selectedComponent)?.name}
 						</div>
-						<button
-							className="w-full bg-[#0066cc] text-white border-0 py-2.5 px-4 rounded-md cursor-pointer text-sm font-medium transition-colors duration-200 hover:bg-[#0052a3] disabled:bg-gray-600 disabled:cursor-not-allowed"
-							onClick={handleBundle}
-							disabled={bundling}
-						>
-							{bundling ? "Gerando..." : "📦 Gerar Bundle"}
-						</button>
 						{bundleResult && (
-							<div className="mt-2 text-xs text-gray-400">{bundleResult}</div>
+							<div className="mb-1 text-xs text-gray-400">{bundleResult}</div>
 						)}
+						<CodeButtons
+							bundling={bundling}
+							handleBundle={handleBundle}
+							bundleCode={bundleCode}
+							openModal={() => setShowModal(true)}
+						/>
 					</>
 				)}
 			</div>

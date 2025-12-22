@@ -1,13 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 import { FileInfo, BundleOptions } from "./core/types";
-import { FileProcessor } from "./";
-import { DependencyResolver } from "./";
-import { CodeAnalyzer } from "./";
-import { TreeShaker } from "./";
-import { ComponentDetector } from "./";
-import { CodeFormatter } from "./";
-import { NocoBaseTransformer } from "./";
+import {
+	FileProcessor,
+	DependencyResolver,
+	CodeAnalyzer,
+	TreeShaker,
+	ComponentDetector,
+	CodeFormatter,
+	NocoBaseTransformer,
+} from "./";
 
 export class SimpleBundler {
 	private srcPath: string;

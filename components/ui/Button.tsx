@@ -4,12 +4,18 @@ interface ButtonProps {
 	onClick?: () => void;
 	children: React.ReactNode;
 	variant?: "primary" | "secondary";
+	style?: React.CSSProperties;
+	className?: string;
+	disabled?: boolean;
 }
 
 export function Button({
 	onClick,
 	children,
 	variant = "primary",
+	style,
+	className,
+	disabled,
 }: ButtonProps) {
 	const baseStyle = {
 		padding: "10px 20px",
@@ -35,13 +41,15 @@ export function Button({
 	return (
 		<button
 			onClick={onClick}
-			style={{ ...baseStyle, ...variantStyles[variant] }}
+			className={className}
+			style={{ ...baseStyle, ...variantStyles[variant], ...style }}
 			onMouseOver={e => {
 				e.currentTarget.style.opacity = "0.8";
 			}}
 			onMouseOut={e => {
 				e.currentTarget.style.opacity = "1";
 			}}
+			disabled={disabled}
 		>
 			{children}
 		</button>
