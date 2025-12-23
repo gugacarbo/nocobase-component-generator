@@ -13,7 +13,7 @@ export class NocoBaseAdapter {
 	};
 
 	/** Módulos que devem ser ignorados na transformação */
-	private static readonly IGNORED_MODULES = ["@/nocobase/ctx", "/nocobase/ctx"];
+	private static readonly IGNORED_MODULES = [];
 
 	/*[
 	 * //[ Processa comentários bundle-only e remove outros comentários
@@ -166,13 +166,12 @@ export class NocoBaseAdapter {
 		return 0;
 	}
 
-
 	// [ Verifica se um arquivo é de mock/test e deve ser ignorado ]
 	public static shouldIgnoreFile(filePath: string): boolean {
 		return /\.(mock|test|spec)\.(tsx?|jsx?)$/.test(filePath);
 	}
 
-	//Verifica se um módulo deve ser ignorado
+	// [ Verifica se um módulo deve ser ignorado
 	public static shouldIgnoreModule(moduleName: string): boolean {
 		return this.IGNORED_MODULES.some(
 			ignored => moduleName === ignored || moduleName.includes(ignored),
@@ -198,16 +197,6 @@ export class NocoBaseAdapter {
 			.join("");
 	}
 
-	//Gera linha de destructuring do ctx.libs
-	public static generateLibraryDestructuring(
-		moduleName: string,
-		importedNames: string[],
-	): string {
-		const uniqueNames = [...new Set(importedNames)];
-		const libKey = this.getLibraryKey(moduleName);
-		return `const { ${uniqueNames.join(", ")} } = ctx.libs.${libKey};`;
-	}
-
 	//Gera múltiplas linhas de destructuring para várias bibliotecas
 	public static generateAllDestructuring(
 		libraries: Map<string, Set<string>>,
@@ -223,19 +212,19 @@ export class NocoBaseAdapter {
 		return lines;
 	}
 
-	//Gera a renderização NocoBase (ctx.render)
+	// [ Gera o cabeçalho do bundle NocoBase
+	public static generateBundleHeader(): string {
+		const now = new Date().toLocaleString("pt-BR");
+		return `// Componente gerado pelo NocoBase Component Generator\n// Data: ${now}\n\n`;
+	}
+
+	// [ Gera a renderização NocoBase (ctx.render)
 	public static generateRender(componentName: string): string {
 		return `\n\nctx.render(<${componentName} />);`;
 	}
 
-	//Gera export TypeScript (para bundles .tsx)
+	// [ Gera export TypeScript (para bundles .tsx)
 	public static generateExport(componentName: string): string {
 		return `\n\nexport { ${componentName} };`;
-	}
-
-	//Gera o cabeçalho do bundle NocoBase
-	public static generateBundleHeader(): string {
-		const now = new Date().toLocaleString("pt-BR");
-		return `// Componente gerado pelo NocoBase Component Generator\n// Data: ${now}\n\n`;
 	}
 }
