@@ -1,13 +1,8 @@
 import * as ts from "typescript";
-import { Logger } from "../utils/Logger";
+import { Logger } from "@common/Logger";
 
-/**
- * Detecta componentes React no código
- */
-export class ComponentDetector {
-	/**
-	 * Encontra o componente principal (último componente com export default)
-	 */
+export class ComponentAnalyzer {
+	// [ Encontra o componente principal (último componente com export default) ]
 	public static findMainComponent(files: Map<string, string>): string | null {
 		let mainComponent: string | null = null;
 
@@ -61,7 +56,7 @@ export class ComponentDetector {
 
 		// const MyComponent = ... \n export default MyComponent
 		const constMatch = content.match(
-			/const\s+(\w+)\s*[:=].*export\s+default\s+\1/s
+			/const\s+(\w+)\s*[:=].*export\s+default\s+\1/s,
 		);
 		if (constMatch) {
 			return constMatch[1];
@@ -80,13 +75,13 @@ export class ComponentDetector {
 			content,
 			ts.ScriptTarget.Latest,
 			true,
-			ts.ScriptKind.TSX
+			ts.ScriptKind.TSX,
 		);
 
 		const visit = (node: ts.Node) => {
 			// Componentes funcionais: const MyComponent = () => {}
 			if (ts.isVariableStatement(node)) {
-				node.declarationList.declarations.forEach((decl) => {
+				node.declarationList.declarations.forEach(decl => {
 					if (ts.isIdentifier(decl.name)) {
 						const name = decl.name.text;
 						if (this.isComponentName(name)) {
@@ -95,6 +90,7 @@ export class ComponentDetector {
 					}
 				});
 			}
+
 			// Function components: function MyComponent() {}
 			else if (ts.isFunctionDeclaration(node) && node.name) {
 				const name = node.name.text;
@@ -102,6 +98,7 @@ export class ComponentDetector {
 					components.push(name);
 				}
 			}
+
 			// Class components: class MyComponent extends React.Component
 			else if (ts.isClassDeclaration(node) && node.name) {
 				const name = node.name.text;
@@ -122,30 +119,5 @@ export class ComponentDetector {
 	 */
 	private static isComponentName(name: string): boolean {
 		return name.length > 0 && name[0] === name[0].toUpperCase();
-	}
-
-	/**
-	 * Encontra todos os componentes em múltiplos arquivos
-	 */
-	public static findAllComponents(
-		files: Map<string, string>
-	): Map<string, string[]> {
-		const componentsByFile = new Map<string, string[]>();
-
-		files.forEach((content, filePath) => {
-			const components = this.findReactComponents(content);
-			if (components.length > 0) {
-				componentsByFile.set(filePath, components);
-			}
-		});
-
-		return componentsByFile;
-	}
-
-	/**
-	 * Verifica se um arquivo contém componentes React
-	 */
-	public static hasReactComponents(content: string): boolean {
-		return this.findReactComponents(content).length > 0;
 	}
 }

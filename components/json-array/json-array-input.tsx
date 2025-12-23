@@ -1,3 +1,4 @@
+import { useUpdateFormValue } from "../../src/nocobase/hooks/use-update-form-value";
 import { ctx } from "./ctx.mock";
 
 import { Form } from "antd";
@@ -56,23 +57,17 @@ function JsonArrayInput() {
 	}, []);
 
 	// Sincronizar com mudanças externas
-	useEffect(() => {
-		const handler: EventListener = (ev: Event) => {
-			try {
-				const customEvent = ev as CustomEvent;
-				const newValue = customEvent?.detail ?? "{}";
-				const parsed =
-					typeof newValue === "string" ? JSON.parse(newValue) : newValue;
-				setFormData(
-					typeof parsed === "object" && parsed !== null ? parsed : {},
-				);
-			} catch {
-				setFormData({});
-			}
-		};
-		//bundle-only: ctx?.element?.addEventListener?.("js-field:value-change", handler);
-		//bundle-only: return () =>ctx?.element?.removeEventListener?.("js-field:value-change", handler);
-	}, []);
+	useUpdateFormValue((ev: Event) => {
+		try {
+			const customEvent = ev as CustomEvent;
+			const newValue = customEvent?.detail ?? "{}";
+			const parsed =
+				typeof newValue === "string" ? JSON.parse(newValue) : newValue;
+			setFormData(typeof parsed === "object" && parsed !== null ? parsed : {});
+		} catch {
+			setFormData({});
+		}
+	});
 
 	// Salvar dados do formulário no banco
 	useEffect(() => {

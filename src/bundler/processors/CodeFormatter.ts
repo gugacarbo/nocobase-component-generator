@@ -1,6 +1,6 @@
 import * as prettier from "prettier";
 import { BundlerConfig } from "../config/BundlerConfig";
-import { Logger } from "../utils/Logger";
+import { Logger } from "../../common/Logger";
 
 /**
  * Formata código usando Prettier
@@ -45,28 +45,5 @@ export class CodeFormatter {
 		formatted = formatted.replace(/\n{3,}/g, "\n\n");
 
 		return formatted;
-	}
-
-	/**
-	 * Formata de forma síncrona
-	 */
-	public static formatSync(content: string): string {
-		return this.formatBasic(content);
-	}
-
-	/**
-	 * Formata com opções customizadas
-	 */
-	public static async formatWithOptions(
-		content: string,
-		options: prettier.Options
-	): Promise<string> {
-		try {
-			const formatted = await prettier.format(content, options);
-			return formatted;
-		} catch (error) {
-			Logger.warning("Erro ao formatar com opções customizadas");
-			return this.formatBasic(content);
-		}
 	}
 }

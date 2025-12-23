@@ -1,3 +1,6 @@
+export interface BundlingOptions {
+	exportTypescript: boolean;
+}
 /**
  * Informações sobre um arquivo processado
  */
@@ -12,7 +15,7 @@ export interface FileInfo {
  * Opções para geração do bundle
  */
 export interface BundleOptions {
-	removeTypes: boolean;
+	isJavascript: boolean;
 	outputFileName: string;
 	includeHeader?: boolean;
 	minify?: boolean;

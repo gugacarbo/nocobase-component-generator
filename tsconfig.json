@@ -48,6 +48,9 @@
             "@utils/*": [
                 "components/utils/*"
             ],
+            "@common/*": [
+                "./src/common/*"
+            ],
         }
     },
     "include": [

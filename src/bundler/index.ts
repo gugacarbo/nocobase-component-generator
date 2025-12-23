@@ -3,10 +3,8 @@ export * from "./core/types";
 export * from "./core/SimpleBundler";
 
 // Analyzers
+export * from "./analyzers/ComponentAnalyzer";
 export * from "./analyzers/CodeAnalyzer";
-export * from "./analyzers/ComponentDetector";
-export * from "./analyzers/ImportAnalyzer";
-export * from "./analyzers/UsageAnalyzer";
 
 // Processors
 export * from "./processors/FileProcessor";
@@ -14,16 +12,20 @@ export * from "./processors/TreeShaker";
 export * from "./processors/CodeFormatter";
 
 // Transformers
-export * from "./transformers/NocoBaseTransformer";
-export * from "./transformers/TypeScriptRemover";
+export * from "./processors/TypeScriptRemover";
 
 // Resolvers
 export * from "./resolvers/DependencyResolver";
 
+// Adapters
+export * from "./adapters";
+
+// Reporters
+export * from "./reporters";
+
 // Utils
-export * from "./utils/Logger";
-export * from "./utils/StringUtils";
-export * from "./utils/PathUtils";
+export * from "../common/utils/StringUtils";
+export * from "../common/utils/PathUtils";
 
 // Config
 export * from "./config/BundlerConfig";

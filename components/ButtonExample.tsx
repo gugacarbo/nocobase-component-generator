@@ -1,9 +1,13 @@
 import { Button } from "./ui/Button";
+import { useUpdateFormValue } from "../src/nocobase/hooks/use-update-form-value";
 
 function ButtonExample() {
 	const handleClick = () => {
 		alert("Botão clicado!");
 	};
+	useUpdateFormValue(() => {
+		console.log('a')
+		});
 
 	return (
 		<div style={{ padding: "20px" }}>

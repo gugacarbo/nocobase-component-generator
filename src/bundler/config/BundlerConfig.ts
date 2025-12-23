@@ -3,7 +3,11 @@
  */
 export class BundlerConfig {
 	/** Arquivos excluídos do processo de bundling */
-	public static readonly EXCLUDED_FILES = ["main.tsx", "App.tsx", "index.ts", "ctx.mock.ts"];
+	public static readonly EXCLUDED_FILES = [
+		"main.tsx",
+		"App.tsx",
+		"index.ts"
+	];
 
 	/** Diretórios excluídos do processo de bundling */
 	public static readonly EXCLUDED_DIRS = [
@@ -24,19 +28,6 @@ export class BundlerConfig {
 		".ts",
 		// ".jsx", ".js"
 	];
-
-	/** Mapeamento de módulos externos para chaves do NocoBase ctx.libs */
-	public static readonly LIBRARY_MAPPINGS: Record<string, string> = {
-		react: "React",
-		"react-dom": "ReactDOM",
-		antd: "antd",
-		"@ant-design/icons": "antdIcons",
-		"@formily/core": "formily",
-		"@formily/react": "formily",
-		"@nocobase/client": "nocobase",
-		dayjs: "dayjs",
-		lodash: "lodash",
-	};
 
 	/** Configurações do Prettier para formatação */
 	public static readonly PRETTIER_CONFIG = {
@@ -72,26 +63,5 @@ export class BundlerConfig {
 	 */
 	public static isSupportedFile(fileName: string): boolean {
 		return this.FILE_EXTENSIONS.test(fileName);
-	}
-
-	/**
-	 * Obtém a chave de biblioteca para o NocoBase
-	 */
-	public static getLibraryKey(moduleName: string): string {
-		// Verifica mapeamentos especiais
-		if (this.LIBRARY_MAPPINGS[moduleName]) {
-			return this.LIBRARY_MAPPINGS[moduleName];
-		}
-
-		// Remove escopo se houver (@mui/material -> material)
-		const withoutScope = moduleName.includes("/")
-			? moduleName.split("/").pop() || moduleName
-			: moduleName;
-
-		// Converte kebab-case para PascalCase
-		return withoutScope
-			.split("-")
-			.map(part => part.charAt(0).toUpperCase() + part.slice(1))
-			.join("");
 	}
 }

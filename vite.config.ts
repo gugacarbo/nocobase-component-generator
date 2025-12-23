@@ -22,6 +22,7 @@ export default defineConfig({
 			"@nocobase": path.resolve(__dirname, "./src/nocobase"),
 			"@components": path.resolve(__dirname, "./components"),
 			"@utils": path.resolve(__dirname, "./components/utils"),
+			"@common": path.resolve(__dirname, "./src/common"),
 		},
 	},
 	build: {
