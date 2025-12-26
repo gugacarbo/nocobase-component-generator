@@ -1,19 +1,11 @@
 import { bundlerConfig } from "./bundler-config";
+import { serverConfig } from "./server-config";
 import { AppConfig } from "./types";
 
 export const APP_CONFIG: AppConfig = {
-	loggerVerbose: true,
+	loggerVerbose: false,
 	componentsPath: "components",
-	supportedExtensions: [
-		".tsx",
-		//  ".jsx"
-	],
-
-	// Endpoint da API para bundle
+	supportedExtensions: [".tsx" /*".jsx"*/],
 	bundler: bundlerConfig,
-	server: {
-		host: "localhost",
-		bundleApiEndpoint: "/api/bundle",
-		port: 3001,
-	},
+	server: serverConfig,
 };

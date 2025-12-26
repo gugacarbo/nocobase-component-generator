@@ -23,7 +23,15 @@ export const bundlerConfig: BundlerConfig = {
 		lodash: "lodash",
 	},
 	EXCLUDED_FILES: ["main.tsx", "App.tsx", "index.ts"],
-	EXCLUDED_DIRS: ["node_modules", "output", "bundler", "dist", "build", ".git"],
+	EXCLUDED_DIRS: [
+		"node_modules",
+		"output",
+		"bundler",
+		"dist",
+		"build",
+		".git",
+		".vscode",
+	],
 	IGNORED_MODULES: [],
 	FILE_EXTENSIONS: /\.(tsx?|jsx?)$/,
 	IMPORT_EXTENSIONS: [

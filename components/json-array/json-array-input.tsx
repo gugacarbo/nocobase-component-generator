@@ -5,6 +5,7 @@ import { Form } from "antd";
 import { useEffect, useState } from "react";
 import { CamposTipo, Tipo } from "./types";
 import { renderField } from "./render-field";
+import { getData } from "./get-data";
 
 function JsonArrayInput() {
 	const value = ctx.getValue();
@@ -15,18 +16,9 @@ function JsonArrayInput() {
 
 	// Carregar tipos de demanda
 	useEffect(() => {
-		ctx.api
-			.request({
-				url: "t_demandas_tipos_v2:list",
-				method: "get",
-				params: {
-					pageSize: 999,
-					appends: ["f_fk_tipo_preset"],
-				},
-			})
-			.then(response => {
-				setTypesList(response.data.data);
-			});
+		getData(ctx).then(response => {
+			setTypesList(response.data.data);
+		});
 	}, []);
 
 	// Atualizar campos quando o tipo de demanda mudar

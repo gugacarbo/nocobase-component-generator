@@ -3,11 +3,13 @@ export interface AppConfig {
 	componentsPath: string;
 	supportedExtensions: readonly string[];
 	bundler: BundlerConfig;
-	server: {
-		host: string;
-		bundleApiEndpoint: string;
-		port: number;
-	};
+	server: ServerConfig;
+}
+
+export interface ServerConfig {
+	host: string;
+	bundleApiEndpoint: string;
+	port: number;
 }
 
 export interface BundlerConfig {
