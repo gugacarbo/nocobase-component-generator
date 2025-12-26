@@ -1,8 +1,8 @@
 import { Logger } from "@common/Logger";
 import {
-	FileInfo,
-	BundleOptions,
-	BundleResult,
+	type FileInfo,
+	type BundleOptions,
+	type BundleResult,
 	BundlingOptions,
 	DependencyResolver,
 	FileProcessor,
@@ -73,9 +73,11 @@ export class SimpleBundler {
 
 		//* 2. Imports externos
 		const externalImports = CodeAnalyzer.analyzeExternalImports(fileContents);
+		
 		const importStatements =
 			CodeAnalyzer.generateImportStatements(externalImports);
-		content += importStatements;
+
+		 content += importStatements;
 
 		//* 3. Concatena arquivos
 		let codeContent = FileProcessor.concatenateFiles(
@@ -93,7 +95,7 @@ export class SimpleBundler {
 
 		//* 6. Transformações NocoBase
 		if (options.isJavascript) {
-			content = NocoBaseAdapter.transformImports(content);
+			//! content = NocoBaseAdapter.transformImports(content);
 		}
 
 		//* 7. Adiciona export/render do componente principal

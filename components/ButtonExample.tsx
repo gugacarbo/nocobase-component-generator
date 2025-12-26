@@ -6,8 +6,8 @@ function ButtonExample() {
 		alert("Botão clicado!");
 	};
 	useUpdateFormValue(() => {
-		console.log('a')
-		});
+		console.log("a");
+	});
 
 	return (
 		<div style={{ padding: "20px" }}>
