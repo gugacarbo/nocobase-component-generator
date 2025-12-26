@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import { Logger } from "@common/Logger";
+import { APP_CONFIG } from "@/config/config";
 
 export class ComponentAnalyzer {
 	// [ Encontra o componente principal (último componente com export default) ]
@@ -71,7 +72,7 @@ export class ComponentAnalyzer {
 	public static findReactComponents(content: string): string[] {
 		const components: string[] = [];
 		const sourceFile = ts.createSourceFile(
-			"temp.tsx",
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			content,
 			ts.ScriptTarget.Latest,
 			true,

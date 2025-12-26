@@ -1,26 +1,9 @@
+import { APP_CONFIG } from "@/config/config";
+
 export class NocoBaseAdapter {
-	/** Mapeamento de módulos externos para chaves do NocoBase ctx.libs */
-	private static readonly LIBRARY_MAPPINGS: Record<string, string> = {
-		react: "React",
-		"react-dom": "ReactDOM",
-		antd: "antd",
-		"@ant-design/icons": "antdIcons",
-		"@formily/core": "formily",
-		"@formily/react": "formily",
-		"@nocobase/client": "nocobase",
-		dayjs: "dayjs",
-		lodash: "lodash",
-	};
-
-	/** Módulos que devem ser ignorados na transformação */
-	private static readonly IGNORED_MODULES = [];
-
-	/*[
-	 * //[ Processa comentários bundle-only e remove outros comentários
-	 * Linhas com //bundle-only: <code> são substituídas apenas pelo código
-	 * //[Outros comentários inline e de bloco são removidos
-	 */
 	public static processComments(content: string): string {
+		// Remove linhas marcadas com //no-bundle antes de qualquer outro processamento
+		content = this.removeNoBundleLines(content);
 		const lines = content.split("\n");
 		const processedLines: string[] = [];
 		let inMultilineComment = false;
@@ -40,7 +23,9 @@ export class NocoBaseAdapter {
 			}
 
 			// Processa linha com bundle-only
-			const bundleOnlyMatch = line.match(/^\s*\/\/bundle-only:\s*(.+)$/);
+			const bundleOnlyMatch = line.match(
+				APP_CONFIG.bundler.BUNDLE_ONLY_PATTERN,
+			);
 			if (bundleOnlyMatch) {
 				const indent = line.match(/^(\s*)/)?.[1] || "";
 				processedLines.push(indent + bundleOnlyMatch[1]);
@@ -57,6 +42,22 @@ export class NocoBaseAdapter {
 		}
 
 		return processedLines.join("\n");
+	}
+
+	// [ Remove linhas marcadas com //no-bundle ]
+	public static removeNoBundleLines(content: string): string {
+		const lines = content.split("\n");
+		const filtered: string[] = [];
+		const noBundlePattern = APP_CONFIG.bundler.NO_BUNDLE_PATTERN;
+
+		for (const line of lines) {
+			if (noBundlePattern.test(line)) {
+				continue; // descarta linhas com comentário //no-bundle
+			}
+			filtered.push(line);
+		}
+
+		return filtered.join("\n");
 	}
 
 	/**
@@ -168,12 +169,12 @@ export class NocoBaseAdapter {
 
 	// [ Verifica se um arquivo é de mock/test e deve ser ignorado ]
 	public static shouldIgnoreFile(filePath: string): boolean {
-		return /\.(mock|test|spec)\.(tsx?|jsx?)$/.test(filePath);
+		return APP_CONFIG.bundler.MOCK_TEST_PATTERN.test(filePath);
 	}
 
 	// [ Verifica se um módulo deve ser ignorado
 	public static shouldIgnoreModule(moduleName: string): boolean {
-		return this.IGNORED_MODULES.some(
+		return APP_CONFIG.bundler.IGNORED_MODULES.some(
 			ignored => moduleName === ignored || moduleName.includes(ignored),
 		);
 	}
@@ -181,8 +182,8 @@ export class NocoBaseAdapter {
 	//Obtém a chave de biblioteca para o NocoBase ctx.libs
 	public static getLibraryKey(moduleName: string): string {
 		// Verifica mapeamentos especiais
-		if (this.LIBRARY_MAPPINGS[moduleName]) {
-			return this.LIBRARY_MAPPINGS[moduleName];
+		if (APP_CONFIG.bundler.LIBRARY_MAPPINGS[moduleName]) {
+			return APP_CONFIG.bundler.LIBRARY_MAPPINGS[moduleName];
 		}
 
 		// Remove escopo se houver (@mui/material -> material)

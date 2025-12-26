@@ -1,12 +1,13 @@
 import express from "express";
 import { handleBundleRequest } from "./bundle-api";
+import { Logger } from "@/common/Logger";
+import { APP_CONFIG } from "@/config/config";
 
 const app = express();
-const PORT = 3001;
 
 app.use(express.json());
 
-app.post("/api/bundle", async (req, res) => {
+app.post(APP_CONFIG.server.bundleApiEndpoint, async (req, res) => {
 	const result = await handleBundleRequest(req.body);
 
 	if (result.success) {
@@ -16,6 +17,6 @@ app.post("/api/bundle", async (req, res) => {
 	}
 });
 
-app.listen(PORT, () => {
-	console.log(`🚀 Bundle API server rodando na porta ${PORT}`);
+app.listen(APP_CONFIG.server.port, () => {
+	Logger.start(`Bundle API server rodando na porta ${APP_CONFIG.server.port}`);
 });

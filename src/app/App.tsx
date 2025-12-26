@@ -1,5 +1,5 @@
 import { ComponentView } from "./component-view/component-view";
-import { AppProvider } from "./context/app-context";
+import { AppProvider } from "./context/app-context/app-context";
 
 function App() {
 	return (

@@ -1,6 +1,7 @@
 import * as ts from "typescript";
 import { Logger } from "@common/Logger";
 import { CodeAnalyzer } from "@bundler/.";
+import { APP_CONFIG } from "@/config/config";
 
 // [ Remove código não utilizado (tree shaking / dead code elimination)
 
@@ -30,7 +31,7 @@ export class TreeShaker {
 	// [ Remove código não utilizado ]
 	public static removeUnusedCode(content: string, unused: Set<string>): string {
 		const sourceFile = ts.createSourceFile(
-			"temp.tsx",
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			content,
 			ts.ScriptTarget.Latest,
 			true,

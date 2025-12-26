@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { ComponentInfo } from "../types";
+import { ComponentInfo } from "../../types";
 
 export const AppContext = createContext({
 	config: {},

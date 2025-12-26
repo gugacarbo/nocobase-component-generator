@@ -1,6 +1,6 @@
 import * as prettier from "prettier";
-import { BundlerConfig } from "../config/BundlerConfig";
 import { Logger } from "../../common/Logger";
+import { APP_CONFIG } from "@/config/config";
 
 /**
  * Formata código usando Prettier
@@ -11,11 +11,11 @@ export class CodeFormatter {
 	 */
 	public static async format(
 		content: string,
-		isTypeScript: boolean
+		isTypeScript: boolean,
 	): Promise<string> {
 		try {
 			const config = {
-				...BundlerConfig.PRETTIER_CONFIG,
+				...APP_CONFIG.bundler.PRETTIER_CONFIG,
 				parser: isTypeScript ? ("typescript" as const) : ("babel" as const),
 			};
 

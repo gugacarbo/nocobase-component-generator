@@ -12,6 +12,7 @@ import {
 	CodeAnalyzer,
 	NocoBaseAdapter,
 } from "@bundler/.";
+import { APP_CONFIG } from "@/config/config";
 
 export class SimpleBundler {
 	private readonly srcPath: string;
@@ -73,11 +74,11 @@ export class SimpleBundler {
 
 		//* 2. Imports externos
 		const externalImports = CodeAnalyzer.analyzeExternalImports(fileContents);
-		
+
 		const importStatements =
 			CodeAnalyzer.generateImportStatements(externalImports);
 
-		 content += importStatements;
+		content += importStatements;
 
 		//* 3. Concatena arquivos
 		let codeContent = FileProcessor.concatenateFiles(
@@ -157,7 +158,7 @@ export class SimpleBundler {
 		//* Gera bundle JavaScript (sempre)
 		const jsOptions: BundleOptions = {
 			isJavascript: true,
-			outputFileName: `${fileName}.jsx`,
+			outputFileName: `${fileName}${APP_CONFIG.bundler.OUTPUT_EXTENSION}`,
 		};
 		const jsResult = await this.generateBundle(
 			sortedFiles,

@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { SimpleBundler } from "../bundler/core/SimpleBundler";
 import { StringUtils } from "../common/utils/StringUtils";
 import { Logger } from "@/common/Logger";
+import { APP_CONFIG } from "@/config/config";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,8 +51,10 @@ export async function handleBundleRequest(
 			componentFilePath,
 			path.extname(componentFilePath),
 		);
-		
-		const outputFileName = StringUtils.toKebabCase(baseFileName) + ".jsx";
+
+		const outputFileName =
+			StringUtils.toKebabCase(baseFileName) +
+			APP_CONFIG.bundler.OUTPUT_EXTENSION;
 		const outputFilePath = path.join(outputDir, outputFileName);
 
 		let code: string | undefined;
@@ -78,8 +81,9 @@ export async function handleBundleRequest(
 }
 
 function getPaths(componentPath: string) {
+	const componentsMarker = `${APP_CONFIG.componentsPath}/`;
+
 	const normalizedComponentPath = componentPath.replace(/\\/g, "/");
-	const componentsMarker = "components/";
 	const componentSubPath = normalizedComponentPath.includes(componentsMarker)
 		? normalizedComponentPath.substring(
 				normalizedComponentPath.indexOf(componentsMarker) +

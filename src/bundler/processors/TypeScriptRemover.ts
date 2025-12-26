@@ -20,10 +20,7 @@ export class TypeScriptRemover {
 	};
 
 	// [ Remove tipos, interfaces, enums e outras anotações TypeScript ]
-	public static removeTypes(
-		content: string,
-		fileName: string = "source.tsx",
-	): string {
+	public static removeTypes(content: string, fileName: string): string {
 		try {
 			const result = ts.transpileModule(content, {
 				compilerOptions: this.DEFAULT_COMPILER_OPTIONS,

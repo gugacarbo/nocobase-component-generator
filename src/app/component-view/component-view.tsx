@@ -1,5 +1,5 @@
 import { FilesTree } from "../files-tree/files-tree";
-import { useAppContext } from "../context/use-app-context";
+import { useAppContext } from "../context/app-context/use-app-context";
 import { SelectedComponent } from "./selected-component";
 
 function ComponentView() {

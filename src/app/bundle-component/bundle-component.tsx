@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { ComponentInfo } from "../types";
 import { CodeModal } from "./code-modal/code-modal";
+import { APP_CONFIG } from "@/config/config";
+import { CodeButtons } from "./code-buttons";
 import {
-	APP_CONFIG,
-	removeComponentsPrefix,
 	buildComponentApiPath,
-} from "../config";
-import { CodeButtons } from "./code-buttonts";
+	removeComponentsPrefix,
+} from "@/config/config-utils";
 
 function BundleComponent({
 	components,
@@ -45,7 +45,7 @@ function BundleComponent({
 			const componentRelativePath = removeComponentsPrefix(selectedComponent);
 			const componentPath = componentRelativePath.replace(extensionPattern, "");
 
-			const response = await fetch(APP_CONFIG.bundleApiEndpoint, {
+			const response = await fetch(APP_CONFIG.server.bundleApiEndpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

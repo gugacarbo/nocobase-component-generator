@@ -26,6 +26,3 @@ export * from "./reporters";
 // Utils
 export * from "../common/utils/StringUtils";
 export * from "../common/utils/PathUtils";
-
-// Config
-export * from "./config/BundlerConfig";

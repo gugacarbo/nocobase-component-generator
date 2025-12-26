@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import { PathUtils } from "../../common/utils/PathUtils";
+import { APP_CONFIG } from "@/config/config";
 
 export interface ImportInfo {
 	moduleName: string;
@@ -33,7 +34,7 @@ export class CodeAnalyzer {
 	public static analyzeDeclared(content: string): Set<string> {
 		const declared = new Set<string>();
 		const sourceFile = ts.createSourceFile(
-			"temp.tsx",
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			content,
 			ts.ScriptTarget.Latest,
 			true,
@@ -91,7 +92,7 @@ export class CodeAnalyzer {
 		const codeWithoutImports = this.removeImportLines(content);
 
 		const sourceFile = ts.createSourceFile(
-			"temp.tsx",
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			codeWithoutImports,
 			ts.ScriptTarget.Latest,
 			true,
@@ -170,7 +171,7 @@ export class CodeAnalyzer {
 	public static extractImports(content: string): ImportInfo[] {
 		const imports: ImportInfo[] = [];
 		const sourceFile = ts.createSourceFile(
-			"temp.tsx",
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			content,
 			ts.ScriptTarget.Latest,
 			true,
@@ -249,7 +250,7 @@ export class CodeAnalyzer {
 
 			// Parse usando AST (mais robusto)
 			const sourceFile = ts.createSourceFile(
-				"temp.tsx",
+				APP_CONFIG.bundler.TEMP_FILE_NAME,
 				line,
 				ts.ScriptTarget.Latest,
 				true,

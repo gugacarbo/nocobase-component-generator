@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import { BundlerConfig } from "../config/BundlerConfig";
 import { PathUtils } from "../../common/utils/PathUtils";
 import { Logger } from "../../common/Logger";
 import { TypeScriptRemover } from "./TypeScriptRemover";
@@ -8,6 +7,7 @@ import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
 import { DependencyResolver } from "../resolvers/DependencyResolver";
 import { StringUtils } from "@/common/utils";
 import { CodeFormatter } from "./CodeFormatter";
+import { APP_CONFIG } from "@/config/config";
 
 /**
  * Processador de arquivos individuais
@@ -106,12 +106,12 @@ export class FileProcessor {
 
 				if (stat.isDirectory()) {
 					// Pula diretórios excluídos
-					if (!BundlerConfig.shouldExcludeDir(filePath)) {
+					if (!this.shouldExcludeDir(filePath)) {
 						this.findFiles(filePath, fileList);
 					}
-				} else if (BundlerConfig.isSupportedFile(file)) {
+				} else if (this.isSupportedFile(file)) {
 					// Pula arquivos excluídos
-					if (!BundlerConfig.shouldExcludeFile(file)) {
+					if (!this.shouldExcludeFile(file)) {
 						fileList.push(filePath);
 					}
 				}
@@ -340,5 +340,20 @@ export class FileProcessor {
 		return isJavaScript
 			? NocoBaseAdapter.generateRender(component)
 			: NocoBaseAdapter.generateExport(component);
+	}
+	private static shouldExcludeFile(fileName: string): boolean {
+		return APP_CONFIG.bundler.EXCLUDED_FILES.some(excluded =>
+			fileName.includes(excluded),
+		);
+	}
+
+	private static shouldExcludeDir(dirPath: string): boolean {
+		return APP_CONFIG.bundler.EXCLUDED_DIRS.some(excluded =>
+			dirPath.includes(excluded),
+		);
+	}
+
+	private static isSupportedFile(fileName: string): boolean {
+		return APP_CONFIG.bundler.FILE_EXTENSIONS.test(fileName);
 	}
 }

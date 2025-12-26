@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
+import { APP_CONFIG } from "./src/config/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,7 +10,7 @@ export default defineConfig({
 	server: {
 		proxy: {
 			"/api": {
-				target: "http://localhost:3001",
+				target: `http://${APP_CONFIG.server.host || "localhost"}:${APP_CONFIG.server.port || 3001}`,
 				changeOrigin: true,
 			},
 		},

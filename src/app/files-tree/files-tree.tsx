@@ -1,13 +1,13 @@
+import { useState } from "react";
 import { buildTree } from "./utils";
 import { TreeItem } from "./tree-item";
-import { useState } from "react";
 import { BundleComponent } from "../bundle-component/bundle-component";
-import { useAppContext } from "../context/use-app-context";
+import { useAppContext } from "../context/app-context/use-app-context";
 
 function FilesTree() {
 	const { components, selectedComponent, setSelectedComponent } =
 		useAppContext();
-		
+
 	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
 		new Set(),
 	);

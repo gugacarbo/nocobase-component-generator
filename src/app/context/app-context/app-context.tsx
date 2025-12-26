@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { ComponentInfo } from "../types";
-import { APP_CONFIG, removeComponentsPrefix } from "../config";
+import { ComponentInfo } from "../../types";
+import { APP_CONFIG } from "@/config/config";
 import { AppContext } from "./context";
+import { removeComponentsPrefix } from "@/config/config-utils";
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	const config = {};
@@ -14,11 +15,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		const componentModules = Object.fromEntries(
 			Object.entries(
-				import.meta.glob("../../../**/*.{tsx,jsx}", {
+				import.meta.glob("../../../../**/*.{tsx,jsx}", {
 					eager: false,
 				}),
 			).filter(([path]) =>
-				path.startsWith("../../../" + APP_CONFIG.componentsPath),
+				path.startsWith("../../../../" + APP_CONFIG.componentsPath),
 			),
 		);
 
@@ -37,6 +38,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 				};
 			},
 		);
+		console.log(foundComponents);
 		setComponents(foundComponents);
 		if (foundComponents.length > 0) {
 			setSelectedComponent(foundComponents[0].path);
