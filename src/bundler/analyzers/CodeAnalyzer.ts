@@ -305,7 +305,9 @@ export class CodeAnalyzer {
 		}
 
 		const moduleName = moduleSpecifier.text;
-		const isExternal = PathUtils.isExternalModule(moduleName);
+		// Considera alias como import interno
+		const isExternal =
+			PathUtils.isExternalModule(moduleName) && !PathUtils.isAlias(moduleName);
 		const importedNames: string[] = [];
 		let isDefault = false;
 		let hasNamedImports = false;

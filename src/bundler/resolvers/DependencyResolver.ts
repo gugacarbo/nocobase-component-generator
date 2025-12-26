@@ -15,10 +15,21 @@ export class DependencyResolver {
 		importPath: string,
 	): string | null {
 		const fromDir = PathUtils.dirname(fromFile);
-		let resolvedPath = PathUtils.resolve(fromDir, importPath);
+		// 1. Tenta resolver como alias
+		let resolvedPath: string | null = null;
+		if (PathUtils.isAlias(importPath)) {
+			resolvedPath = PathUtils.resolveAlias(importPath);
+			if (resolvedPath) {
+				// Tenta resolver a partir da raiz do projeto
+				resolvedPath = PathUtils.resolve(process.cwd(), resolvedPath);
+			}
+		} else {
+			// 2. Caminho relativo normal
+			resolvedPath = PathUtils.resolve(fromDir, importPath);
+		}
 
 		// Se é um diretório, procura por index.*
-		if (fs.existsSync(resolvedPath)) {
+		if (resolvedPath && fs.existsSync(resolvedPath)) {
 			const stat = fs.statSync(resolvedPath);
 			if (stat.isDirectory()) {
 				for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
@@ -31,10 +42,16 @@ export class DependencyResolver {
 		}
 
 		// Tenta adicionar extensões
-		for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
-			const pathWithExt = resolvedPath + ext;
-			if (fs.existsSync(pathWithExt)) {
-				return pathWithExt;
+		if (resolvedPath) {
+			for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
+				const pathWithExt = resolvedPath + ext;
+				if (fs.existsSync(pathWithExt)) {
+					return pathWithExt;
+				}
+			}
+			// Se já existe como está
+			if (fs.existsSync(resolvedPath)) {
+				return resolvedPath;
 			}
 		}
 

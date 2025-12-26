@@ -1,4 +1,4 @@
-import { useUpdateFormValue } from "../../src/nocobase/hooks/use-update-form-value";
+import { useUpdateFormValue } from "@nocobase/hooks/use-update-form-value";
 import { ctx } from "./ctx.mock";
 
 import { Form } from "antd";

@@ -90,7 +90,7 @@ export class SimpleBundler {
 
 		//* 6. Transformações NocoBase
 		if (options.isJavascript) {
-			//! content = NocoBaseAdapter.transformImports(content);
+			content = NocoBaseAdapter.transformImports(content);
 		}
 
 		//* 7. Adiciona export/render do componente principal

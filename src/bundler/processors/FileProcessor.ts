@@ -1,11 +1,11 @@
 import * as fs from "fs";
-import { PathUtils } from "../../common/utils/PathUtils";
-import { Logger } from "../../common/Logger";
+import { PathUtils } from "@/common/utils/PathUtils";
+import { StringUtils } from "@/common/utils";
+import { Logger } from "@/common/Logger";
 import { TypeScriptRemover } from "./TypeScriptRemover";
 import { BundleResult, FileInfo } from "../core/types";
 import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
 import { DependencyResolver } from "../resolvers/DependencyResolver";
-import { StringUtils } from "@/common/utils";
 import { CodeFormatter } from "./CodeFormatter";
 import { APP_CONFIG } from "@/config/config";
 
@@ -133,8 +133,11 @@ export class FileProcessor {
 		let match;
 		while ((match = importRegex.exec(content)) !== null) {
 			const importPath = match[1];
-			// Só inclui imports relativos
-			if (PathUtils.isRelativePath(importPath)) {
+			// Inclui imports relativos e aliases
+			if (
+				PathUtils.isRelativePath(importPath) ||
+				PathUtils.isAlias(importPath)
+			) {
 				imports.push(importPath);
 			}
 		}
