@@ -10,7 +10,7 @@ export class PathUtils {
 	 * Resolve um importPath que usa alias para o caminho real do arquivo
 	 */
 	public static resolveAlias(importPath: string): string | null {
-		const aliases = APP_CONFIG.aliases || {};
+		const aliases = APP_CONFIG.bundler.aliases || {};
 		for (const alias in aliases) {
 			if (alias.endsWith("/*")) {
 				const prefix = alias.replace(/\*+$/, "");
@@ -42,7 +42,7 @@ export class PathUtils {
 	 * Verifica se um importPath corresponde a algum alias configurado
 	 */
 	public static isAlias(importPath: string): boolean {
-		const aliases = Object.keys(APP_CONFIG.aliases || {});
+		const aliases = Object.keys(APP_CONFIG.bundler.aliases || {});
 		return aliases.some(alias => {
 			if (alias.endsWith("/*")) {
 				const prefix = alias.replace(/\*+$/, "");

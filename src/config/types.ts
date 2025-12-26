@@ -3,7 +3,6 @@ export interface AppConfig {
 	componentsPath: string;
 	supportedExtensions: readonly string[];
 	bundler: BundlerConfig;
-	aliases: Record<string, string[]>;
 	server: {
 		host: string;
 		bundleApiEndpoint: string;
@@ -25,4 +24,5 @@ export interface BundlerConfig {
 	BUNDLE_ONLY_PATTERN: RegExp;
 	NO_BUNDLE_PATTERN: RegExp;
 	exportTypescript: boolean;
+	aliases: Record<string, string[]>;
 }

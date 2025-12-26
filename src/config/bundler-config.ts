@@ -2,7 +2,15 @@ import { BundlerConfig } from "./types";
 
 export const bundlerConfig: BundlerConfig = {
 	exportTypescript: false,
-
+	aliases: {
+		"@/*": ["./src/*"],
+		"@app/*": ["./src/app/*"],
+		"@bundler/*": ["./src/bundler/*"],
+		"@nocobase/*": ["./src/nocobase/*"],
+		"@components/*": ["./components/*"],
+		"@utils/*": ["components/utils/*"],
+		"@common/*": ["./src/common/*"],
+	},
 	LIBRARY_MAPPINGS: {
 		react: "React",
 		"react-dom": "ReactDOM",

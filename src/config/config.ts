@@ -16,13 +16,4 @@ export const APP_CONFIG: AppConfig = {
 		bundleApiEndpoint: "/api/bundle",
 		port: 3001,
 	},
-	aliases: {
-		"@/*": ["./src/*"],
-		"@app/*": ["./src/app/*"],
-		"@bundler/*": ["./src/bundler/*"],
-		"@nocobase/*": ["./src/nocobase/*"],
-		"@components/*": ["./components/*"],
-		"@utils/*": ["components/utils/*"],
-		"@common/*": ["./src/common/*"],
-	},
 };
