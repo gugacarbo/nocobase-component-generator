@@ -1,6 +1,3 @@
-export interface BundlingOptions {
-	exportTypescript: boolean;
-}
 /**
  * Informações sobre um arquivo processado
  */

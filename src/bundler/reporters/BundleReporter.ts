@@ -64,7 +64,7 @@ export class BundleReporter {
 		sortedFiles.forEach((filePath, index) => {
 			const fileInfo = fileInfoMap.get(filePath);
 			if (fileInfo) {
-				console.log(`   ${index + 1}. ${fileInfo.relativePath}`);
+				Logger.info.verbose(`   ${index + 1}. ${fileInfo.relativePath}`);
 			}
 		});
 	}

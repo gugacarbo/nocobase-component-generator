@@ -1,9 +1,9 @@
+import { APP_CONFIG } from "@/config/config";
 import { Logger } from "@common/Logger";
 import {
 	type FileInfo,
 	type BundleOptions,
 	type BundleResult,
-	BundlingOptions,
 	DependencyResolver,
 	FileProcessor,
 	TreeShaker,
@@ -12,7 +12,7 @@ import {
 	CodeAnalyzer,
 	NocoBaseAdapter,
 } from "@bundler/.";
-import { APP_CONFIG } from "@/config/config";
+import { BundlerConfig } from "@/config/types";
 
 export class SimpleBundler {
 	private readonly srcPath: string;
@@ -21,22 +21,17 @@ export class SimpleBundler {
 
 	private files: Map<string, FileInfo> = new Map();
 	private firstFileRelativePath: string = "";
-
-	private options: BundlingOptions = {
-		exportTypescript: false,
-	};
+	private readonly options: BundlerConfig;
 
 	constructor(
 		srcPath: string,
 		outputDir: string,
-		exportTypescript: boolean = false,
-		options?: Partial<BundlingOptions>,
+		options?: Partial<BundlerConfig>,
 	) {
 		this.srcPath = srcPath;
 		this.outputDir = outputDir;
 		this.isFile = FileProcessor.fileExists(srcPath);
-		this.options.exportTypescript = exportTypescript;
-		this.options = { ...this.options, ...options };
+		this.options = { ...APP_CONFIG.bundler, ...options };
 	}
 
 	// [ Executa o processo completo de bundling ]
@@ -74,7 +69,6 @@ export class SimpleBundler {
 
 		//* 2. Imports externos
 		const externalImports = CodeAnalyzer.analyzeExternalImports(fileContents);
-
 		const importStatements =
 			CodeAnalyzer.generateImportStatements(externalImports);
 

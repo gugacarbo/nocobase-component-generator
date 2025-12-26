@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ComponentInfo } from "../../types";
 import { APP_CONFIG } from "@/config/config";
 import { AppContext } from "./context";
-import { removeComponentsPrefix } from "@/config/config-utils";
+import { PathUtils } from "@/bundler";
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	const config = {};
@@ -25,7 +25,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 		const foundComponents: ComponentInfo[] = Object.keys(componentModules).map(
 			path => {
-				const relativePath = removeComponentsPrefix(path);
+				const relativePath = PathUtils.removeComponentsPrefix(path);
 				const extensionPattern = new RegExp(
 					`\\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
 				);
@@ -38,7 +38,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 				};
 			},
 		);
-		console.log(foundComponents);
 		setComponents(foundComponents);
 		if (foundComponents.length > 0) {
 			setSelectedComponent(foundComponents[0].path);

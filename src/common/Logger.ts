@@ -1,3 +1,4 @@
+import { APP_CONFIG } from "@/config/config";
 import chalk from "chalk";
 
 type LogMethod = {
@@ -16,14 +17,12 @@ type ErrorMethod = {
 };
 
 export class Logger {
-	private static verboseMode: boolean = false;
-
 	public static isVerbose(): boolean {
-		return this.verboseMode;
+		return APP_CONFIG.loggerVerbose;
 	}
 
 	public static setVerbose(enabled: boolean): void {
-		this.verboseMode = enabled;
+		APP_CONFIG.loggerVerbose = enabled;
 	}
 
 	private static createLogMethod(
@@ -38,7 +37,7 @@ export class Logger {
 		};
 
 		method.verbose = (message: string, emoji: string = defaultEmoji) => {
-			if (this.verboseMode) {
+			if (APP_CONFIG.loggerVerbose) {
 				console.log(`${emoji} ${colorFn(message)}`);
 			}
 		};
@@ -79,7 +78,7 @@ export class Logger {
 			error?: Error | unknown,
 			emoji: string = "❌",
 		) => {
-			if (this.verboseMode) {
+			if (APP_CONFIG.loggerVerbose) {
 				console.error(`${chalk.red.bold(emoji)} ${chalk.red.bold(message)}`);
 				if (error) {
 					console.error(error);
@@ -97,7 +96,7 @@ export class Logger {
 		};
 
 		method.verbose = (label: string, value: string | number) => {
-			if (this.verboseMode) {
+			if (APP_CONFIG.loggerVerbose) {
 				console.log(`   ${chalk.dim(label + ":")} ${value}`);
 			}
 		};

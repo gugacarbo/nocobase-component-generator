@@ -138,7 +138,6 @@ export class FileProcessor {
 				imports.push(importPath);
 			}
 		}
-
 		return imports;
 	}
 
@@ -198,7 +197,6 @@ export class FileProcessor {
 		// Obtém o caminho relativo do arquivo principal
 		const fileInfo = files.get(filePath);
 		const firstFileRelativePath = fileInfo ? fileInfo.relativePath : "";
-
 		return { files, firstFileRelativePath };
 	}
 
@@ -271,7 +269,6 @@ export class FileProcessor {
 		isJavascript: boolean,
 	): string {
 		const contents: string[] = [];
-
 		for (const filePath of sortedFiles) {
 			const fileInfo = fileInfoMap.get(filePath);
 			if (

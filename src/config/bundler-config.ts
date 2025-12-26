@@ -1,6 +1,8 @@
 import { BundlerConfig } from "./types";
 
 export const bundlerConfig: BundlerConfig = {
+	exportTypescript: false,
+
 	LIBRARY_MAPPINGS: {
 		react: "React",
 		"react-dom": "ReactDOM",

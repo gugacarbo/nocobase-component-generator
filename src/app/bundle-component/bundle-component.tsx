@@ -3,10 +3,7 @@ import { ComponentInfo } from "../types";
 import { CodeModal } from "./code-modal/code-modal";
 import { APP_CONFIG } from "@/config/config";
 import { CodeButtons } from "./code-buttons";
-import {
-	buildComponentApiPath,
-	removeComponentsPrefix,
-} from "@/config/config-utils";
+import { PathUtils } from "@/bundler";
 
 function BundleComponent({
 	components,
@@ -42,14 +39,17 @@ function BundleComponent({
 			const extension = extensionMatch
 				? extensionMatch[0]
 				: APP_CONFIG.supportedExtensions[0];
-			const componentRelativePath = removeComponentsPrefix(selectedComponent);
+			const componentRelativePath =
+				PathUtils.removeComponentsPrefix(selectedComponent);
 			const componentPath = componentRelativePath.replace(extensionPattern, "");
 
 			const response = await fetch(APP_CONFIG.server.bundleApiEndpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					componentPath: buildComponentApiPath(`${componentPath}${extension}`),
+					componentPath: PathUtils.buildComponentApiPath(
+						`${componentPath}${extension}`,
+					),
 				}),
 			});
 

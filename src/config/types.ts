@@ -1,7 +1,9 @@
 export interface AppConfig {
+	loggerVerbose: boolean;
 	componentsPath: string;
 	supportedExtensions: readonly string[];
 	bundler: BundlerConfig;
+	aliases: Record<string, string[]>;
 	server: {
 		host: string;
 		bundleApiEndpoint: string;
@@ -22,4 +24,5 @@ export interface BundlerConfig {
 	MOCK_TEST_PATTERN: RegExp;
 	BUNDLE_ONLY_PATTERN: RegExp;
 	NO_BUNDLE_PATTERN: RegExp;
+	exportTypescript: boolean;
 }

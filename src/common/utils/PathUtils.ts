@@ -1,4 +1,5 @@
 import * as path from "path";
+import { APP_CONFIG } from "@/config/config";
 
 /**
  * Utilitários para manipulação de caminhos de arquivos
@@ -70,6 +71,14 @@ export class PathUtils {
 	 */
 	public static containsSegment(filePath: string, segments: string[]): boolean {
 		const normalized = this.normalize(filePath);
-		return segments.some((segment) => normalized.includes(segment));
+		return segments.some(segment => normalized.includes(segment));
+	}
+
+	public static removeComponentsPrefix(path: string) {
+		return path.replace(`../../../../${APP_CONFIG.componentsPath}/`, "");
+	}
+
+	public static buildComponentApiPath(relativePath: string) {
+		return `${APP_CONFIG.componentsPath}/${relativePath}`;
 	}
 }
