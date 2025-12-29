@@ -1,7 +1,6 @@
 import * as ts from "typescript";
 import { APP_CONFIG } from "@/config/config";
 import { StringUtils } from "@common/utils";
-import { ASTCache } from "../utils/ASTCache";
 
 /**
  * Analisador de código focado em declarações e uso de identificadores
@@ -30,9 +29,12 @@ export class CodeAnalyzer {
 	 */
 	public static analyzeDeclared(content: string): Set<string> {
 		const declared = new Set<string>();
-		const sourceFile = ASTCache.getSourceFile(
-			content,
+		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
 		);
 
 		const visit = (node: ts.Node) => {
@@ -89,9 +91,12 @@ export class CodeAnalyzer {
 			.filter(line => !line.trim().startsWith("import "))
 			.join("\n");
 
-		const sourceFile = ASTCache.getSourceFile(
-			codeWithoutImports,
+		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			codeWithoutImports,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
 		);
 
 		const visit = (node: ts.Node) => {

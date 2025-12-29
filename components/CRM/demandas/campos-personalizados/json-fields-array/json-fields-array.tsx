@@ -3,12 +3,13 @@ import { ctx } from "./ctx.mock";
 
 import { Form } from "antd";
 import { useEffect, useState } from "react";
-import { CamposTipo, Tipo } from "./types";
+import { CamposTipo, Tipo } from "../../types";
 import { renderField } from "./render-field";
 import { getData } from "./get-data";
 
-function JsonArrayInput() {
+function JsonFieldsArray() {
 	const value = ctx.getValue();
+	const form = ctx.form;
 
 	const [typesList, setTypesList] = useState<Tipo[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
@@ -78,33 +79,40 @@ function JsonArrayInput() {
 	}
 
 	return (
-		<div
-			style={{
-				width: "100%",
-				display: "grid",
-			}}
-		>
-			{fields.map((field, index) => (
-				<Form.Item
-					key={field.name || index}
-					layout="vertical"
-					label={
-						<span style={{ fontWeight: "bold" }}>
-							{field.label || field.name}
-							{field.required && <span style={{ color: "red" }}> *</span>}
-						</span>
-					}
-					required={field.required}
-				>
-					{renderField({
-						field,
-						handleChange,
-						formData,
-					})}
-				</Form.Item>
-			))}
-		</div>
+		<Form form={form} layout="vertical">
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+				}}
+			>
+				{fields.map((field, index) => (
+					<Form.Item
+						key={field.name || index}
+						name={field.name}
+						layout="vertical"
+						label={
+							<span style={{ fontWeight: "bold" }}>
+								{field.label || field.name}
+							</span>
+						}
+						rules={[
+							{
+								required: field?.required ?? false,
+								message: "Este campo é obrigatório",
+							},
+						]}
+					>
+						{renderField({
+							field,
+							handleChange,
+							formData,
+						})}
+					</Form.Item>
+				))}
+			</div>
+		</Form>
 	);
 }
 
-export default JsonArrayInput;
+export default JsonFieldsArray;

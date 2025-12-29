@@ -16,7 +16,6 @@ import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
 import { ContentProcessor } from "../processors/ContentProcessor";
 import { FileWriter } from "../processors/FileWriter";
-import { ASTCache } from "../utils/ASTCache";
 
 /**
  * Bundler simplificado otimizado para componentes React/NocoBase
@@ -72,9 +71,6 @@ export class SimpleBundler {
 
 		Logger.section("Gerando bundles");
 		await this.generateBundles(fileName, pipelineContext);
-
-		// Limpa cache de AST para liberar memória
-		ASTCache.clear();
 
 		Logger.success("Bundling concluído com sucesso!");
 	}

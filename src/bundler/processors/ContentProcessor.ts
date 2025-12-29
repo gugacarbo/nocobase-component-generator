@@ -109,17 +109,20 @@ export class ContentProcessor {
 	private static removeExports(content: string): string {
 		let cleaned = content;
 
+		// Remove export { ... } primeiro
+		cleaned = cleaned.replace(RegexPatterns.EXPORT_BLOCK, "");
+
 		// Remove export default + identificador
 		cleaned = cleaned.replace(RegexPatterns.EXPORT_DEFAULT, "");
+
+		// Remove export async (antes de export named)
+		cleaned = cleaned.replace(RegexPatterns.EXPORT_ASYNC, "async ");
 
 		// Remove export default inline
 		cleaned = cleaned.replace(RegexPatterns.EXPORT_INLINE, "");
 
-		// Remove export named
+		// Remove export named (const, let, var, function, class, etc)
 		cleaned = cleaned.replace(RegexPatterns.EXPORT_NAMED, "");
-
-		// Remove export { ... }
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_BLOCK, "");
 
 		return cleaned;
 	}

@@ -27,37 +27,50 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 			Object.entries(
 				import.meta.glob("../../../../**/*.{tsx,jsx}", {
 					eager: false,
+					import: "default",
 				}),
 			).filter(([path]) =>
 				path.startsWith("../../../../" + APP_CONFIG.componentsPath),
 			),
 		);
 
-		const foundComponents: ComponentInfo[] = Object.keys(componentModules).map(
-			path => {
-				const relativePath = PathUtils.removeComponentsPrefix(path);
-				const extensionPattern = new RegExp(
-					`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
-				);
-				const name = relativePath.replace(extensionPattern, "");
+		const loadComponents = async () => {
+			const foundComponents: ComponentInfo[] = [];
 
-				return {
-					name,
-					path,
-					relativePath,
-				};
-			},
-		);
-		setComponents(foundComponents);
+			for (const [path, loader] of Object.entries(componentModules)) {
+				try {
+					const module = await loader();
+					if (module) {
+						const relativePath = PathUtils.removeComponentsPrefix(path);
+						const extensionPattern = new RegExp(
+							`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
+						);
+						const name = relativePath.replace(extensionPattern, "");
 
-		// Restaura selectedComponent da URL, se existir
-		const url = new URL(window.location.href);
-		const urlComponent = url.searchParams.get("component");
-		if (urlComponent && foundComponents.some(c => c.path === urlComponent)) {
-			setSelectedComponent(urlComponent);
-		} else if (foundComponents.length > 0) {
-			setSelectedComponent(foundComponents[0].path);
-		}
+						foundComponents.push({
+							name,
+							path,
+							relativePath,
+						});
+					}
+				} catch (error) {
+					// Ignora arquivos que não têm export default ou com erro
+				}
+			}
+
+			setComponents(foundComponents);
+
+			// Restaura selectedComponent da URL, se existir
+			const url = new URL(window.location.href);
+			const urlComponent = url.searchParams.get("component");
+			if (urlComponent && foundComponents.some(c => c.path === urlComponent)) {
+				setSelectedComponent(urlComponent);
+			} else if (foundComponents.length > 0) {
+				setSelectedComponent(foundComponents[0].path);
+			}
+		};
+
+		loadComponents();
 	}, []);
 
 	return (

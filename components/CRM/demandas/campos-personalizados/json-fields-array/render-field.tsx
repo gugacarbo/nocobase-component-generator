@@ -1,5 +1,5 @@
 import { Input, Select, Checkbox, DatePicker } from "antd";
-import { CamposTipo } from "./types";
+import { CamposTipo } from "../../types";
 
 export function renderField({
 	field,

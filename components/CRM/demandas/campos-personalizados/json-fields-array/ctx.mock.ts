@@ -1,5 +1,5 @@
 import { CtxInterface } from "@/nocobase/ctx";
-import { Tipo } from "./types";
+import { Tipo } from "../../types";
 
 // Mock data para tipos de demanda
 const mockTypesList: Tipo[] = [

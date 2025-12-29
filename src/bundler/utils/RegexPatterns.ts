@@ -14,18 +14,24 @@ export class RegexPatterns {
 	/**
 	 * Pattern para detectar export default
 	 */
-	public static readonly EXPORT_DEFAULT = /^\s*export\s+default\s+\w+\s*;?\s*$/gm;
+	public static readonly EXPORT_DEFAULT =
+		/^\s*export\s+default\s+\w+\s*;?\s*$/gm;
 
 	/**
-	 * Pattern para detectar export inline
+	 * Pattern para detectar export inline (default)
 	 */
 	public static readonly EXPORT_INLINE = /export\s+default\s+/g;
 
 	/**
-	 * Pattern para detectar export named
+	 * Pattern para detectar export async function
+	 */
+	public static readonly EXPORT_ASYNC = /export\s+async\s+/g;
+
+	/**
+	 * Pattern para detectar export named (const, let, var, function, class, etc)
 	 */
 	public static readonly EXPORT_NAMED =
-		/export\s+(?=const|let|var|function|class|interface|type|enum)/g;
+		/export\s+(?=const|let|var|function|class|interface|type|enum|async)/g;
 
 	/**
 	 * Pattern para detectar export { ... }

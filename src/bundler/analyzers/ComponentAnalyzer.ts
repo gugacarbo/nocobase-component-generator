@@ -2,7 +2,6 @@ import * as ts from "typescript";
 import { Logger } from "@common/Logger";
 import { APP_CONFIG } from "@/config/config";
 import { StringUtils } from "@common/utils";
-import { ASTCache } from "../utils/ASTCache";
 
 /**
  * Analisador especializado em componentes React
@@ -68,9 +67,12 @@ export class ComponentAnalyzer {
 	 */
 	public static findReactComponents(content: string): string[] {
 		const components: string[] = [];
-		const sourceFile = ASTCache.getSourceFile(
-			content,
+		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
 		);
 
 		const visit = (node: ts.Node) => {

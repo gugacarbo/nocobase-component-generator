@@ -33,4 +33,3 @@ export * from "../common/utils/PathUtils";
 export * from "./utils/FileValidator";
 export * from "./utils/LibraryMapper";
 export * from "./utils/RegexPatterns";
-export * from "./utils/ASTCache";

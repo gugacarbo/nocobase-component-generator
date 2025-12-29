@@ -1,7 +1,6 @@
 import * as ts from "typescript";
 import { PathUtils } from "@common/utils/PathUtils";
 import { APP_CONFIG } from "@/config/config";
-import { ASTCache } from "../utils/ASTCache";
 
 /**
  * Informações sobre um import analisado
@@ -49,9 +48,12 @@ export class ImportAnalyzer {
 	 */
 	public static extractImports(content: string): ImportInfo[] {
 		const imports: ImportInfo[] = [];
-		const sourceFile = ASTCache.getSourceFile(
-			content,
+		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
 		);
 
 		const visit = (node: ts.Node) => {
@@ -103,9 +105,12 @@ export class ImportAnalyzer {
 				continue;
 			}
 
-			const sourceFile = ASTCache.getSourceFile(
-				line,
+			const sourceFile = ts.createSourceFile(
 				APP_CONFIG.bundler.TEMP_FILE_NAME,
+				line,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX,
 			);
 
 			let importInfo: ImportInfo | null = null;

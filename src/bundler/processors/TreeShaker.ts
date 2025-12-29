@@ -3,7 +3,6 @@ import { Logger } from "@common/Logger";
 import { CodeAnalyzer } from "../analyzers/CodeAnalyzer";
 import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 import { APP_CONFIG } from "@/config/config";
-import { ASTCache } from "../utils/ASTCache";
 
 /**
  * Remove código não utilizado (tree shaking / dead code elimination)
@@ -37,9 +36,12 @@ export class TreeShaker {
 	 * Remove código não utilizado
 	 */
 	public static removeUnusedCode(content: string, unused: Set<string>): string {
-		const sourceFile = ASTCache.getSourceFile(
-			content,
+		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
 		);
 
 		const nodesToRemove: ts.Node[] = [];
