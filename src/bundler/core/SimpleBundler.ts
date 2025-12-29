@@ -64,8 +64,20 @@ export class SimpleBundler {
 	): Promise<BundleResult> {
 		let content = "";
 
+		//* 0. Adiciona export/render do componente principal
+		const mainComponent = ComponentAnalyzer.findMainComponent(fileContents);
+
 		//* 1. Cabeçalho
 		content += NocoBaseAdapter.generateBundleHeader();
+
+		if (mainComponent) {
+			content += FileProcessor.generateExport(
+				mainComponent,
+				options.isJavascript,
+			);
+		}
+
+		content += "\n\n";
 
 		//* 2. Imports externos
 		const externalImports = CodeAnalyzer.analyzeExternalImports(fileContents);
@@ -91,16 +103,6 @@ export class SimpleBundler {
 		//* 6. Transformações NocoBase
 		if (options.isJavascript) {
 			content = NocoBaseAdapter.transformImports(content);
-		}
-
-		//* 7. Adiciona export/render do componente principal
-		const mainComponent = ComponentAnalyzer.findMainComponent(fileContents);
-
-		if (mainComponent) {
-			content += FileProcessor.generateExport(
-				mainComponent,
-				options.isJavascript,
-			);
 		}
 
 		return {
