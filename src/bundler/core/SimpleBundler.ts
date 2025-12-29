@@ -149,7 +149,6 @@ export class SimpleBundler {
 				defaultProps,
 			);
 		}
-		content += "\n\n";
 
 		//* 8. Imports externos (usa análise pré-computada do contexto)
 		const importStatements = ImportAnalyzer.generateImportStatements(

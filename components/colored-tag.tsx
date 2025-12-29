@@ -10,8 +10,8 @@ function ColoredTag({
 	color = defaultProps.color,
 	label = defaultProps.label,
 }: {
-	color?: string;
-	label?: string;
+	color: string;
+	label: string;
 }) {
 	return (
 		<FullDiv>

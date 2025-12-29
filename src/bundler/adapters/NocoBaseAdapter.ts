@@ -113,7 +113,13 @@ export class NocoBaseAdapter {
 		componentName: string,
 		defaultProps?: string | null,
 	): string {
-		return `\n\nctx.render(<${componentName} ${defaultProps ? `{...defaultProps}` : ""} />);`;
+		return `
+		
+		ctx.render(<${componentName} ${defaultProps ? `{...defaultProps}` : ""} />);
+		
+		// === === Components === ===
+		 
+		`;
 	}
 
 	/**
