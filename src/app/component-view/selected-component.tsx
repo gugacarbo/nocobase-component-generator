@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { useAppContext } from "../context/app-context/use-app-context";
 import { ErrorBoundary } from "./error-boundary";
 import { useDefaultProps } from "./use-default-props";
