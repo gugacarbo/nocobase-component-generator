@@ -62,6 +62,48 @@ export class ContentProcessor {
 	}
 
 	/**
+	 * Extrai defaultProps do código e retorna separadamente
+	 */
+	public static extractDefaultProps(content: string): {
+		defaultProps: string;
+		contentWithout: string;
+	} {
+		const defaultPropsRegex = /(?:export )?const defaultProps = \{[\s\S]*?\};/;
+		const match = content.match(defaultPropsRegex);
+
+		if (!match) {
+			return { defaultProps: "", contentWithout: content };
+		}
+
+		const defaultPropsDeclaration = match[0].replace(/export\s+/, "").trim();
+		const contentWithout = content
+			.replace(defaultPropsRegex, "")
+			.replace(/\n\s*\n\s*\n/g, "\n\n")
+			.trim();
+
+		return { defaultProps: defaultPropsDeclaration, contentWithout };
+	}
+
+	/**
+	 * Extrai defaultProps e move para o início do conteúdo
+	 */
+	public static reorderDefaultProps(content: string): string {
+		const defaultPropsRegex = /const defaultProps = \{[\s\S]*?\};/;
+		const match = content.match(defaultPropsRegex);
+
+		if (!match) {
+			return content;
+		}
+
+		const defaultPropsDeclaration = match[0];
+		const contentWithoutDefaultProps = content
+			.replace(defaultPropsRegex, "")
+			.trim();
+
+		return `${defaultPropsDeclaration}\n\n${contentWithoutDefaultProps}`;
+	}
+
+	/**
 	 * Remove todas as declarações de export
 	 */
 	private static removeExports(content: string): string {
@@ -100,7 +142,7 @@ export class ContentProcessor {
 				continue;
 			}
 
-			const cleanedContent = this.cleanContent(
+			let cleanedContent = this.cleanContent(
 				fileInfo.content,
 				fileInfo.relativePath,
 				isJavascript,
@@ -118,9 +160,10 @@ export class ContentProcessor {
 	public static generateExport(
 		component: string,
 		isJavaScript: boolean,
+		defaultProps?: string | null,
 	): string {
 		return isJavaScript
-			? NocoBaseAdapter.generateRender(component)
+			? NocoBaseAdapter.generateRender(component, defaultProps)
 			: NocoBaseAdapter.generateExport(component);
 	}
 }

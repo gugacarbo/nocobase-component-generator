@@ -109,8 +109,11 @@ export class NocoBaseAdapter {
 	/**
 	 * Gera a renderização NocoBase (ctx.render)
 	 */
-	public static generateRender(componentName: string): string {
-		return `\n\nctx.render(<${componentName} />);`;
+	public static generateRender(
+		componentName: string,
+		defaultProps?: string | null,
+	): string {
+		return `\n\nctx.render(<${componentName} ${defaultProps ? `{...defaultProps}` : ""} />);`;
 	}
 
 	/**

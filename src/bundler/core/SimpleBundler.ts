@@ -119,36 +119,49 @@ export class SimpleBundler {
 		//* 1. Cabeçalho
 		content += NocoBaseAdapter.generateBundleHeader();
 
-		//* 2. Export do componente principal
-		if (context.mainComponent) {
-			content += ContentProcessor.generateExport(
-				context.mainComponent,
-				options.isJavascript,
-			);
-		}
-		content += "\n\n";
-
-		//* 3. Imports externos (usa análise pré-computada do contexto)
-		const importStatements = ImportAnalyzer.generateImportStatements(
-			context.externalImports,
-		);
-		content += importStatements;
-
-		//* 4. Concatena arquivos
+		//* 2. Concatena arquivos e extrai defaultProps
 		let codeContent = ContentProcessor.concatenateFiles(
 			context.sortedFiles,
 			context.files,
 			options.isJavascript,
 		);
 
-		//* 5. Processa comentários especiais (//bundle-only, //no-bundle)
+		//* 3. Processa comentários especiais (//bundle-only, //no-bundle)
 		codeContent = NocoBaseAdapter.processComments(codeContent);
 
-		//* 6. Tree shaking (remove código não utilizado)
+		//* 4. Tree shaking (remove código não utilizado)
 		codeContent = TreeShaker.shake(codeContent);
-		content += codeContent;
 
-		//* 7. Transformações NocoBase (apenas para JavaScript)
+		//* 5. Extrai defaultProps do código
+		const { defaultProps, contentWithout } =
+			ContentProcessor.extractDefaultProps(codeContent);
+
+		//* 6. defaultProps (se existir)
+		if (defaultProps) {
+			content += defaultProps + "\n\n";
+		}
+
+		//* 7. Export do componente principal
+		if (context.mainComponent) {
+			content += ContentProcessor.generateExport(
+				context.mainComponent,
+				options.isJavascript,
+				defaultProps,
+			);
+		}
+		content += "\n\n";
+
+		//* 8. Imports externos (usa análise pré-computada do contexto)
+		const importStatements = ImportAnalyzer.generateImportStatements(
+			context.externalImports,
+		);
+
+		content += importStatements;
+
+		//* 9. Adiciona código sem defaultProps
+		content += contentWithout;
+
+		//* 10. Transformações NocoBase (apenas para JavaScript)
 		if (options.isJavascript) {
 			content = NocoBaseAdapter.transformImports(content);
 		}
