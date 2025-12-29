@@ -1,8 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Space } from "antd";
-import { ctx } from "./ctx.mock";
 import { useFieldsManager } from "./use-fields-manager";
 import { FieldCard } from "./field-card";
+import { baseCtx as ctx } from "@/nocobase/ctx";
 
 function JsonFieldsCreator() {
 	const { fields, addField, removeField, updateField, updateOptions } =
@@ -26,7 +26,7 @@ function JsonFieldsCreator() {
 					/>
 				))}
 
-				<Button type="dashed" block icon={<PlusOutlined />} onClick={addField}>
+				<Button type="primary" block icon={<PlusOutlined />} onClick={addField}>
 					Adicionar Campo
 				</Button>
 			</Space>

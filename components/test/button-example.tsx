@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/Button";
-import { useUpdateFormValue } from "../src/nocobase/hooks/use-update-form-value";
+import { useUpdateFormValue } from "@nocobase/hooks/use-update-form-value";
 
 function ButtonExample() {
 	const handleClick = () => {
