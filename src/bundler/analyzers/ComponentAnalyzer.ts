@@ -1,13 +1,17 @@
 import * as ts from "typescript";
 import { Logger } from "@common/Logger";
 import { APP_CONFIG } from "@/config/config";
+import { StringUtils } from "@common/utils";
+import { ASTCache } from "../utils/ASTCache";
 
+/**
+ * Analisador especializado em componentes React
+ */
 export class ComponentAnalyzer {
-	// [ Encontra o componente principal (último componente com export default) ]
+	/**
+	 * Encontra o componente principal (último componente com export default)
+	 */
 	public static findMainComponent(files: Map<string, string>): string | null {
-		let mainComponent: string | null = null;
-
-		// Verifica arquivos em ordem reversa
 		const filesArray = Array.from(files.entries()).reverse();
 
 		// Primeiro: procura por export default
@@ -15,28 +19,21 @@ export class ComponentAnalyzer {
 			if (content.includes("export default")) {
 				const componentName = this.extractExportedComponent(content);
 				if (componentName) {
-					mainComponent = componentName;
-					break;
+					return componentName;
 				}
 			}
 		}
 
 		// Segundo: procura por qualquer componente React
-		if (!mainComponent) {
-			for (const [_, content] of filesArray) {
-				const components = this.findReactComponents(content);
-				if (components.length > 0) {
-					mainComponent = components[0];
-					break;
-				}
+		for (const [_, content] of filesArray) {
+			const components = this.findReactComponents(content);
+			if (components.length > 0) {
+				return components[0];
 			}
 		}
 
-		if (!mainComponent) {
-			Logger.warning("Nenhum componente principal encontrado");
-		}
-
-		return mainComponent;
+		Logger.warning("Nenhum componente principal encontrado");
+		return null;
 	}
 
 	/**
@@ -71,12 +68,9 @@ export class ComponentAnalyzer {
 	 */
 	public static findReactComponents(content: string): string[] {
 		const components: string[] = [];
-		const sourceFile = ts.createSourceFile(
-			APP_CONFIG.bundler.TEMP_FILE_NAME,
+		const sourceFile = ASTCache.getSourceFile(
 			content,
-			ts.ScriptTarget.Latest,
-			true,
-			ts.ScriptKind.TSX,
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 		);
 
 		const visit = (node: ts.Node) => {
@@ -85,7 +79,7 @@ export class ComponentAnalyzer {
 				node.declarationList.declarations.forEach(decl => {
 					if (ts.isIdentifier(decl.name)) {
 						const name = decl.name.text;
-						if (this.isComponentName(name)) {
+						if (StringUtils.isPascalCase(name)) {
 							components.push(name);
 						}
 					}
@@ -95,7 +89,7 @@ export class ComponentAnalyzer {
 			// Function components: function MyComponent() {}
 			else if (ts.isFunctionDeclaration(node) && node.name) {
 				const name = node.name.text;
-				if (this.isComponentName(name)) {
+				if (StringUtils.isPascalCase(name)) {
 					components.push(name);
 				}
 			}
@@ -103,7 +97,7 @@ export class ComponentAnalyzer {
 			// Class components: class MyComponent extends React.Component
 			else if (ts.isClassDeclaration(node) && node.name) {
 				const name = node.name.text;
-				if (this.isComponentName(name)) {
+				if (StringUtils.isPascalCase(name)) {
 					components.push(name);
 				}
 			}
@@ -113,12 +107,5 @@ export class ComponentAnalyzer {
 
 		visit(sourceFile);
 		return components;
-	}
-
-	/**
-	 * Verifica se um nome é de componente React (PascalCase)
-	 */
-	private static isComponentName(name: string): boolean {
-		return name.length > 0 && name[0] === name[0].toUpperCase();
 	}
 }

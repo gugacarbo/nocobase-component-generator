@@ -14,8 +14,26 @@ export interface FileInfo {
 export interface BundleOptions {
 	isJavascript: boolean;
 	outputFileName: string;
-	includeHeader?: boolean;
-	minify?: boolean;
+}
+
+/**
+ * Contexto compartilhado do pipeline de bundling
+ * Reduz passagem redundante de parâmetros entre métodos
+ */
+export interface BundlePipelineContext {
+	sortedFiles: string[];
+	fileContents: Map<string, string>;
+	files: Map<string, FileInfo>;
+	mainComponent: string | null;
+	externalImports: Map<string, Set<string>>;
+}
+
+/**
+ * Contexto de carregamento de arquivos
+ */
+export interface FileLoadContext {
+	files: Map<string, FileInfo>;
+	firstFileRelativePath: string;
 }
 
 /**
@@ -27,29 +45,4 @@ export interface BundleResult {
 	sizeKB: number;
 	files: string[];
 	mainComponent?: string;
-}
-
-/**
- * Estatísticas do bundle
- */
-export interface BundleStatistics {
-	totalFiles: number;
-	totalLines: number;
-	totalCharacters: number;
-	sizeKB: number;
-	imports: {
-		external: number;
-		internal: number;
-	};
-	components: number;
-	unusedDeclarations: number;
-}
-
-/**
- * Pipeline de transformação
- */
-export interface TransformationPipeline {
-	name: string;
-	enabled: boolean;
-	transform: (content: string) => string | Promise<string>;
 }

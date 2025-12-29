@@ -1,12 +1,17 @@
 import * as ts from "typescript";
 import { Logger } from "@common/Logger";
-import { CodeAnalyzer } from "@bundler/.";
+import { CodeAnalyzer } from "../analyzers/CodeAnalyzer";
+import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 import { APP_CONFIG } from "@/config/config";
+import { ASTCache } from "../utils/ASTCache";
 
-// [ Remove código não utilizado (tree shaking / dead code elimination)
-
+/**
+ * Remove código não utilizado (tree shaking / dead code elimination)
+ */
 export class TreeShaker {
-	// [ Remove declarações não utilizadas do código ]
+	/**
+	 * Remove declarações não utilizadas do código
+	 */
 	public static shake(content: string): string {
 		try {
 			const unused = CodeAnalyzer.findUnusedDeclarations(content);
@@ -18,24 +23,23 @@ export class TreeShaker {
 			Logger.info.verbose(
 				`Removendo ${unused.size} declarações não utilizadas`,
 			);
-			const codeContent = TreeShaker.removeUnusedCode(content, unused);
+			const codeContent = this.removeUnusedCode(content, unused);
 
 			const usedIdentifiers = CodeAnalyzer.analyzeUsage(codeContent);
-			return CodeAnalyzer.removeUnusedImports(codeContent, usedIdentifiers);
+			return ImportAnalyzer.removeUnusedImports(codeContent, usedIdentifiers);
 		} catch (error) {
 			Logger.warning("Erro durante tree shaking, retornando código original");
 			return content;
 		}
 	}
 
-	// [ Remove código não utilizado ]
+	/**
+	 * Remove código não utilizado
+	 */
 	public static removeUnusedCode(content: string, unused: Set<string>): string {
-		const sourceFile = ts.createSourceFile(
-			APP_CONFIG.bundler.TEMP_FILE_NAME,
+		const sourceFile = ASTCache.getSourceFile(
 			content,
-			ts.ScriptTarget.Latest,
-			true,
-			ts.ScriptKind.TSX,
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
 		);
 
 		const nodesToRemove: ts.Node[] = [];

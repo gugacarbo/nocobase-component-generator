@@ -107,14 +107,6 @@ export class PathUtils {
 		return this.normalize(path.dirname(filePath));
 	}
 
-	/**
-	 * Verifica se um caminho contém algum dos segmentos fornecidos
-	 */
-	public static containsSegment(filePath: string, segments: string[]): boolean {
-		const normalized = this.normalize(filePath);
-		return segments.some(segment => normalized.includes(segment));
-	}
-
 	public static removeComponentsPrefix(path: string) {
 		return path.replace(`../../../../${APP_CONFIG.componentsPath}/`, "");
 	}

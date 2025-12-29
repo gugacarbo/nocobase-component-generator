@@ -18,7 +18,7 @@ export class StringUtils {
 	public static toPascalCase(str: string): string {
 		return str
 			.split("-")
-			.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+			.map(part => part.charAt(0).toUpperCase() + part.slice(1))
 			.join("");
 	}
 
@@ -44,31 +44,5 @@ export class StringUtils {
 		return packageName.includes("/")
 			? packageName.split("/").pop() || packageName
 			: packageName;
-	}
-
-	/**
-	 * Trunca uma string se for maior que o tamanho máximo
-	 */
-	public static truncate(str: string, maxLength: number): string {
-		if (str.length <= maxLength) return str;
-		return str.substring(0, maxLength - 3) + "...";
-	}
-
-	/**
-	 * Indenta todas as linhas de uma string
-	 */
-	public static indent(str: string, spaces: number = 4): string {
-		const indentation = " ".repeat(spaces);
-		return str
-			.split("\n")
-			.map((line) => indentation + line)
-			.join("\n");
-	}
-
-	/**
-	 * Remove linhas vazias consecutivas (mais de 2)
-	 */
-	public static normalizeLineBreaks(str: string): string {
-		return str.replace(/\n\s*\n\s*\n/g, "\n\n");
 	}
 }

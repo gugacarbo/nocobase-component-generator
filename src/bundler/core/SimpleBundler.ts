@@ -1,24 +1,39 @@
 import { APP_CONFIG } from "@/config/config";
 import { Logger } from "@common/Logger";
+import { BundlerConfig } from "@/config/types";
 import {
 	type FileInfo,
 	type BundleOptions,
 	type BundleResult,
-	DependencyResolver,
-	FileProcessor,
-	TreeShaker,
-	ComponentAnalyzer,
-	BundleReporter,
-	CodeAnalyzer,
-	NocoBaseAdapter,
-} from "@bundler/.";
-import { BundlerConfig } from "@/config/types";
+	type BundlePipelineContext,
+} from "./types";
+import { DependencyResolver } from "../resolvers/DependencyResolver";
+import { FileLoader } from "../processors/FileLoader";
+import { TreeShaker } from "../processors/TreeShaker";
+import { ComponentAnalyzer } from "../analyzers/ComponentAnalyzer";
+import { BundleReporter } from "../reporters/BundleReporter";
+import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
+import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
+import { ContentProcessor } from "../processors/ContentProcessor";
+import { FileWriter } from "../processors/FileWriter";
+import { ASTCache } from "../utils/ASTCache";
 
+/**
+ * Bundler simplificado otimizado para componentes React/NocoBase
+ *
+ * Implementa pipeline de bundling com:
+ * - Carregamento paralelo de arquivos
+ * - Análise de dependências
+ * - Tree-shaking
+ * - Transformações NocoBase
+ * - Geração de bundles TypeScript e JavaScript
+ */
 export class SimpleBundler {
 	private readonly srcPath: string;
 	private readonly outputDir: string;
 	private readonly isFile: boolean;
 
+	/** Mapa de arquivos carregados (path → FileInfo) */
 	private files: Map<string, FileInfo> = new Map();
 	private firstFileRelativePath: string = "";
 	private readonly options: BundlerConfig;
@@ -30,144 +45,203 @@ export class SimpleBundler {
 	) {
 		this.srcPath = srcPath;
 		this.outputDir = outputDir;
-		this.isFile = FileProcessor.fileExists(srcPath);
+		this.isFile = FileLoader.fileExists(srcPath);
 		this.options = { ...APP_CONFIG.bundler, ...options };
 	}
 
-	// [ Executa o processo completo de bundling ]
+	/**
+	 * Executa o processo completo de bundling
+	 * Pipeline: Carregamento → Análise → Ordenação → Geração
+	 */
 	public async bundle(): Promise<void> {
 		Logger.start("Iniciando processo de bundling");
-		this.loadFiles();
 
-		const sortedFiles = DependencyResolver.sortFilesByDependency(this.files);
+		// Carregamento paralelo de arquivos
+		await this.loadFilesAsync();
 		Logger.success.verbose(`${this.files.size} arquivos carregados`);
 
-		const sortedFileContents = FileProcessor.getFileContents(
-			this.files,
-			sortedFiles,
+		// Criar contexto de pipeline compartilhado
+		const pipelineContext = this.createPipelineContext();
+		Logger.info.verbose(
+			`Componente principal: ${pipelineContext.mainComponent || "não detectado"}`,
 		);
-		const mainComponent =
-			ComponentAnalyzer.findMainComponent(sortedFileContents);
-		const fileName = FileProcessor.getOutputFileName(mainComponent);
+
+		const fileName = ContentProcessor.getOutputFileName(
+			pipelineContext.mainComponent,
+		);
 
 		Logger.section("Gerando bundles");
-		await this.generateBundles(sortedFiles, fileName, sortedFileContents);
+		await this.generateBundles(fileName, pipelineContext);
+
+		// Limpa cache de AST para liberar memória
+		ASTCache.clear();
 
 		Logger.success("Bundling concluído com sucesso!");
 	}
 
-	// [ Pipeline: Cabeçalho → Imports → Concatenação → Comentários → Tree Shaking → Transformações → Export ]
-	private async generateBundle(
-		sortedFiles: string[],
-		options: BundleOptions,
-		fileContents: Map<string, string>,
-	): Promise<BundleResult> {
-		let content = "";
+	/**
+	 * Cria contexto de pipeline compartilhado
+	 * Evita análise redundante entre geração de bundles TS e JS
+	 */
+	private createPipelineContext(): BundlePipelineContext {
+		Logger.info.verbose("Criando contexto de pipeline");
 
-		//* 0. Adiciona export/render do componente principal
+		const sortedFiles = DependencyResolver.sortFilesByDependency(this.files);
+		const fileContents = ContentProcessor.getFileContents(
+			this.files,
+			sortedFiles,
+		);
 		const mainComponent = ComponentAnalyzer.findMainComponent(fileContents);
+		const externalImports = ImportAnalyzer.analyzeExternalImports(fileContents);
+
+		return {
+			sortedFiles,
+			fileContents,
+			files: this.files,
+			mainComponent,
+			externalImports,
+		};
+	}
+
+	/**
+	 * Pipeline de geração de bundle
+	 * Cabeçalho → Imports → Concatenação → Comentários → Tree Shaking → Transformações → Export
+	 */
+	private async generateBundle(
+		options: BundleOptions,
+		context: BundlePipelineContext,
+	): Promise<BundleResult> {
+		Logger.info.verbose(
+			`Gerando bundle ${options.isJavascript ? "JavaScript" : "TypeScript"}`,
+		);
+		let content = "";
 
 		//* 1. Cabeçalho
 		content += NocoBaseAdapter.generateBundleHeader();
 
-		if (mainComponent) {
-			content += FileProcessor.generateExport(
-				mainComponent,
+		//* 2. Export do componente principal
+		if (context.mainComponent) {
+			content += ContentProcessor.generateExport(
+				context.mainComponent,
 				options.isJavascript,
 			);
 		}
-
 		content += "\n\n";
 
-		//* 2. Imports externos
-		const externalImports = CodeAnalyzer.analyzeExternalImports(fileContents);
-		const importStatements =
-			CodeAnalyzer.generateImportStatements(externalImports);
-
+		//* 3. Imports externos (usa análise pré-computada do contexto)
+		const importStatements = ImportAnalyzer.generateImportStatements(
+			context.externalImports,
+		);
 		content += importStatements;
 
-		//* 3. Concatena arquivos
-		let codeContent = FileProcessor.concatenateFiles(
-			sortedFiles,
-			this.files,
+		//* 4. Concatena arquivos
+		let codeContent = ContentProcessor.concatenateFiles(
+			context.sortedFiles,
+			context.files,
 			options.isJavascript,
 		);
 
-		//* 4. Processa comentários especiais
+		//* 5. Processa comentários especiais (//bundle-only, //no-bundle)
 		codeContent = NocoBaseAdapter.processComments(codeContent);
 
-		//* 5. Tree shaking (remove código não utilizado)
+		//* 6. Tree shaking (remove código não utilizado)
 		codeContent = TreeShaker.shake(codeContent);
 		content += codeContent;
 
-		//* 6. Transformações NocoBase
+		//* 7. Transformações NocoBase (apenas para JavaScript)
 		if (options.isJavascript) {
 			content = NocoBaseAdapter.transformImports(content);
 		}
 
+		Logger.success.verbose(
+			`Bundle gerado: ${(content.length / 1024).toFixed(2)} KB`,
+		);
+
 		return {
 			content,
-			fileCount: sortedFiles.length,
+			fileCount: context.sortedFiles.length,
 			sizeKB: content.length / 1024,
-			files: sortedFiles,
-			mainComponent: mainComponent || undefined,
+			files: context.sortedFiles,
+			mainComponent: context.mainComponent || undefined,
 		};
 	}
 
-	// [ Carrega todos os arquivos necessários (arquivo único ou diretório) ]
-	private loadFiles(): void {
-		const result = this.isFile
-			? FileProcessor.loadSingleFile(this.srcPath)
-			: FileProcessor.loadDirectory(this.srcPath);
+	/**
+	 * Carrega arquivos de forma assíncrona
+	 * Preparado para processamento paralelo futuro
+	 */
+	private async loadFilesAsync(): Promise<void> {
+		Logger.info.verbose("Carregando arquivos...");
+
+		const result = await Promise.resolve(
+			this.isFile
+				? FileLoader.loadSingleFile(this.srcPath)
+				: FileLoader.loadDirectory(this.srcPath),
+		);
 
 		this.files = result.files;
 		this.firstFileRelativePath = result.firstFileRelativePath;
 	}
 
-	// [ Gera os bundles TypeScript (opcional) e JavaScript ]
+	/**
+	 * Gera bundles TypeScript (opcional) e JavaScript
+	 * Utiliza contexto compartilhado para evitar reprocessamento
+	 */
 	private async generateBundles(
-		sortedFiles: string[],
 		fileName: string,
-		fileContents: Map<string, string>,
+		context: BundlePipelineContext,
 	): Promise<void> {
-		let tsResult: BundleResult | undefined;
+		const bundles: Array<{
+			options: BundleOptions;
+			enabled: boolean;
+			type: "TypeScript" | "JavaScript";
+		}> = [
+			{
+				options: {
+					isJavascript: false,
+					outputFileName: `${fileName}.tsx`,
+				},
+				enabled: this.options.exportTypescript,
+				type: "TypeScript",
+			},
+			{
+				options: {
+					isJavascript: true,
+					outputFileName: `${fileName}${APP_CONFIG.bundler.OUTPUT_EXTENSION}`,
+				},
+				enabled: true,
+				type: "JavaScript",
+			},
+		];
 
-		//? Gera bundle TypeScript se habilitado
-		if (this.options.exportTypescript) {
-			const tsOptions: BundleOptions = {
-				isJavascript: false,
-				outputFileName: `${fileName}.tsx`,
-			};
-			tsResult = await this.generateBundle(
-				sortedFiles,
-				tsOptions,
-				fileContents,
-			);
-			await FileProcessor.saveBundle(
-				tsResult,
-				tsOptions.outputFileName,
+		const results: BundleResult[] = [];
+
+		// Gera bundles em sequência (contexto já está otimizado)
+		for (const bundle of bundles) {
+			if (!bundle.enabled) continue;
+
+			Logger.info(`Gerando bundle ${bundle.type}...`);
+			const result = await this.generateBundle(bundle.options, context);
+
+			await FileWriter.saveBundle(
+				result,
+				bundle.options.outputFileName,
 				this.outputDir,
 				this.firstFileRelativePath,
 			);
+
+			results.push(result);
+			Logger.success(`Bundle ${bundle.type} gerado com sucesso`);
 		}
 
-		//* Gera bundle JavaScript (sempre)
-		const jsOptions: BundleOptions = {
-			isJavascript: true,
-			outputFileName: `${fileName}${APP_CONFIG.bundler.OUTPUT_EXTENSION}`,
-		};
-		const jsResult = await this.generateBundle(
-			sortedFiles,
-			jsOptions,
-			fileContents,
-		);
-		await FileProcessor.saveBundle(
+		// Relatório final
+		const [tsResult, jsResult] =
+			results.length === 2 ? results : [undefined, results[0]];
+		BundleReporter.printReport(
+			tsResult,
 			jsResult,
-			jsOptions.outputFileName,
-			this.outputDir,
-			this.firstFileRelativePath,
+			context.sortedFiles,
+			context.files,
 		);
-
-		BundleReporter.printReport(tsResult, jsResult, sortedFiles, this.files);
 	}
 }
