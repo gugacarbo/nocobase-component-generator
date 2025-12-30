@@ -56,6 +56,14 @@ export function FieldCard({
 		>
 			<Row gutter={[16, 16]}>
 				<Col span={12}>
+					<Typography.Text strong>Id</Typography.Text>
+					<Input
+						placeholder="ex: nomeCompleto"
+						value={field.name}
+						onChange={e => onUpdate(index, "name", e.target.value)}
+					/>
+				</Col>
+				<Col span={12}>
 					<Typography.Text strong>Título</Typography.Text>
 					<Input
 						placeholder="ex: Nome Completo"
@@ -105,15 +113,15 @@ export function FieldCard({
 				{(field.type === "select" ||
 					field.type === "radio" ||
 					field.type === "checkbox-group") && (
-					<Col span={24}>
-						<SelectOptionsEditor
-							options={field.options || []}
-							onChange={(newOptions: string[]) =>
-								onUpdate(index, "options", newOptions)
-							}
-						/>
-					</Col>
-				)}
+						<Col span={24}>
+							<SelectOptionsEditor
+								options={field.options || []}
+								onChange={(newOptions: string[]) =>
+									onUpdate(index, "options", newOptions)
+								}
+							/>
+						</Col>
+					)}
 			</Row>
 		</Card>
 	);

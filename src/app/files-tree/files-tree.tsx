@@ -3,8 +3,8 @@ import { buildTree, getNodeAtPath } from "./utils";
 import { BundleComponent } from "../bundle-component/bundle-component";
 import { useAppContext } from "../context/app-context/use-app-context";
 import { NavigationButtons } from "./navigation-buttons";
-import { FolderView } from "./folder-view";
-import { TreeView } from "./tree-view";
+import { FolderView } from "./folder-view/folder-view";
+import { TreeView } from "./tree-view/tree-view";
 
 function FilesTree() {
 	const {
@@ -15,7 +15,7 @@ function FilesTree() {
 		setCurrentPath,
 	} = useAppContext();
 
-	const [viewMode, setViewMode] = useState<"folder" | "tree">("folder");
+	const [viewMode, setViewMode] = useState<"folder" | "tree">(selectedComponent ? "tree" : "folder");
 
 	const treeData = buildTree(components);
 
@@ -66,9 +66,9 @@ function FilesTree() {
 			{currentPath.length > 0 && viewMode === "folder" && (
 				<button
 					onClick={handleGoBack}
-					className="text-base font-medium text-gray-200 flex items-center gap-2 mb-3 cursor-pointer"
+					className="text-base font-medium text-gray-300 flex items-center gap-2 mb-3 cursor-pointer"
 				>
-					📂 {currentPath[currentPath.length - 1]} ...
+					📂 {currentPath[currentPath.length - 1]}
 				</button>
 			)}
 

@@ -90,11 +90,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 				if (matchingComponent) {
 					setSelectedComponent(matchingComponent.path);
-				} else if (foundComponents.length > 0) {
-					setSelectedComponent(foundComponents[0].path);
 				}
-			} else if (foundComponents.length > 0) {
-				setSelectedComponent(foundComponents[0].path);
 			}
 		};
 

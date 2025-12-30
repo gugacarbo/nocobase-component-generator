@@ -7,7 +7,7 @@ function ComponentView() {
 	const { selectedComponent } = useAppContext();
 
 	return (
-		<div className="grid grid-cols-[350px_1fr] h-screen overflow-hidden">
+		<div className="grid grid-cols-[300px_1fr] h-screen overflow-hidden">
 			<FilesTree />
 			<div className="w-full flex bg-slate-700 flex-col h-screen">
 				<PathBreadcrumb />
@@ -15,10 +15,12 @@ function ComponentView() {
 					{selectedComponent ? (
 						<SelectedComponent />
 					) : (
-						<div className="flex flex-col items-center justify-center h-full text-gray-600 gap-2.5">
-							<p>Nenhum componente encontrado em components</p>
-							<p className="text-gray-400 text-sm">
-								Crie seus componentes em components/ para começar
+						<div className="flex flex-col items-center justify-center h-full text-gray-200 gap-2.5 text-lg">
+							<p className="font-bold">Nenhum Componente Selecionado</p>
+							<p className="text-gray-300 text-sm">
+								Crie seus componentes em
+								<span className="text-gray-200 font-medium font-mono bg-gray-800 p-0.5 mx-1 rounded">components/</span>
+								para começar
 							</p>
 						</div>
 					)}

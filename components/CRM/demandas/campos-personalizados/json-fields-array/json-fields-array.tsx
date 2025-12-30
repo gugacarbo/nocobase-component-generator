@@ -9,7 +9,8 @@ import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 
 function JsonFieldsArray() {
 	const value = ctx.getValue();
-	const [form] = Form.useForm();
+	const [form] = Form.useForm(); //no-bundle:
+	//bundle-only: const form = ctx.form
 
 	const [typesList, setTypesList] = useState<TipoDemanda[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);

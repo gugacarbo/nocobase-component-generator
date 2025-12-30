@@ -20,7 +20,7 @@ function NavigationButtons({
 	return (
 		<div className="flex items-center gap-2 justify-between mb-4">
 			<div className="flex items-center gap-2">
-				{currentPath.length >= 0 && viewMode === "folder" && (
+				{currentPath.length >= 0 && (
 					<button
 						onClick={onGoHome}
 						className="flex cursor-pointer items-center gap-2 px-3 py-2 hover:bg-slate-800 rounded transition-colors text-gray-200"
@@ -44,6 +44,8 @@ function NavigationButtons({
 			>
 				{viewMode === "folder" ? <UnorderedListOutlined /> : <FolderOutlined />}
 			</button>
+
+
 		</div>
 	);
 }

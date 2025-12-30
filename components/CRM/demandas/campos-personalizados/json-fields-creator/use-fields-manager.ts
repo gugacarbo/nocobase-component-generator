@@ -41,7 +41,7 @@ export function useFieldsManager({ ctx }: UseFieldsManagerProps) {
 		setFields([
 			...fields,
 			{
-				name: "",
+				name: "field-"+Math.random().toString(36).substring(2, 9),
 				label: "",
 				type: "text",
 				required: false,

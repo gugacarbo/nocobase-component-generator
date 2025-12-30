@@ -12,8 +12,8 @@ export interface TreeItemProps {
 	selectedComponent: string | null;
 	onSelect: (path: string) => void;
 	expandedFolders: Set<string>;
-	onToggleFolder: (folderPath: string) => void;
-	parentPath?: string;
+	toggleFolder: (folderPath: string) => void;
+	parentPath?: string[];
 }
 
 export interface ComponentInfo {
