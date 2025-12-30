@@ -66,6 +66,7 @@ function TreeView({
 								level={level}
 								path={node.path}
 								name={node.name}
+								onSelect={onFileSelect}
 
 							/>
 						) : (
