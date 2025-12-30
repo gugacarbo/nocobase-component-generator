@@ -3,7 +3,7 @@ import { ComponentInfo } from "../types";
 import { CodeModal } from "./code-modal/code-modal";
 import { APP_CONFIG } from "@/config/config";
 import { CodeButtons } from "./code-buttons";
-import { PathUtils } from "@/bundler";
+import { PathUtils, StringUtils } from "@/bundler";
 
 function BundleComponent({
 	components,
@@ -82,15 +82,22 @@ function BundleComponent({
 			<div className="mt-auto pt-4 border-t border-[#333]">
 				{selectedComponent && (
 					<>
-						<div
-							className="mb-2 text-xs text-gray-400 truncate"
-							title={components.find(c => c.path === selectedComponent)?.name}
-						>
-							{components.find(c => c.path === selectedComponent)?.name}
-						</div>
 						{bundleResult && (
 							<div className="mb-1 text-xs text-gray-400">{bundleResult}</div>
 						)}
+						<div
+							className="mb-2 text-xs text-gray-100 font-bold truncate"
+							title={components.find(c => c.path === selectedComponent)?.name}
+						>
+							{"<"}
+							{StringUtils.toPascalCase(
+								components
+									.find(c => c.path === selectedComponent)
+									?.name.split("/")
+									.pop() ?? "",
+							)}
+							{" />"}
+						</div>
 						<CodeButtons
 							bundling={bundling}
 							handleBundle={handleBundle}

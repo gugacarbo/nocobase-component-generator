@@ -1,46 +1,96 @@
-import { useState } from "react";
-import { buildTree } from "./utils";
-import { TreeItem } from "./tree-item";
+import { useEffect, useState } from "react";
+import { buildTree, getNodeAtPath } from "./utils";
 import { BundleComponent } from "../bundle-component/bundle-component";
 import { useAppContext } from "../context/app-context/use-app-context";
+import { NavigationButtons } from "./navigation-buttons";
+import { FolderView } from "./folder-view";
+import { TreeView } from "./tree-view";
 
 function FilesTree() {
-	const { components, selectedComponent, setSelectedComponent } =
-		useAppContext();
+	const {
+		components,
+		selectedComponent,
+		setSelectedComponent,
+		currentPath,
+		setCurrentPath,
+	} = useAppContext();
 
-	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-		new Set(),
-	);
+	const [viewMode, setViewMode] = useState<"folder" | "tree">("folder");
 
 	const treeData = buildTree(components);
 
-	const toggleFolder = (folderPath: string) => {
-		setExpandedFolders(prev => {
-			const next = new Set(prev);
-			if (next.has(folderPath)) {
-				next.delete(folderPath);
-			} else {
-				next.add(folderPath);
+	useEffect(() => {
+		if (selectedComponent && components.length > 0) {
+			const component = components.find(c => c.path === selectedComponent);
+			if (component) {
+				const parts = component.name.split("/");
+				setCurrentPath(parts.slice(0, -1));
 			}
-			return next;
-		});
+		}
+	}, [selectedComponent, components]);
+
+	const currentNodes =
+		currentPath.length === 0
+			? treeData
+			: getNodeAtPath(treeData, currentPath)?.children || treeData;
+
+	const navigateToFolder = (folderName: string) => {
+		setCurrentPath([...currentPath, folderName]);
 	};
+
+	const handleFileSelect = (path: string) => {
+		setSelectedComponent(path);
+	};
+
+	const handleGoHome = () => {
+		setCurrentPath([]);
+	};
+
+	const handleGoBack = () => {
+		setCurrentPath(currentPath.slice(0, -1));
+	};
+
+	const handleToggleViewMode = () => {
+		setViewMode(viewMode === "folder" ? "tree" : "folder");
+	};
+
 	return (
-		<aside className="w-full  bg-[#1e1e1e] text-white p-5 overflow-y-auto border-r border-[#333] flex flex-col">
-			<h1 className="text-xl mb-5 pb-4 border-b border-[#333]">Components</h1>
-			<div className="flex flex-col flex-1 overflow-y-auto">
-				{treeData.map((node, index) => (
-					<TreeItem
-						key={`${node.name}-${index}`}
-						node={node}
-						level={0}
+		<aside className="w-full bg-slate-900 text-white p-5 overflow-y-auto border-r border-[#333] flex flex-col">
+			<NavigationButtons
+				currentPath={currentPath}
+				viewMode={viewMode}
+				onGoHome={handleGoHome}
+				onToggleViewMode={handleToggleViewMode}
+			/>
+
+			{currentPath.length > 0 && viewMode === "folder" && (
+				<button
+					onClick={handleGoBack}
+					className="text-base font-medium text-gray-200 flex items-center gap-2 mb-3 cursor-pointer"
+				>
+					📂 {currentPath[currentPath.length - 1]} ...
+				</button>
+			)}
+
+			<div className="flex flex-col flex-1 overflow-y-auto gap-1">
+				{viewMode === "folder" ? (
+					<FolderView
+						nodes={currentNodes}
 						selectedComponent={selectedComponent}
-						onSelect={setSelectedComponent}
-						expandedFolders={expandedFolders}
-						onToggleFolder={toggleFolder}
+						onFileSelect={handleFileSelect}
+						onFolderClick={navigateToFolder}
 					/>
-				))}
+				) : (
+					<TreeView
+						nodes={treeData}
+						selectedComponent={selectedComponent}
+						onFileSelect={handleFileSelect}
+						level={0}
+						currentPath={currentPath}
+					/>
+				)}
 			</div>
+
 			<BundleComponent
 				components={components}
 				selectedComponent={selectedComponent}

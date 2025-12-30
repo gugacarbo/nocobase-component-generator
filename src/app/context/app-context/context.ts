@@ -6,4 +6,6 @@ export const AppContext = createContext({
 	components: [] as ComponentInfo[],
 	selectedComponent: null as string | null,
 	setSelectedComponent: (_: string | null) => {},
+	currentPath: [] as string[],
+	setCurrentPath: (_: string[]) => {},
 });

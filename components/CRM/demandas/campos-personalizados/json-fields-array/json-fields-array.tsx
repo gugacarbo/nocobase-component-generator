@@ -3,15 +3,15 @@ import { ctx } from "./ctx.mock";
 
 import { Form } from "antd";
 import { useEffect, useState } from "react";
-import { CamposTipo, Tipo } from "../../types";
 import { renderField } from "./render-field";
 import { getData } from "./get-data";
+import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 
 function JsonFieldsArray() {
 	const value = ctx.getValue();
 	const form = ctx.form;
 
-	const [typesList, setTypesList] = useState<Tipo[]>([]);
+	const [typesList, setTypesList] = useState<TipoDemanda[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 

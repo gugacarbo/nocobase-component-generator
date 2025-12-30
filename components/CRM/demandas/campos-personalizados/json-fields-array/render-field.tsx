@@ -1,5 +1,5 @@
+import { CamposTipo } from "@components/CRM/@types";
 import { Input, Select, Checkbox, DatePicker } from "antd";
-import { CamposTipo } from "../../types";
 
 export function renderField({
 	field,

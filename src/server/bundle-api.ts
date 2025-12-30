@@ -61,8 +61,9 @@ export async function handleBundleRequest(
 		try {
 			code = await fs.readFile(outputFilePath, "utf-8");
 		} catch (readError) {
-			Logger.warning(
+			Logger.error(
 				`Aviso: Não foi possível ler o arquivo gerado em ${outputFilePath}`,
+				readError,
 			);
 		}
 

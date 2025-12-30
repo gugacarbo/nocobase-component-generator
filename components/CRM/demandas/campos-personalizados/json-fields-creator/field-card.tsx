@@ -1,5 +1,15 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Input, Row, Select, Space, Typography } from "antd";
+import {
+	Button,
+	Card,
+	Col,
+	Input,
+	Row,
+	Select,
+	Space,
+	Typography,
+	Switch,
+} from "antd";
 import { Field } from "./types";
 import { FIELD_TYPES } from "./constants";
 
@@ -21,7 +31,7 @@ export function FieldCard({
 	return (
 		<Card
 			size="small"
-			title={`Campo ${index + 1}: ${field.label || "Sem nome"}`}
+			title={`${field.label || "Sem nome"}`}
 			extra={
 				<Button
 					type="text"
@@ -85,10 +95,9 @@ export function FieldCard({
 
 				<Col span={24}>
 					<Space>
-						<input
-							type="checkbox"
+						<Switch
 							checked={field.required}
-							onChange={e => onUpdate(index, "required", e.target.checked)}
+							onChange={checked => onUpdate(index, "required", checked)}
 						/>
 						<Typography.Text>Campo obrigatório</Typography.Text>
 					</Space>

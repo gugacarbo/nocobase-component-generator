@@ -7,6 +7,7 @@ import { PathUtils } from "@/bundler";
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	const config = {};
 
+	const [currentPath, setCurrentPath] = useState<string[]>([]);
 	const [components, setComponents] = useState<ComponentInfo[]>([]);
 	const [selectedComponent, setSelectedComponent] = useState<string | null>(
 		null,
@@ -15,8 +16,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	// Atualiza selectedComponent na URL
 	useEffect(() => {
 		if (selectedComponent) {
-			const url = new URL(window.location.href);
-			url.searchParams.set("component", selectedComponent);
+			const relativePath = PathUtils.removeComponentsPrefix(selectedComponent);
+			const extensionPattern = new RegExp(
+				`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
+			);
+			const pathWithoutExt = relativePath.replace(extensionPattern, "");
+			const segments = pathWithoutExt.split("/");
+			const file = segments[segments.length - 1];
+			const dirs = segments.slice(0, -1).join("/");
+
+			const newPath = dirs ? `/${dirs}/${file}` : `/${file}`;
+			const url = new URL(window.location.origin + newPath);
+			url.searchParams.set("file", file);
 			window.history.replaceState({}, "", url.toString());
 		}
 	}, [selectedComponent]);
@@ -61,10 +72,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 			setComponents(foundComponents);
 
 			// Restaura selectedComponent da URL, se existir
-			const url = new URL(window.location.href);
-			const urlComponent = url.searchParams.get("component");
-			if (urlComponent && foundComponents.some(c => c.path === urlComponent)) {
-				setSelectedComponent(urlComponent);
+			const pathname = window.location.pathname;
+			const urlFile = new URLSearchParams(window.location.search).get("file");
+
+			if (pathname !== "/" && urlFile) {
+				const pathSegments = pathname.split("/").filter(Boolean);
+				const reconstructedPath = pathSegments.join("/");
+
+				const matchingComponent = foundComponents.find(c => {
+					const relativePath = PathUtils.removeComponentsPrefix(c.path);
+					const extensionPattern = new RegExp(
+						`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
+					);
+					const pathWithoutExt = relativePath.replace(extensionPattern, "");
+					return pathWithoutExt === reconstructedPath;
+				});
+
+				if (matchingComponent) {
+					setSelectedComponent(matchingComponent.path);
+				} else if (foundComponents.length > 0) {
+					setSelectedComponent(foundComponents[0].path);
+				}
 			} else if (foundComponents.length > 0) {
 				setSelectedComponent(foundComponents[0].path);
 			}
@@ -80,6 +108,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 				components,
 				selectedComponent,
 				setSelectedComponent,
+				currentPath,
+				setCurrentPath,
 			}}
 		>
 			{children}

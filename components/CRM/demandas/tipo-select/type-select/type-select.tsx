@@ -2,7 +2,7 @@ import { baseCtx as ctx } from "@/nocobase/ctx";
 import { useUpdateFormValue } from "@/nocobase/hooks/use-update-form-value";
 import { Select, Spin } from "antd";
 import { useEffect, useState } from "react";
-import { getData } from "./get-data";
+import { getData } from "../get-tipos-data";
 
 type Option = {
 	label: string;
@@ -10,7 +10,7 @@ type Option = {
 };
 
 function TypeSelect() {
-	const [value, setValue] = useState(ctx.getValue?.() ?? null);
+	const [value, setValue] = useState<number | null>(ctx.getValue?.() ?? null);
 	const [options, setOptions] = useState<Option[]>([]);
 	const [loading, setLoading] = useState(true);
 
@@ -35,7 +35,7 @@ function TypeSelect() {
 	const handleChange = (val: number) => {
 		setValue(val);
 		ctx.setValue?.(val);
-		ctx.form.setFieldValue("f_campos_preenchidos", val);
+		ctx?.form?.setFieldValue("f_campos_preenchidos", val);
 	};
 
 	if (loading) return <Spin />;

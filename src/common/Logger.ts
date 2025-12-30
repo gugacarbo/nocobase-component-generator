@@ -17,6 +17,46 @@ type ErrorMethod = {
 };
 
 export class Logger {
+	private static isServer = typeof window === "undefined";
+
+	private static async writeToFile(
+		level: string,
+		message: string,
+		error?: Error | unknown,
+	): Promise<void> {
+		if (!this.isServer) return;
+
+		try {
+			const { existsSync, mkdirSync, appendFileSync } = await import("fs");
+			const { join } = await import("path");
+
+			const logDir = join(process.cwd(), "logs");
+			const logFile = join(
+				logDir,
+				`app-${new Date().toISOString().split("T")[0]}.log`,
+			);
+
+			if (!existsSync(logDir)) {
+				mkdirSync(logDir, { recursive: true });
+			}
+
+			const timestamp = new Date().toISOString();
+			let logEntry = `[${timestamp}] [${level}] ${message}\n`;
+
+			if (error) {
+				if (error instanceof Error) {
+					logEntry += `  Stack: ${error.stack}\n`;
+				} else {
+					logEntry += `  Details: ${JSON.stringify(error)}\n`;
+				}
+			}
+
+			appendFileSync(logFile, logEntry, "utf-8");
+		} catch (err) {
+			console.error("Falha ao escrever log em arquivo:", err);
+		}
+	}
+
 	public static isVerbose(): boolean {
 		return APP_CONFIG.loggerVerbose;
 	}
@@ -52,13 +92,27 @@ export class Logger {
 	public static info = this.createLogMethod(chalk.blue, "ℹ️ ");
 
 	//* Log de aviso
-	public static warning = this.createLogMethod(chalk.yellow, "⚠️");
+	public static warning = (() => {
+		const method: LogMethod = (message: string, emoji: string = "⚠️ ") => {
+			console.log(`${emoji} ${chalk.yellow(message)}`);
+			this.writeToFile("WARNING", message);
+		};
+
+		method.verbose = (message: string, emoji: string = "⚠️ ") => {
+			if (APP_CONFIG.loggerVerbose) {
+				console.log(`${emoji} ${chalk.yellow(message)}`);
+				this.writeToFile("WARNING", message);
+			}
+		};
+
+		return method;
+	})();
 
 	//* Log de início de processo
-	public static start = this.createLogMethod(chalk.green.bold, "🚀");
+	public static start = this.createLogMethod(chalk.green.bold, "🚀 ");
 
 	//* Log de arquivo
-	public static file = this.createLogMethod(chalk.dim, "📁");
+	public static file = this.createLogMethod(chalk.dim, "📁 ");
 
 	//* Log de erro
 	public static error = (() => {
@@ -71,6 +125,7 @@ export class Logger {
 			if (error) {
 				console.error(error);
 			}
+			this.writeToFile("ERROR", message, error);
 		};
 
 		method.verbose = (
@@ -83,6 +138,7 @@ export class Logger {
 				if (error) {
 					console.error(error);
 				}
+				this.writeToFile("ERROR", message, error);
 			}
 		};
 

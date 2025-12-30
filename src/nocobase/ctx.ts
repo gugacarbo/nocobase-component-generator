@@ -2,7 +2,7 @@ import { FormInstance } from "antd";
 
 export interface CtxInterface {
 	render: (component: React.ReactNode) => React.ReactNode;
-	getValue: () => any;
+	getValue: <T = unknown>() => T | null;
 	setValue: (value: any) => void;
 	api: {
 		request: <T = unknown>(options: any) => Promise<{ data: { data: T[] } }>;
@@ -14,7 +14,7 @@ export interface CtxInterface {
 
 export const baseCtx: CtxInterface = {
 	render: (component: React.ReactNode) => component,
-	getValue: () => undefined,
+	getValue: () => null,
 	setValue: (_: any) => {},
 	api: {
 		request: (_: any) => Promise.resolve({ data: { data: [] } }),

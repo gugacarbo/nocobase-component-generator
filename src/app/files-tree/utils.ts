@@ -52,3 +52,36 @@ export function buildTree(components: ComponentInfo[]): TreeNode[] {
 
 	return root;
 }
+
+export function getExpandedPathsForComponent(
+	componentName: string,
+): Set<string> {
+	const parts = componentName.split("/");
+	const expandedPaths = new Set<string>();
+
+	for (let i = 0; i < parts.length - 1; i++) {
+		const path = parts.slice(0, i + 1).join("/");
+		expandedPaths.add(path);
+	}
+
+	return expandedPaths;
+}
+
+export function getNodeAtPath(
+	nodes: TreeNode[],
+	path: string[],
+): TreeNode | null {
+	if (path.length === 0) return null;
+
+	let currentNodes = nodes;
+	let currentNode: TreeNode | null = null;
+
+	for (const part of path) {
+		const found = currentNodes.find(node => node.name === part && !node.isFile);
+		if (!found || !found.children) return null;
+		currentNode = found;
+		currentNodes = found.children;
+	}
+
+	return currentNode;
+}
