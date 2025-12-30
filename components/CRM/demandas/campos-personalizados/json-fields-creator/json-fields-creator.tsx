@@ -5,8 +5,9 @@ import { FieldCard } from "./field-card";
 import { baseCtx as ctx } from "@/nocobase/ctx";
 
 function JsonFieldsCreator() {
-	const { fields, addField, removeField, updateField, updateOptions } =
-		useFieldsManager({ ctx });
+	const { fields, addField, removeField, updateField } = useFieldsManager({
+		ctx,
+	});
 
 	return (
 		<div style={{ width: "100%" }}>
@@ -22,11 +23,10 @@ function JsonFieldsCreator() {
 						index={index}
 						onRemove={removeField}
 						onUpdate={updateField}
-						onUpdateOptions={updateOptions}
 					/>
 				))}
 
-				<Button type="primary" block icon={<PlusOutlined />} onClick={addField}>
+				<Button block icon={<PlusOutlined />} onClick={addField} type="primary">
 					Adicionar Campo
 				</Button>
 			</Space>

@@ -9,7 +9,7 @@ import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 
 function JsonFieldsArray() {
 	const value = ctx.getValue();
-	const form = ctx.form;
+	const [form] = Form.useForm();
 
 	const [typesList, setTypesList] = useState<TipoDemanda[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
@@ -68,10 +68,12 @@ function JsonFieldsArray() {
 	}, [formData]);
 
 	const handleChange = (fieldName: string, value: any) => {
-		setFormData(prev => ({
-			...prev,
+		const newFormData = {
+			...formData,
 			[fieldName]: value,
-		}));
+		};
+		setFormData(newFormData);
+		form.setFieldValue(fieldName, value);
 	};
 
 	if (!fields || fields.length === 0) {
@@ -88,12 +90,12 @@ function JsonFieldsArray() {
 			>
 				{fields.map((field, index) => (
 					<Form.Item
-						key={field.name || index}
-						name={field.name}
-						layout="vertical"
+						key={field?.name || index}
+						name={field?.name}
+						initialValue={formData[field?.name]}
 						label={
 							<span style={{ fontWeight: "bold" }}>
-								{field.label || field.name}
+								{field.label || field?.name}
 							</span>
 						}
 						rules={[

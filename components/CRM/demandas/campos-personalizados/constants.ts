@@ -8,5 +8,7 @@ export const FIELD_TYPES: FieldType[] = [
 	{ label: "Data", value: "date" },
 	{ label: "Área de Texto", value: "textarea" },
 	{ label: "Select", value: "select" },
-	{ label: "Checkbox", value: "checkbox" },
+	{ label: "Radio", value: "radio" },
+	{ label: "Checkbox (único)", value: "checkbox" },
+	{ label: "Checkbox (múltiplo)", value: "checkbox-group" },
 ];

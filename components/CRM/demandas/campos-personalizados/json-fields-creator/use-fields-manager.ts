@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useUpdateFormValue } from "@/nocobase/hooks/use-update-form-value";
-import { Field } from "./types";
+import { Field } from "../types";
+import { CtxInterface } from "@/nocobase/ctx";
 
 interface UseFieldsManagerProps {
-	ctx: any;
+	ctx: CtxInterface;
 }
 
 export function useFieldsManager({ ctx }: UseFieldsManagerProps) {
@@ -60,19 +61,10 @@ export function useFieldsManager({ ctx }: UseFieldsManagerProps) {
 		setFields(newFields);
 	};
 
-	const updateOptions = (index: number, optionsText: string) => {
-		const options = optionsText
-			.split(",")
-			.map(opt => opt.trim())
-			.filter(Boolean);
-		updateField(index, "options", options);
-	};
-
 	return {
 		fields,
 		addField,
 		removeField,
 		updateField,
-		updateOptions,
 	};
 }

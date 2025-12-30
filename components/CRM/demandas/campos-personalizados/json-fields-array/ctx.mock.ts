@@ -1,8 +1,9 @@
 import { CtxInterface } from "@/nocobase/ctx";
-import { Tipo } from "../../types";
+import { TipoDemanda } from "@components/CRM/@types";
+import { FormInstance } from "antd";
 
 // Mock data para tipos de demanda
-const mockTypesList: Tipo[] = [
+const mockTypesList: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 	{
 		id: 1,
 		f_fk_tipo_preset: {
@@ -40,6 +41,41 @@ const mockTypesList: Tipo[] = [
 					type: "checkbox",
 					required: false,
 				},
+				{
+					name: "interesses",
+					label: "Interesses",
+					type: "checkbox-group",
+					required: false,
+					options: ["Esportes", "Música", "Tecnologia", "Viagens"],
+				},
+				{
+					name: "genero",
+					label: "Gênero",
+					type: "radio",
+					required: false,
+					options: ["Masculino", "Feminino", "Outro"],
+				},
+				{
+					name: "idade",
+					label: "Idade",
+					type: "number",
+					required: false,
+					placeholder: "Digite a idade",
+				},
+				{
+					name: "email",
+					label: "E-mail",
+					type: "email",
+					required: false,
+					placeholder: "Digite o e-mail",
+				},
+				{
+					name: "telefone",
+					label: "Telefone",
+					type: "tel",
+					required: false,
+					placeholder: "Digite o telefone",
+				},
 			],
 		},
 	},
@@ -74,31 +110,37 @@ let mockSelectedTypeId: number = 1;
 
 const ctx: CtxInterface = {
 	render: (component: React.ReactNode) => component,
-	getValue: () => mockSelectedTypeId,
+	getValue: <T = unknown>() => mockSelectedTypeId as T,
 	setValue: (value: any) => {
 		// mockFormData = value;
 		console.log("Mock ctx.setValue called with:", value);
 	},
 	api: {
-		request: ({ url, method, params }: any) => {
+		request: <T = unknown>({
+			url,
+			method,
+			params,
+		}: any): Promise<{ data: { data: T[] } }> => {
 			console.log("Mock API request:", { url, method, params });
 
 			// Simular chamada para lista de tipos
 			if (url === "t_demandas_tipos_v2:list") {
 				return Promise.resolve({
 					data: {
-						data: mockTypesList,
+						data: mockTypesList as T[],
 					},
 				});
 			}
 
-			return Promise.resolve({ data: { data: [] } });
+			return Promise.resolve({ data: { data: [] as T[] } });
 		},
 	},
 	element:
 		typeof document !== "undefined"
 			? document.createElement("span")
 			: ({} as HTMLSpanElement),
+	form: {} as FormInstance,
+	model: { props: {} },
 };
 
 export { ctx };

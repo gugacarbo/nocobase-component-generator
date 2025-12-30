@@ -1,5 +1,5 @@
 import { CamposTipo } from "@components/CRM/@types";
-import { Input, Select, Checkbox, DatePicker } from "antd";
+import { Input, Select, Checkbox, DatePicker, Radio, Switch } from "antd";
 
 export function renderField({
 	field,
@@ -20,8 +20,15 @@ export function renderField({
 	};
 
 	switch (type) {
-		case "text":
 		case "email":
+			return (
+				<Input
+					type="email"
+					{...commonProps}
+					onChange={e => handleChange(name, e.target.value)}
+				/>
+			);
+		case "text":
 		case "tel":
 			return (
 				<Input
@@ -70,12 +77,29 @@ export function renderField({
 
 		case "checkbox":
 			return (
-				<Checkbox
+				<Switch
 					checked={fieldValue === true}
-					onChange={e => handleChange(name, e.target.checked)}
-				>
-					{placeholder || label}
-				</Checkbox>
+					onChange={checked => handleChange(name, checked)}
+				/>
+			);
+
+		case "radio":
+			return (
+				<Radio.Group
+					onChange={e => handleChange(name, e.target.value)}
+					value={fieldValue}
+					options={options?.map(opt => ({ label: opt, value: opt })) || []}
+				/>
+			);
+
+		case "checkbox-group":
+			return (
+				<Checkbox.Group
+					style={{ width: "100%" }}
+					onChange={checkedValues => handleChange(name, checkedValues)}
+					value={Array.isArray(fieldValue) ? fieldValue : []}
+					options={options?.map(opt => ({ label: opt, value: opt })) || []}
+				/>
 			);
 
 		default:
