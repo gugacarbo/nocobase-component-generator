@@ -7,11 +7,10 @@ import { useForm } from "@/nocobase/utils/useForm";
 import FullDiv from "@components/ui/full-div";
 
 function JsonFieldsPreview() {
-	const fields = ctx.value
+	const fields = ctx.value;
 	const form = useForm();
 
 	const [formData, setFormData] = useState<Record<string, any>>({});
-
 
 	const handleChange = (fieldName: string, value: any) => {
 		const newFormData = {
@@ -26,14 +25,12 @@ function JsonFieldsPreview() {
 	}
 
 	return (
-
 		<FullDiv>
-			<Form form={form} layout="vertical" >
+			<Form form={form} layout="vertical">
 				<div
 					style={{
 						display: "flex",
 						flexDirection: "column",
-
 					}}
 				>
 					{fields.map((field, index) => (
@@ -41,7 +38,6 @@ function JsonFieldsPreview() {
 							key={field?.name || index}
 							name={field?.name}
 							initialValue={formData[field?.name]}
-
 							label={
 								<span style={{ fontWeight: "bold" }}>
 									{field.label || field?.name}
@@ -63,9 +59,8 @@ function JsonFieldsPreview() {
 					))}
 				</div>
 				<Button type="primary" htmlType="submit" style={{ marginTop: "1rem" }}>
-					Enviar
+					Testar Envio
 				</Button>
-
 			</Form>
 		</FullDiv>
 	);

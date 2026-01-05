@@ -71,6 +71,7 @@ export function renderField({
 					style={{ width: "100%" }}
 					placeholder={placeholder}
 					value={fieldValue ? fieldValue : null}
+					format="DD/MM/YYYY"
 					onChange={(_, dateString) => handleChange(name, dateString)}
 				/>
 			);

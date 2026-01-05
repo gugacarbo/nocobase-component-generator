@@ -10,4 +10,5 @@ export interface Field {
 export interface FieldType {
 	label: string;
 	value: string;
+	icon?: React.ReactNode;
 }

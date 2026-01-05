@@ -17,6 +17,10 @@ export function useFieldsManager(ctx: CtxInterface) {
 		}
 	});
 
+	const [activeKeys, setActiveKeys] = useState<string[]>(
+		fields.map(f => f.name),
+	);
+
 	useUpdateFormValue((ev: Event) => {
 		try {
 			const customEvent = ev as CustomEvent;
@@ -34,10 +38,11 @@ export function useFieldsManager(ctx: CtxInterface) {
 	}, [fields, ctx]);
 
 	const addField = () => {
+		const name = "field-" + Math.random().toString(36).substring(2, 9);
 		setFields([
 			...fields,
 			{
-				name: "field-" + Math.random().toString(36).substring(2, 9),
+				name,
 				label: "",
 				type: "text",
 				required: false,
@@ -45,6 +50,7 @@ export function useFieldsManager(ctx: CtxInterface) {
 				options: [],
 			},
 		]);
+		setActiveKeys([...activeKeys, name]);
 	};
 
 	const removeField = (index: number) => {
@@ -62,5 +68,7 @@ export function useFieldsManager(ctx: CtxInterface) {
 		addField,
 		removeField,
 		updateField,
+		activeKeys,
+		setActiveKeys,
 	};
 }

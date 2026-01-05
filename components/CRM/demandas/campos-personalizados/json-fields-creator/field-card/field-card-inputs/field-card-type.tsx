@@ -1,7 +1,23 @@
 import { Form, Select, Typography } from "antd";
 import { Field } from "../../../types";
-import { FIELD_TYPES_GROUPED } from "../../../constants";
+import { FIELD_TYPES, FIELD_TYPES_GROUPED } from "../../../constants";
 import { useForm } from "@/nocobase/utils/useForm";
+
+function ItemRender({
+	value,
+	label,
+}: {
+	value?: any;
+	label: React.ReactNode | string;
+}) {
+	return (
+		<span>
+			{FIELD_TYPES.find(type => type.value === value)?.icon}
+			{"  "}
+			{label}
+		</span>
+	);
+}
 
 function FieldCardType({
 	field,
@@ -28,12 +44,16 @@ function FieldCardType({
 				style={{ margin: 0 }}
 				label={<Typography.Text strong>Tipo de Campo</Typography.Text>}
 			>
-				<Select
-					style={{ width: "100%" }}
-					value={field.type}
-					onChange={value => onUpdate(index, "type", value)}
-					options={FIELD_TYPES_GROUPED}
-				/>
+				<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+					<Select
+						style={{ width: "100%" }}
+						value={field.type}
+						onChange={value => onUpdate(index, "type", value)}
+						options={FIELD_TYPES_GROUPED}
+						labelRender={o => <ItemRender value={o.value} label={o.label} />}
+						optionRender={o => <ItemRender value={o.value} label={o.label} />}
+					/>
+				</div>
 			</Form.Item>
 		</Form>
 	);

@@ -1,3 +1,15 @@
+import {
+	AlignLeftOutlined,
+	CalendarOutlined,
+	CheckCircleOutlined,
+	CheckSquareOutlined,
+	FileTextOutlined,
+	MailOutlined,
+	NumberOutlined,
+	PhoneOutlined,
+	SwitcherOutlined,
+	UnorderedListOutlined,
+} from "@ant-design/icons";
 import { FieldType } from "./types";
 
 export const FIELD_TYPES_GROUPED: {
@@ -9,22 +21,62 @@ export const FIELD_TYPES_GROUPED: {
 		label: "Texto",
 		title: "Texto",
 		options: [
-			{ label: "Texto", value: "text" },
-			{ label: "Texto Longo", value: "textarea" },
-			{ label: "Número", value: "number" },
-			{ label: "Email", value: "email" },
-			{ label: "Telefone", value: "tel" },
+			{
+				label: "Texto",
+				value: "text",
+				icon: <AlignLeftOutlined />,
+			},
+			{
+				label: "Texto Longo",
+				value: "textarea",
+				icon: <FileTextOutlined />,
+			},
+			{
+				label: "Número",
+				value: "number",
+				icon: <NumberOutlined />,
+			},
+			{
+				label: "Email",
+				value: "email",
+				icon: <MailOutlined />,
+			},
+			{
+				label: "Telefone",
+				value: "tel",
+				icon: <PhoneOutlined />,
+			},
 		],
 	},
 	{
 		label: "Seletores",
 		title: "Seletores",
 		options: [
-			{ label: "Data", value: "date" },
-			{ label: "Select", value: "select" },
-			{ label: "Radio", value: "radio" },
-			{ label: "Checkbox (único)", value: "checkbox" },
-			{ label: "Checkbox (múltiplo)", value: "checkbox-group" },
+			{
+				label: "Data",
+				value: "date",
+				icon: <CalendarOutlined />,
+			},
+			{
+				label: "Select",
+				value: "select",
+				icon: <UnorderedListOutlined />,
+			},
+			{
+				label: "Radio",
+				value: "radio",
+				icon: <CheckCircleOutlined />,
+			},
+			{
+				label: "Sim/Não",
+				value: "checkbox",
+				icon: <SwitcherOutlined />,
+			},
+			{
+				label: "Checkbox (múltiplo)",
+				value: "checkbox-group",
+				icon: <CheckSquareOutlined />,
+			},
 		],
 	},
 ];

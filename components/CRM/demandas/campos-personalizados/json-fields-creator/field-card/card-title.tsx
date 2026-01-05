@@ -11,7 +11,7 @@ function CardTitle({ field }: { field: Field }) {
 					opacity: field.required ? 1 : 0,
 				}}
 			>
-				*
+				*{" "}
 			</b>
 			{`${field.label || "Sem nome"}`}
 		</Typography.Title>

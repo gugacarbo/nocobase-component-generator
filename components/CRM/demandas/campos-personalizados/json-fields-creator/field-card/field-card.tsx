@@ -1,10 +1,9 @@
 import { Card, Col, Row } from "antd";
 import { Field } from "../../types";
-import { SelectOptionsEditor } from "./select-options-editor";
+import { SelectOptionsEditor } from "./field-card-inputs/select-options-editor";
 import { FieldCardRequired } from "./field-card-inputs/field-card-required";
 import { FieldCardType } from "./field-card-inputs/field-card-type";
 import { DeleteFieldCard } from "./delete-field-card";
-import { CardTitle } from "./card-title";
 import { FieldCardTitle } from "./field-card-inputs/field-card-title";
 import { FieldCardPlaceholder } from "./field-card-inputs/field-card-placeholder";
 
@@ -24,8 +23,6 @@ export function FieldCard({
 	return (
 		<Card
 			size="small"
-			title={<CardTitle field={field} />}
-			extra={<DeleteFieldCard onRemove={() => onRemove(index)} size="sm" />}
 			actions={[
 				<FieldCardRequired field={field} onUpdate={onUpdate} index={index} />,
 				<DeleteFieldCard onRemove={() => onRemove(index)} />,
@@ -54,6 +51,7 @@ export function FieldCard({
 					field.type === "checkbox-group") && (
 					<Col span={24}>
 						<SelectOptionsEditor
+							questionName={field.name}
 							options={field.options || []}
 							onChange={(newOptions: string[]) =>
 								onUpdate(index, "options", newOptions)
