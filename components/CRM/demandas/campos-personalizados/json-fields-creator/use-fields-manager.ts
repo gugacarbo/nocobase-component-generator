@@ -17,9 +17,7 @@ export function useFieldsManager(ctx: CtxInterface) {
 		}
 	});
 
-	const [activeKeys, setActiveKeys] = useState<string[]>(
-		fields.map(f => f.name),
-	);
+	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
 	useUpdateFormValue((ev: Event) => {
 		try {

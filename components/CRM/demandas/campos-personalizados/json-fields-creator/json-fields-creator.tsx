@@ -26,7 +26,7 @@ function JsonFieldsCreator() {
 				}}
 			>
 				<Typography.Title level={5}>Campos Personalizados: </Typography.Title>
-				<div>
+				{fields.length > 0 && (
 					<Button
 						style={{ marginRight: 8 }}
 						onClick={() => {
@@ -45,7 +45,7 @@ function JsonFieldsCreator() {
 							}}
 						/>
 					</Button>
-				</div>
+				)}
 			</div>
 			<div style={{ width: "100%", display: "grid", gap: 24 }}>
 				<Collapse
