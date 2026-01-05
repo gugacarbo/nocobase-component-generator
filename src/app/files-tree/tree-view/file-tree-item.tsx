@@ -1,3 +1,5 @@
+import { cn } from "@/app/lib/cn";
+
 function FileTreeItem({
 	level,
 	path,
@@ -13,11 +15,11 @@ function FileTreeItem({
 }) {
 	return (
 		<button
-			className={`bg-transparent border-0 text-[#ccc] py-2 px-3 text-left cursor-pointer rounded transition-all duration-200 text-sm flex items-center gap-2 w-full ${selectedComponent === path
+			className={cn(`bg-transparent border-0 text-[#ccc] py-2 px-3 text-left cursor-pointer rounded transition-all duration-200 text-sm flex items-center gap-2 w-full`,
+				selectedComponent === path
 					? "font-bold text-amber-500"
-					: "hover:bg-[#3d3d3d] hover:text-white"
-				}`}
-			style={{ paddingLeft: `${level * 16 + 12}px` }}
+					: "hover:bg-[#3d3d3d] hover:text-white")}
+			style={{ paddingLeft: `${level * 16 + 16}px` }}
 			onClick={() => onSelect(path)}
 		>
 			<span className="text-base shrink-0">📄</span>

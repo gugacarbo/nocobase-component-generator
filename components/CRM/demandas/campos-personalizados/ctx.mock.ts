@@ -1,5 +1,5 @@
 import { CtxInterface } from "@/nocobase/ctx";
-import { TipoDemanda } from "@components/CRM/@types";
+import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 import { FormInstance } from "antd";
 
 // Mock data para tipos de demanda
@@ -108,31 +108,38 @@ const mockTypesList: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 
 let mockSelectedTypeId: number = 1;
 
-const ctx: CtxInterface = {
+// Função helper para obter os campos do tipo selecionado
+const getFieldsForSelectedType = (): CamposTipo[] => {
+	const selectedType = mockTypesList.find(t => t.id === mockSelectedTypeId);
+	return selectedType?.f_fk_tipo_preset?.f_campos || [];
+};
+
+const ctx: CtxInterface<CamposTipo[] | null> = {
 	render: (component: React.ReactNode) => component,
-	getValue: <T = unknown>() => mockSelectedTypeId as T,
+	getValue: () => getFieldsForSelectedType(),
+	value: getFieldsForSelectedType(),
 	setValue: (value: any) => {
 		// mockFormData = value;
 		console.log("Mock ctx.setValue called with:", value);
 	},
 	api: {
-		request: <T = unknown>({
+		request: <R = unknown>({
 			url,
 			method,
 			params,
-		}: any): Promise<{ data: { data: T[] } }> => {
+		}: any): Promise<{ data: { data: R } }> => {
 			console.log("Mock API request:", { url, method, params });
 
 			// Simular chamada para lista de tipos
 			if (url === "t_demandas_tipos_v2:list") {
 				return Promise.resolve({
 					data: {
-						data: mockTypesList as T[],
+						data: mockTypesList as R,
 					},
 				});
 			}
 
-			return Promise.resolve({ data: { data: [] as T[] } });
+			return Promise.resolve({ data: { data: [] as R } });
 		},
 	},
 	element:

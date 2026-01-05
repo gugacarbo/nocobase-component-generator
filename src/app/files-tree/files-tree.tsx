@@ -55,7 +55,7 @@ function FilesTree() {
 	};
 
 	return (
-		<aside className="w-full bg-slate-900 text-white p-5 overflow-y-auto border-r border-[#333] flex flex-col">
+		<aside className="w-full bg-slate-900 text-white p-5 pr-0 overflow-y-auto border-r border-[#333] flex flex-col">
 			<NavigationButtons
 				currentPath={currentPath}
 				viewMode={viewMode}
@@ -90,11 +90,13 @@ function FilesTree() {
 					/>
 				)}
 			</div>
+			<div className="pr-5">
 
-			<BundleComponent
-				components={components}
-				selectedComponent={selectedComponent}
-			/>
+				<BundleComponent
+					components={components}
+					selectedComponent={selectedComponent}
+				/>
+			</div>
 		</aside>
 	);
 }

@@ -1,32 +1,32 @@
 import { useUpdateFormValue } from "@nocobase/hooks/use-update-form-value";
-import { ctx } from "./ctx.mock";
+import { useForm } from "@/nocobase/utils/useForm";
+import { ctx } from "../ctx.mock";
 
-import { Form } from "antd";
 import { useEffect, useState } from "react";
-import { renderField } from "./render-field";
-import { getData } from "./get-data";
+import { Form } from "antd";
+import { renderField } from "../components/render-field";
+import { getData } from "../get-data";
 import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 
-function JsonFieldsArray() {
+function JsonFieldsForm() {
 	const value = ctx.getValue();
-	const [form] = Form.useForm(); //no-bundle:
-	//bundle-only: const form = ctx.form
-
+	const form = useForm();
 	const [typesList, setTypesList] = useState<TipoDemanda[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 
 	// Carregar tipos de demanda
 	useEffect(() => {
-		getData(ctx).then(response => {
-			setTypesList(response.data.data);
-		});
+		getData(ctx).then(setTypesList);
 	}, []);
+
 
 	// Atualizar campos quando o tipo de demanda mudar
 	useEffect(() => {
-		if (typeof value === "number") {
-			const selectedType = typesList.find(type => type.id === value);
+		const nv = 1//no-bundle
+		//bundle-only: const nv = value
+		if (typeof nv === "number") {
+			const selectedType = typesList.find(type => type.id === nv);
 
 			if (selectedType?.f_fk_tipo_preset?.f_campos) {
 				setFields(selectedType.f_fk_tipo_preset.f_campos);
@@ -118,4 +118,4 @@ function JsonFieldsArray() {
 	);
 }
 
-export default JsonFieldsArray;
+export default JsonFieldsForm;
