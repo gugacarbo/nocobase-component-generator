@@ -1,14 +1,14 @@
 export interface Usuario {
 	id: number;
 	f_fk_setor_x_colaborador_v2: SetorDemanda[];
-	email: string
-	phone: string
-	nickname: string
-	username: string
-	updatedById: number
-	createdById: number
-	createdAt: string
-	updatedAt: string
+	email: string;
+	phone: string;
+	nickname: string;
+	username: string;
+	updatedById: number;
+	createdById: number;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface Demanda {
@@ -39,6 +39,7 @@ export interface TipoDemanda {
 	createdAt: string;
 	f_fk_tipo_preset: {
 		f_campos: CamposTipo[];
+		f_descricao?: string;
 	} | null;
 }
 

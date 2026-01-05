@@ -4,7 +4,7 @@ import { TipoDemanda } from "@components/CRM/@types";
 export async function getData(ctx: CtxInterface) {
 	return (
 		(
-			await ctx.api.request<TipoDemanda>({
+			await ctx.api.request<TipoDemanda[]>({
 				url: "t_demandas_tipos_v2:list",
 				params: {
 					pageSize: 999,

@@ -10,7 +10,10 @@ type Option = {
 };
 
 function TypeSelect() {
-	const [value, setValue] = useState<number | null>(ctx.getValue?.() ?? null);
+	const [value, setValue] = useState<number | null>(() => {
+		const currentValue = ctx.getValue?.();
+		return typeof currentValue === "number" ? currentValue : null;
+	});
 	const [options, setOptions] = useState<Option[]>([]);
 	const [loading, setLoading] = useState(true);
 

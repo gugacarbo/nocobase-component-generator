@@ -28,7 +28,7 @@ export function SelectOptionsEditor({
 	return (
 		<div>
 			<Typography.Text strong>Opções</Typography.Text>
-			<Space direction="vertical" style={{ width: "100%", marginTop: 8 }}>
+			<Space orientation="vertical" style={{ width: "100%", marginTop: 8 }}>
 				{options.map((option, optIndex) => (
 					<Space.Compact key={optIndex} style={{ width: "100%" }}>
 						<Input
@@ -44,7 +44,7 @@ export function SelectOptionsEditor({
 					</Space.Compact>
 				))}
 				<Button
-					type="dashed"
+					type="default"
 					block
 					icon={<PlusOutlined />}
 					onClick={handleAddOption}

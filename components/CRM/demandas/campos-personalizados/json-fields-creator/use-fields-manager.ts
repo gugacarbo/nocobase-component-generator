@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { useUpdateFormValue } from "@/nocobase/hooks/use-update-form-value";
-import { Field } from "../types";
 import { CtxInterface } from "@/nocobase/ctx";
+import { Field } from "../types";
 
-interface UseFieldsManagerProps {
-	ctx: CtxInterface;
-}
-
-export function useFieldsManager({ ctx }: UseFieldsManagerProps) {
+export function useFieldsManager(ctx: CtxInterface) {
 	const [fields, setFields] = useState<Field[]>(() => {
 		try {
 			const currentValue = ctx.getValue?.() ?? "[]";
@@ -41,7 +37,7 @@ export function useFieldsManager({ ctx }: UseFieldsManagerProps) {
 		setFields([
 			...fields,
 			{
-				name: "field-"+Math.random().toString(36).substring(2, 9),
+				name: "field-" + Math.random().toString(36).substring(2, 9),
 				label: "",
 				type: "text",
 				required: false,

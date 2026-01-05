@@ -20,10 +20,9 @@ function JsonFieldsForm() {
 		getData(ctx).then(setTypesList);
 	}, []);
 
-
 	// Atualizar campos quando o tipo de demanda mudar
 	useEffect(() => {
-		const nv = 1//no-bundle
+		const nv = 1; //no-bundle
 		//bundle-only: const nv = value
 		if (typeof nv === "number") {
 			const selectedType = typesList.find(type => type.id === nv);
