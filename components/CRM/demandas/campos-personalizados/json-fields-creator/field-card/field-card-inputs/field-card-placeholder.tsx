@@ -1,17 +1,13 @@
 import { useForm } from "@/nocobase/utils/useForm";
 import { Form, Input, Typography } from "antd";
-import { Field } from "../../../types";
+import { useFieldsManagerContext } from "../../context/use-fields-manager";
+import { useFieldContext } from "../field-context/field-context";
 
-function FieldCardPlaceholder({
-	field,
-	index,
-	onUpdate,
-}: {
-	field: Field;
-	index: number;
-	onUpdate: (index: number, key: string, value: any) => void;
-}) {
+function FieldCardPlaceholder() {
 	const form = useForm();
+	const { updateField } = useFieldsManagerContext();
+	const { field, index } = useFieldContext();
+
 	return (
 		<Form form={form} layout="vertical">
 			<Form.Item
@@ -24,7 +20,7 @@ function FieldCardPlaceholder({
 				<Input
 					placeholder="Texto de ajuda"
 					value={field.placeholder}
-					onChange={e => onUpdate(index, "placeholder", e.target.value)}
+					onChange={e => updateField(index, "placeholder", e.target.value)}
 				/>
 			</Form.Item>
 		</Form>

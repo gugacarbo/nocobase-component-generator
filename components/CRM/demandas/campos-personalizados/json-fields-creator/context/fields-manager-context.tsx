@@ -11,6 +11,8 @@ interface FieldsManagerProviderProps {
 export const FieldsManagerProvider = ({
 	children,
 }: FieldsManagerProviderProps) => {
+	const [activeKeys, setActiveKeys] = useState<string[]>([]);
+
 	const [fields, setFields] = useState<Field[]>(() => {
 		try {
 			const currentValue = ctx.getValue?.() ?? "[]";
@@ -23,8 +25,6 @@ export const FieldsManagerProvider = ({
 			return [];
 		}
 	});
-
-	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
 	useUpdateFormValue((ev: Event) => {
 		try {
@@ -52,7 +52,7 @@ export const FieldsManagerProvider = ({
 				type: "text",
 				required: false,
 				placeholder: "",
-				options: [],
+				options: [""],
 			},
 		]);
 		setActiveKeys([...activeKeys, name]);
@@ -69,7 +69,7 @@ export const FieldsManagerProvider = ({
 	};
 
 	const toggleActiveKeys = () => {
-		if (activeKeys.length === fields.length) {
+		if (activeKeys.length > 0) {
 			setActiveKeys([]);
 		} else {
 			setActiveKeys(fields.map(field => field.name));

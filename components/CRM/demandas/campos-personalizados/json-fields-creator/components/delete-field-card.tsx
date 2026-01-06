@@ -1,18 +1,21 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Popconfirm } from "antd";
+import { useFieldsManagerContext } from "../context/use-fields-manager";
 
 function DeleteFieldCard({
-	onRemove,
+	index,
 	size = "lg",
 }: {
-	onRemove: () => void;
+	index: number;
 	size?: "sm" | "lg";
 }) {
+	const { removeField } = useFieldsManagerContext();
+
 	return (
 		<Popconfirm
 			title="Deletar Campo"
 			description="Tem certeza que deseja deletar este campo?"
-			onConfirm={() => onRemove()}
+			onConfirm={() => removeField(index)}
 			okText="Sim"
 			cancelText="Não"
 		>

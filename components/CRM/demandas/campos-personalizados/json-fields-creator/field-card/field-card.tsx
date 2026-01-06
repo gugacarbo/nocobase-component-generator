@@ -1,65 +1,43 @@
 import { Card, Col, Row } from "antd";
 import { Field } from "../../types";
-import { SelectOptionsEditor } from "./field-card-inputs/select-options-editor";
+import { SelectOptionsEditor } from "./field-card-inputs/select-options-editor/select-options-editor";
 import { FieldCardRequired } from "./field-card-inputs/field-card-required";
 import { FieldCardType } from "./field-card-inputs/field-card-type";
-import { DeleteFieldCard } from "./delete-field-card";
+import { DeleteFieldCard } from "../components/delete-field-card";
 import { FieldCardTitle } from "./field-card-inputs/field-card-title";
 import { FieldCardPlaceholder } from "./field-card-inputs/field-card-placeholder";
+import { FieldContext } from "./field-context/field-context";
 
 interface FieldCardProps {
 	field: Field;
 	index: number;
-	onRemove: (index: number) => void;
-	onUpdate: (index: number, key: string, value: any) => void;
 }
 
-export function FieldCard({
-	field,
-	index,
-	onRemove,
-	onUpdate,
-}: FieldCardProps) {
+export function FieldCard({ field, index }: FieldCardProps) {
 	return (
-		<Card
-			size="small"
-			actions={[
-				<FieldCardRequired field={field} onUpdate={onUpdate} index={index} />,
-				<DeleteFieldCard onRemove={() => onRemove(index)} />,
-			]}
-			style={{
-				boxShadow: "0px 0px 4px -1px #999",
-			}}
-		>
-			<Row gutter={[16, 16]}>
-				<Col span={24}>
-					<FieldCardTitle field={field} index={index} onUpdate={onUpdate} />
-				</Col>
-				<Col span={12}>
-					<FieldCardType field={field} index={index} onUpdate={onUpdate} />
-				</Col>
-				<Col span={12}>
-					<FieldCardPlaceholder
-						field={field}
-						index={index}
-						onUpdate={onUpdate}
-					/>
-				</Col>
-
-				{(field.type === "select" ||
-					field.type === "radio" ||
-					field.type === "checkbox-group") && (
+		<FieldContext.Provider value={{ index, field }}>
+			<Card
+				size="small"
+				actions={[<FieldCardRequired />, <DeleteFieldCard index={index} />]}
+				style={{
+					boxShadow: "1px 1px 3px 0px #999",
+				}}
+			>
+				<Row gutter={[16, 16]}>
 					<Col span={24}>
-						<SelectOptionsEditor
-							questionName={field.name}
-							options={field.options || []}
-							onChange={(newOptions: string[]) =>
-								onUpdate(index, "options", newOptions)
-							}
-						/>
+						<FieldCardTitle />
 					</Col>
-				)}
-			</Row>
-		</Card>
+					<Col span={12}>
+						<FieldCardType />
+					</Col>
+					<Col span={12}>
+						<FieldCardPlaceholder />
+					</Col>
+					<Col span={24}>
+						<SelectOptionsEditor />
+					</Col>
+				</Row>
+			</Card>
+		</FieldContext.Provider>
 	);
 }

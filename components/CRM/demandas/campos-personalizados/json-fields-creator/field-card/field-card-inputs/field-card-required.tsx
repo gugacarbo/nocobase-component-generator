@@ -1,15 +1,11 @@
 import { Switch, Typography } from "antd";
-import { Field } from "../../../types";
+import { useFieldsManagerContext } from "../../context/use-fields-manager";
+import { useFieldContext } from "../field-context/field-context";
 
-function FieldCardRequired({
-	field,
-	onUpdate,
-	index,
-}: {
-	field: Field;
-	onUpdate: (index: number, key: string, value: any) => void;
-	index: number;
-}) {
+function FieldCardRequired() {
+	const { updateField } = useFieldsManagerContext();
+	const { field, index } = useFieldContext();
+
 	return (
 		<div
 			style={{
@@ -30,7 +26,7 @@ function FieldCardRequired({
 			>
 				<Switch
 					checked={field.required}
-					onChange={checked => onUpdate(index, "required", checked)}
+					onChange={checked => updateField(index, "required", checked)}
 				/>
 				<Typography.Text strong>Obrigatório</Typography.Text>
 			</label>

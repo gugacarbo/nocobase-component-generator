@@ -1,7 +1,8 @@
 import { Form, Select, Typography } from "antd";
-import { Field } from "../../../types";
 import { FIELD_TYPES, FIELD_TYPES_GROUPED } from "../../../constants";
 import { useForm } from "@/nocobase/utils/useForm";
+import { useFieldsManagerContext } from "../../context/use-fields-manager";
+import { useFieldContext } from "../field-context/field-context";
 
 function ItemRender({
 	value,
@@ -19,16 +20,11 @@ function ItemRender({
 	);
 }
 
-function FieldCardType({
-	field,
-	index,
-	onUpdate,
-}: {
-	field: Field;
-	index: number;
-	onUpdate: (index: number, key: string, value: any) => void;
-}) {
+function FieldCardType() {
 	const form = useForm();
+	const { updateField } = useFieldsManagerContext();
+	const { field, index } = useFieldContext();
+
 	return (
 		<Form form={form} layout="vertical">
 			<Form.Item
@@ -48,7 +44,7 @@ function FieldCardType({
 					<Select
 						style={{ width: "100%" }}
 						value={field.type}
-						onChange={value => onUpdate(index, "type", value)}
+						onChange={value => updateField(index, "type", value)}
 						options={FIELD_TYPES_GROUPED}
 						labelRender={o => <ItemRender value={o.value} label={o.label} />}
 						optionRender={o => <ItemRender value={o.value} label={o.label} />}

@@ -1,17 +1,12 @@
 import { useForm } from "@/nocobase/utils/useForm";
 import { Form, Input, Typography } from "antd";
-import { Field } from "../../../types";
+import { useFieldsManagerContext } from "../../context/use-fields-manager";
+import { useFieldContext } from "../field-context/field-context";
 
-function FieldCardTitle({
-	field,
-	index,
-	onUpdate,
-}: {
-	field: Field;
-	index: number;
-	onUpdate: (index: number, key: string, value: any) => void;
-}) {
+function FieldCardTitle() {
 	const form = useForm();
+	const { updateField } = useFieldsManagerContext();
+	const { field, index } = useFieldContext();
 	return (
 		<Form form={form} layout="vertical">
 			<Form.Item
@@ -30,7 +25,7 @@ function FieldCardTitle({
 				<Input
 					placeholder="ex: Nome Completo"
 					value={field.label}
-					onChange={e => onUpdate(index, "label", e.target.value)}
+					onChange={e => updateField(index, "label", e.target.value)}
 				/>
 			</Form.Item>
 		</Form>

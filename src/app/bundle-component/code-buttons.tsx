@@ -96,6 +96,7 @@ function CodeButtons({
 					disabled={bundling}
 					style={{
 						borderRadius: bundleCode ? "6px 0px 0px 6px" : "6px",
+						border: "none",
 					}}
 					onClick={openModal}
 				>
@@ -103,11 +104,12 @@ function CodeButtons({
 				</Button>
 			)}
 			<Button
-				className="w-full bg-[#0066cc] hover:bg-[#0052a3] disabled:bg-gray-600 "
+				className="w-full"
 				onClick={handleBundle}
 				disabled={bundling}
 				style={{
 					borderRadius: bundleCode ? "0px" : "6px",
+					border: "none",
 				}}
 			>
 				{bundling ? "Gerando..." : "📦 Bundle"}
@@ -119,6 +121,7 @@ function CodeButtons({
 						borderRadius: bundleCode ? "0px 6px 6px 0px" : "6px",
 						backgroundColor: autoCopy ? "#07884cff" : "#1976d2",
 						boxShadow: autoCopy ? "0 0 8px rgba(16, 185, 129, 0.3)" : undefined,
+						border: "none",
 					}}
 					onClick={handleCopy}
 				>

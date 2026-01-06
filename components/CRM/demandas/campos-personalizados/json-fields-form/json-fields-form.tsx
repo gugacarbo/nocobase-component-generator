@@ -11,6 +11,7 @@ import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
 function JsonFieldsForm() {
 	const value = ctx.getValue();
 	const form = useForm();
+
 	const [typesList, setTypesList] = useState<TipoDemanda[]>([]);
 	const [fields, setFields] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
@@ -28,7 +29,8 @@ function JsonFieldsForm() {
 			const selectedType = typesList.find(type => type.id === nv);
 
 			if (selectedType?.f_fk_tipo_preset?.f_campos) {
-				setFields(selectedType.f_fk_tipo_preset.f_campos);
+				const newFields = selectedType.f_fk_tipo_preset.f_campos;
+				setFields(newFields);
 			} else {
 				setFields([]);
 			}
@@ -36,18 +38,25 @@ function JsonFieldsForm() {
 	}, [value, typesList]);
 
 	// Carregar dados iniciais do formulário
-	useEffect(() => {
-		try {
-			const currentFormValue = ctx.getValue?.();
-			if (currentFormValue && typeof currentFormValue === "object") {
-				setFormData(currentFormValue);
-			} else if (typeof currentFormValue === "string") {
-				setFormData(JSON.parse(currentFormValue));
-			}
-		} catch (error) {
-			console.error("Erro ao carregar dados iniciais:", error);
-		}
-	}, []);
+	// useEffect(() => {
+	// 	try {
+	// 		const currentFormValue = ctx.getValue?.();
+	// 		if (currentFormValue && typeof currentFormValue === "object") {
+	// 			setFormData(currentFormValue.data || currentFormValue);
+	// 			if (currentFormValue.fieldsSnapshot) {
+	// 				setFieldsSnapshot(currentFormValue.fieldsSnapshot);
+	// 			}
+	// 		} else if (typeof currentFormValue === "string") {
+	// 			const parsed = JSON.parse(currentFormValue);
+	// 			setFormData(parsed.data || parsed);
+	// 			if (parsed.fieldsSnapshot) {
+	// 				setFieldsSnapshot(parsed.fieldsSnapshot);
+	// 			}
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Erro ao carregar dados iniciais:", error);
+	// 	}
+	// }, []);
 
 	// Sincronizar com mudanças externas
 	useUpdateFormValue((ev: Event) => {
@@ -56,16 +65,23 @@ function JsonFieldsForm() {
 			const newValue = customEvent?.detail ?? "{}";
 			const parsed =
 				typeof newValue === "string" ? JSON.parse(newValue) : newValue;
-			setFormData(typeof parsed === "object" && parsed !== null ? parsed : {});
+			const dataToSet = parsed.data || parsed;
+			setFormData(
+				typeof dataToSet === "object" && dataToSet !== null ? dataToSet : {},
+			);
 		} catch {
 			setFormData({});
 		}
 	});
 
-	// Salvar dados do formulário no banco
+	// Salvar dados do formulário no banco com snapshot dos campos
 	useEffect(() => {
-		ctx.setValue?.(formData);
-	}, [formData]);
+		const dataToSave = {
+			data: formData,
+			fieldsSnapshot: fields,
+		};
+		ctx.setValue?.(dataToSave);
+	}, [formData, fields]);
 
 	const handleChange = (fieldName: string, value: any) => {
 		const newFormData = {

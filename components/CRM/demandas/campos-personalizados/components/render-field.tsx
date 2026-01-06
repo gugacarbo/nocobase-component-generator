@@ -1,5 +1,5 @@
 import { CamposTipo } from "@components/CRM/@types";
-import { Input, Select, Checkbox, DatePicker, Radio, Switch } from "antd";
+import { Input, Select, Checkbox, Radio, Switch } from "antd";
 
 export function renderField({
 	field,
@@ -67,12 +67,14 @@ export function renderField({
 
 		case "date":
 			return (
-				<DatePicker
+				<Input
+					type="date"
 					style={{ width: "100%" }}
 					placeholder={placeholder}
-					value={fieldValue ? fieldValue : null}
-					format="DD/MM/YYYY"
-					onChange={(_, dateString) => handleChange(name, dateString)}
+					value={fieldValue ?? null}
+					// format="DD/MM/YYYY"
+					// onChange={(_, dateString) => handleChange(name, dateString)}
+					onChange={e => handleChange(name, e.target.value)}
 				/>
 			);
 

@@ -108,13 +108,21 @@ const mockTypesList: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 
 let mockSelectedTypeId: number = 1;
 
+interface FormData {
+	data: CamposTipo[];
+	fieldsSnapshot: CamposTipo[];
+}
+
 // Função helper para obter os campos do tipo selecionado
-const getFieldsForSelectedType = (): CamposTipo[] => {
+const getFieldsForSelectedType = (): FormData => {
 	const selectedType = mockTypesList.find(t => t.id === mockSelectedTypeId);
-	return selectedType?.f_fk_tipo_preset?.f_campos || [];
+	return {
+		data: selectedType?.f_fk_tipo_preset?.f_campos || [],
+		fieldsSnapshot: selectedType?.f_fk_tipo_preset?.f_campos || [],
+	};
 };
 
-const ctx: CtxInterface<CamposTipo[] | null> = {
+const ctx: CtxInterface<FormData | null> = {
 	render: (component: React.ReactNode) => component,
 	getValue: () => getFieldsForSelectedType(),
 	value: getFieldsForSelectedType(),
