@@ -96,38 +96,22 @@ export class ImportAnalyzer {
 		content: string,
 		usedIdentifiers: Set<string>,
 	): string {
+		const allImports = this.extractImports(content);
 		const lines = content.split("\n");
 		const filteredLines: string[] = [];
+		const importLineIndices = new Set<number>();
 
-		for (const line of lines) {
-			if (!line.trim().startsWith("import ")) {
-				filteredLines.push(line);
-				continue;
+		// Identifica linhas de import
+		lines.forEach((line, index) => {
+			if (line.trim().startsWith("import ")) {
+				importLineIndices.add(index);
 			}
+		});
 
-			const sourceFile = ts.createSourceFile(
-				APP_CONFIG.bundler.TEMP_FILE_NAME,
-				line,
-				ts.ScriptTarget.Latest,
-				true,
-				ts.ScriptKind.TSX,
-			);
-
-			let importInfo: ImportInfo | null = null;
-			const self = this;
-			ts.forEachChild(sourceFile, function (node) {
-				if (ts.isImportDeclaration(node)) {
-					importInfo = self.parseImportDeclaration(node);
-				}
-			});
-
-			if (!importInfo) {
-				filteredLines.push(line);
-				continue;
-			}
-
-			const info = importInfo as ImportInfo;
-			const usedNames = info.importedNames.filter((name: string) =>
+		// Processa imports usando análise já extraída
+		const usedImports: string[] = [];
+		for (const importInfo of allImports) {
+			const usedNames = importInfo.importedNames.filter(name =>
 				usedIdentifiers.has(name),
 			);
 
@@ -135,16 +119,29 @@ export class ImportAnalyzer {
 				continue;
 			}
 
-			if (usedNames.length === info.importedNames.length) {
-				filteredLines.push(line);
-				continue;
-			}
-
-			const newLine = self.formatImportStatement(info.moduleName, usedNames);
+			const newLine = this.formatImportStatement(
+				importInfo.moduleName,
+				usedNames,
+			);
 			if (newLine) {
-				filteredLines.push(newLine);
+				usedImports.push(newLine);
 			}
 		}
+
+		// Reconstrói o arquivo
+		let importInserted = false;
+		lines.forEach((line, index) => {
+			if (importLineIndices.has(index)) {
+				// Insere todos os imports usados na primeira linha de import
+				if (!importInserted && usedImports.length > 0) {
+					filteredLines.push(...usedImports);
+					importInserted = true;
+				}
+				// Pula as outras linhas de import originais
+			} else {
+				filteredLines.push(line);
+			}
+		});
 
 		return filteredLines.join("\n");
 	}

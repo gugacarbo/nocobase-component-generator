@@ -1,11 +1,14 @@
 import { createContext } from "react";
 import { ComponentInfo } from "../../types";
 
-export const AppContext = createContext({
-	config: {},
-	components: [] as ComponentInfo[],
-	selectedComponent: null as string | null,
-	setSelectedComponent: (_: string | null) => {},
-	currentPath: [] as string[],
-	setCurrentPath: (_: string[]) => {},
-});
+export interface AppContextType {
+	components: ComponentInfo[];
+	selectedComponent: string | null;
+	setSelectedComponent: (component: string | null) => void;
+	currentPath: string[];
+	setCurrentPath: (path: string[]) => void;
+	isLoading: boolean;
+	error: Error | null;
+}
+
+export const AppContext = createContext<AppContextType | undefined>(undefined);

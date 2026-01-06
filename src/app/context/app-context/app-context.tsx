@@ -3,32 +3,33 @@ import { ComponentInfo } from "../../types";
 import { APP_CONFIG } from "@/config/config";
 import { AppContext } from "./context";
 import { PathUtils } from "@/bundler";
+import { getComponentPathInfo, removeExtension } from "../../utils/path-utils";
+import { Logger } from "@/common/Logger";
 
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-	const config = {};
+interface AppProviderProps {
+	children: React.ReactNode;
+}
 
+export const AppProvider = ({ children }: AppProviderProps) => {
 	const [currentPath, setCurrentPath] = useState<string[]>([]);
 	const [components, setComponents] = useState<ComponentInfo[]>([]);
 	const [selectedComponent, setSelectedComponent] = useState<string | null>(
 		null,
 	);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<Error | null>(null);
 
 	// Atualiza selectedComponent na URL
 	useEffect(() => {
 		if (selectedComponent) {
-			const relativePath = PathUtils.removeComponentsPrefix(selectedComponent);
-			const extensionPattern = new RegExp(
-				`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
-			);
-			const pathWithoutExt = relativePath.replace(extensionPattern, "");
-			const segments = pathWithoutExt.split("/");
-			const file = segments[segments.length - 1];
-			const dirs = segments.slice(0, -1).join("/");
-
-			const newPath = dirs ? `/${dirs}/${file}` : `/${file}`;
-			const url = new URL(window.location.origin + newPath);
-			url.searchParams.set("file", file);
-			window.history.replaceState({}, "", url.toString());
+			try {
+				const { urlPath, file } = getComponentPathInfo(selectedComponent);
+				const url = new URL(window.location.origin + urlPath);
+				url.searchParams.set("file", file);
+				window.history.replaceState({}, "", url.toString());
+			} catch (err) {
+				Logger.error("Erro ao atualizar URL", err);
+			}
 		}
 	}, [selectedComponent]);
 
@@ -46,51 +47,67 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 		);
 
 		const loadComponents = async () => {
-			const foundComponents: ComponentInfo[] = [];
+			try {
+				setIsLoading(true);
+				setError(null);
 
-			for (const [path, loader] of Object.entries(componentModules)) {
-				try {
-					const module = await loader();
-					if (module) {
-						const relativePath = PathUtils.removeComponentsPrefix(path);
-						const extensionPattern = new RegExp(
-							`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
-						);
-						const name = relativePath.replace(extensionPattern, "");
+				const foundComponents: ComponentInfo[] = [];
+				const failedComponents: string[] = [];
 
-						foundComponents.push({
-							name,
-							path,
-							relativePath,
-						});
+				for (const [path, loader] of Object.entries(componentModules)) {
+					try {
+						const module = await loader();
+						if (module) {
+							const relativePath = PathUtils.removeComponentsPrefix(path);
+							const name = removeExtension(relativePath);
+
+							foundComponents.push({
+								name,
+								path,
+								relativePath,
+							});
+						}
+					} catch (err) {
+						failedComponents.push(path);
+						Logger.error.verbose(`Erro ao carregar componente ${path}`, err);
 					}
-				} catch (error) {
-					// Ignora arquivos que não têm export default ou com erro
 				}
-			}
 
-			setComponents(foundComponents);
-
-			// Restaura selectedComponent da URL, se existir
-			const pathname = window.location.pathname;
-			const urlFile = new URLSearchParams(window.location.search).get("file");
-
-			if (pathname !== "/" && urlFile) {
-				const pathSegments = pathname.split("/").filter(Boolean);
-				const reconstructedPath = pathSegments.join("/");
-
-				const matchingComponent = foundComponents.find(c => {
-					const relativePath = PathUtils.removeComponentsPrefix(c.path);
-					const extensionPattern = new RegExp(
-						`\.(${APP_CONFIG.supportedExtensions.map(e => e.slice(1)).join("|")})$`,
+				if (failedComponents.length > 0) {
+					Logger.info.verbose(
+						`${failedComponents.length} componente(s) ignorado(s) (sem export default ou com erro)`,
 					);
-					const pathWithoutExt = relativePath.replace(extensionPattern, "");
-					return pathWithoutExt === reconstructedPath;
-				});
-
-				if (matchingComponent) {
-					setSelectedComponent(matchingComponent.path);
 				}
+
+				setComponents(foundComponents);
+
+				// Restaura selectedComponent da URL, se existir
+				const pathname = window.location.pathname;
+				const urlFile = new URLSearchParams(window.location.search).get("file");
+
+				if (pathname !== "/" && urlFile) {
+					const pathSegments = pathname.split("/").filter(Boolean);
+					const reconstructedPath = pathSegments.join("/");
+
+					const matchingComponent = foundComponents.find(c => {
+						const { pathWithoutExt } = getComponentPathInfo(c.path);
+						return pathWithoutExt === reconstructedPath;
+					});
+
+					if (matchingComponent) {
+						setSelectedComponent(matchingComponent.path);
+					} else {
+						Logger.info.verbose(
+							`Componente da URL não encontrado: ${reconstructedPath}`,
+						);
+					}
+				}
+			} catch (err) {
+				const error = err instanceof Error ? err : new Error(String(err));
+				Logger.error("Erro ao carregar componentes", error);
+				setError(error);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -100,12 +117,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<AppContext.Provider
 			value={{
-				config,
 				components,
 				selectedComponent,
 				setSelectedComponent,
 				currentPath,
 				setCurrentPath,
+				isLoading,
+				error,
 			}}
 		>
 			{children}

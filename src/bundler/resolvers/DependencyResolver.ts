@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { FileInfo } from "../core/types";
 import { PathUtils } from "../../common/utils/PathUtils";
 import { APP_CONFIG } from "@/config/config";
+import { Logger } from "@/common/Logger";
 
 /**
  * Resolve dependências entre arquivos
@@ -72,7 +73,10 @@ export class DependencyResolver {
 			}
 
 			if (visiting.has(filePath)) {
-				// Dependência circular detectada - ignora
+				// Dependência circular detectada
+				const fileInfo = files.get(filePath);
+				const fileName = fileInfo?.relativePath || filePath;
+				Logger.warning(`Dependência circular detectada em: ${fileName}`);
 				return;
 			}
 

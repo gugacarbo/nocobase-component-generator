@@ -1,5 +1,5 @@
 import { CodeOutlined } from "@ant-design/icons";
-import { Button } from "@components/ui/Button";
+import { Button } from "antd";
 import { useState, useEffect, useRef } from "react";
 
 function CodeButtons({
@@ -31,7 +31,7 @@ function CodeButtons({
 
 	const handleCopy = async () => {
 		// Incrementa o contador de cliques
-		setClickCount((prev) => prev + 1);
+		setClickCount(prev => prev + 1);
 
 		// Limpa o timer anterior se existir
 		if (clickTimerRef.current) {
@@ -57,7 +57,7 @@ function CodeButtons({
 	// Detecta duplo clique e ativa/desativa auto-copy
 	useEffect(() => {
 		if (clickCount === 2) {
-			setAutoCopy((prev) => !prev);
+			setAutoCopy(prev => !prev);
 			setClickCount(0);
 		}
 	}, [clickCount]);
@@ -70,7 +70,7 @@ function CodeButtons({
 			bundleCode !== previousBundleCodeRef.current &&
 			!bundling
 		) {
-			copyToClipboard().then((success) => {
+			copyToClipboard().then(success => {
 				if (success) {
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
@@ -94,7 +94,6 @@ function CodeButtons({
 			{bundleCode && (
 				<Button
 					disabled={bundling}
-
 					style={{
 						borderRadius: bundleCode ? "6px 0px 0px 6px" : "6px",
 					}}

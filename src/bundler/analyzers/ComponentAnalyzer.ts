@@ -18,6 +18,9 @@ export class ComponentAnalyzer {
 			if (content.includes("export default")) {
 				const componentName = this.extractExportedComponent(content);
 				if (componentName) {
+					Logger.success.verbose(
+						`Componente principal encontrado: ${componentName}`,
+					);
 					return componentName;
 				}
 			}
@@ -27,6 +30,7 @@ export class ComponentAnalyzer {
 		for (const [_, content] of filesArray) {
 			const components = this.findReactComponents(content);
 			if (components.length > 0) {
+				Logger.info.verbose(`Componente React encontrado: ${components[0]}`);
 				return components[0];
 			}
 		}

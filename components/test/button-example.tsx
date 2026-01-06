@@ -1,4 +1,5 @@
-import { Button } from "@components/ui/Button";
+import { Button } from "antd";
+
 import { useUpdateFormValue } from "@nocobase/hooks/use-update-form-value";
 
 function ButtonExample() {

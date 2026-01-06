@@ -27,7 +27,9 @@ export class TreeShaker {
 			const usedIdentifiers = CodeAnalyzer.analyzeUsage(codeContent);
 			return ImportAnalyzer.removeUnusedImports(codeContent, usedIdentifiers);
 		} catch (error) {
-			Logger.warning("Erro durante tree shaking, retornando código original");
+			const err = error instanceof Error ? error : new Error(String(error));
+			Logger.error.verbose("Erro durante tree shaking", err);
+			Logger.warning("Retornando código original sem tree shaking");
 			return content;
 		}
 	}

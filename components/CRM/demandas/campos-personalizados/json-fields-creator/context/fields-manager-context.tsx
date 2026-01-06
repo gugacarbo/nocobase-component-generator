@@ -1,9 +1,16 @@
+import { FieldsManagerContext } from "./context";
 import { useEffect, useState } from "react";
 import { useUpdateFormValue } from "@/nocobase/hooks/use-update-form-value";
-import { CtxInterface } from "@/nocobase/ctx";
-import { Field } from "../types";
+import { Field } from "../../types";
+import { baseCtx as ctx } from "@/nocobase/ctx";
 
-export function useFieldsManager(ctx: CtxInterface) {
+interface FieldsManagerProviderProps {
+	children: React.ReactNode;
+}
+
+export const FieldsManagerProvider = ({
+	children,
+}: FieldsManagerProviderProps) => {
 	const [fields, setFields] = useState<Field[]>(() => {
 		try {
 			const currentValue = ctx.getValue?.() ?? "[]";
@@ -61,12 +68,28 @@ export function useFieldsManager(ctx: CtxInterface) {
 		setFields(newFields);
 	};
 
-	return {
-		fields,
-		addField,
-		removeField,
-		updateField,
-		activeKeys,
-		setActiveKeys,
+	const toggleActiveKeys = () => {
+		if (activeKeys.length === fields.length) {
+			setActiveKeys([]);
+		} else {
+			setActiveKeys(fields.map(field => field.name));
+		}
 	};
-}
+
+	return (
+		<FieldsManagerContext.Provider
+			value={{
+				fields,
+				addField,
+				setFields,
+				removeField,
+				updateField,
+				activeKeys,
+				setActiveKeys,
+				toggleActiveKeys,
+			}}
+		>
+			{children}
+		</FieldsManagerContext.Provider>
+	);
+};

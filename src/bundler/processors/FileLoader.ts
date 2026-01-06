@@ -70,6 +70,11 @@ export class FileLoader {
 	public static loadFileInfo(filePath: string, srcDir: string): FileInfo {
 		try {
 			const content = fs.readFileSync(filePath, "utf-8");
+
+			if (!content || content.trim() === "") {
+				Logger.warning(`Arquivo vazio ignorado: ${filePath}`);
+			}
+
 			const imports = this.extractImports(content);
 			const relativePath = PathUtils.getRelativePath(srcDir, filePath);
 

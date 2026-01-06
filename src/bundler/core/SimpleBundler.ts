@@ -42,6 +42,20 @@ export class SimpleBundler {
 		outputDir: string,
 		options?: Partial<BundlerConfig>,
 	) {
+		if (!srcPath || srcPath.trim() === "") {
+			throw new Error("srcPath não pode ser vazio");
+		}
+
+		if (!outputDir || outputDir.trim() === "") {
+			throw new Error("outputDir não pode ser vazio");
+		}
+
+		const srcExists =
+			FileLoader.fileExists(srcPath) || FileLoader.directoryExists(srcPath);
+		if (!srcExists) {
+			throw new Error(`Path não encontrado: ${srcPath}`);
+		}
+
 		this.srcPath = srcPath;
 		this.outputDir = outputDir;
 		this.isFile = FileLoader.fileExists(srcPath);
@@ -53,26 +67,37 @@ export class SimpleBundler {
 	 * Pipeline: Carregamento → Análise → Ordenação → Geração
 	 */
 	public async bundle(): Promise<void> {
-		Logger.start("Iniciando processo de bundling");
+		try {
+			Logger.start("Iniciando processo de bundling");
 
-		// Carregamento paralelo de arquivos
-		await this.loadFilesAsync();
-		Logger.success.verbose(`${this.files.size} arquivos carregados`);
+			// Carregamento paralelo de arquivos
+			await this.loadFilesAsync();
 
-		// Criar contexto de pipeline compartilhado
-		const pipelineContext = this.createPipelineContext();
-		Logger.info.verbose(
-			`Componente principal: ${pipelineContext.mainComponent || "não detectado"}`,
-		);
+			if (this.files.size === 0) {
+				throw new Error("Nenhum arquivo suportado encontrado para processar");
+			}
 
-		const fileName = ContentProcessor.getOutputFileName(
-			pipelineContext.mainComponent,
-		);
+			Logger.success.verbose(`${this.files.size} arquivos carregados`);
 
-		Logger.section("Gerando bundles");
-		await this.generateBundles(fileName, pipelineContext);
+			// Criar contexto de pipeline compartilhado
+			const pipelineContext = this.createPipelineContext();
+			Logger.info.verbose(
+				`Componente principal: ${pipelineContext.mainComponent || "não detectado"}`,
+			);
 
-		Logger.success("Bundling concluído com sucesso!");
+			const fileName = ContentProcessor.getOutputFileName(
+				pipelineContext.mainComponent,
+			);
+
+			Logger.section("Gerando bundles");
+			await this.generateBundles(fileName, pipelineContext);
+
+			Logger.success("Bundling concluído com sucesso!");
+		} catch (error) {
+			const err = error instanceof Error ? error : new Error(String(error));
+			Logger.error("Erro durante bundling", err);
+			throw err;
+		}
 	}
 
 	/**
@@ -161,6 +186,10 @@ export class SimpleBundler {
 			content = NocoBaseAdapter.transformImports(content);
 		}
 
+		if (!content || content.trim() === "") {
+			throw new Error("Bundle gerado está vazio");
+		}
+
 		Logger.success.verbose(
 			`Bundle gerado: ${(content.length / 1024).toFixed(2)} KB`,
 		);
@@ -181,11 +210,9 @@ export class SimpleBundler {
 	private async loadFilesAsync(): Promise<void> {
 		Logger.info.verbose("Carregando arquivos...");
 
-		const result = await Promise.resolve(
-			this.isFile
-				? FileLoader.loadSingleFile(this.srcPath)
-				: FileLoader.loadDirectory(this.srcPath),
-		);
+		const result = this.isFile
+			? FileLoader.loadSingleFile(this.srcPath)
+			: FileLoader.loadDirectory(this.srcPath);
 
 		this.files = result.files;
 		this.firstFileRelativePath = result.firstFileRelativePath;

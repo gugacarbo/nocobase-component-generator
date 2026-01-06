@@ -22,6 +22,11 @@ export class FileWriter {
 	 */
 	public static writeFile(filePath: string, content: string): boolean {
 		try {
+			if (!content || content.trim() === "") {
+				Logger.warning(`Tentativa de escrever arquivo vazio: ${filePath}`);
+				return false;
+			}
+
 			this.ensureDirectory(PathUtils.dirname(filePath));
 			fs.writeFileSync(filePath, content, "utf-8");
 			return true;
