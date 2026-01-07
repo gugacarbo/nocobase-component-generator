@@ -4,7 +4,7 @@ import { Button, Form } from "antd";
 import { useState } from "react";
 import { renderField } from "../components/render-field";
 import { useForm } from "@/nocobase/utils/useForm";
-import FullDiv from "@components/ui/full-div";
+import FullDiv from "@components/CRM/ui/full-div";
 
 function JsonFieldsPreview() {
 	const fields = ctx.value;

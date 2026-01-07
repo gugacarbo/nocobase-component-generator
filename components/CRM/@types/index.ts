@@ -19,6 +19,11 @@ export interface Demanda {
 	f_tipo: TipoDemanda;
 	f_demanda_setor: SetorDemanda;
 }
+export interface DemandaStatus {
+	id: number;
+	f_status: string;
+	f_status_cor: string;
+}
 
 export interface SetorDemanda {
 	id: number;

@@ -4,7 +4,7 @@ import { Input } from "antd";
 import { ChangeEvent, useState } from "react";
 
 function DefaultInput() {
-	const [value, setValue] = useState(ctx.getValue?.() ?? "");
+	const [value, setValue] = useState(ctx.getValue() ?? "");
 
 	useUpdateFormValue(ev => {
 		const customEvent = ev as CustomEvent;

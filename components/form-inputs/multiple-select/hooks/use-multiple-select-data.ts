@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { baseCtx as ctx } from "@/nocobase/ctx";
 import { SetorDemanda, Usuario } from "@components/CRM/@types";
 import { FormInstance } from "antd";
-import { OPTION_ID_KEY } from "../constants";
 
 interface UseMultipleSelectDataResult {
 	options: SetorDemanda[];

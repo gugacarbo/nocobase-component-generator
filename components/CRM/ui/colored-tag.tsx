@@ -1,4 +1,4 @@
-import FullDiv from "@components/ui/full-div";
+import FullDiv from "@components/CRM/ui/full-div";
 import { darkenColor, getTextColor } from "@utils/color";
 
 export const defaultProps = {
