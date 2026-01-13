@@ -15,7 +15,7 @@ function CodeButtons({
 }) {
 	const [copied, setCopied] = useState(false);
 	const [error, setError] = useState(false);
-	const [autoCopy, setAutoCopy] = useState(false);
+	const [autoCopy, setAutoCopy] = useState(true);
 	const [clickCount, setClickCount] = useState(0);
 	const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
 	const previousBundleCodeRef = useRef<string>("");

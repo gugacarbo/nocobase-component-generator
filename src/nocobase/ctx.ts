@@ -14,13 +14,16 @@ export interface CtxInterface<T = unknown> {
 	user?: {
 		id: string;
 		name: string;
-	}
+	};
+	router: {
+		navigate: (url: string) => void;
+	};
 }
 
 export const baseCtx: CtxInterface<unknown> = {
 	render: (component: React.ReactNode) => component,
 	getValue: () => null,
-	setValue: (_: any) => { },
+	setValue: (_: any) => {},
 	value: null,
 	api: {
 		request: (_: any) => Promise.resolve({ data: { data: [] as any } }),
@@ -30,6 +33,9 @@ export const baseCtx: CtxInterface<unknown> = {
 	model: { props: {} },
 	user: {
 		id: "1",
-		name: "John Doe"
-	}
+		name: "John Doe",
+	},
+	router: {
+		navigate: (_url: string) => {},
+	},
 };

@@ -1,14 +1,7 @@
-export interface Usuario {
-	id: number;
+import { Usuario as BaseUser } from "@components/@types/types";
+
+export interface Usuario extends BaseUser {
 	f_fk_setor_x_colaborador_v2: SetorDemanda[];
-	email: string;
-	phone: string;
-	nickname: string;
-	username: string;
-	updatedById: number;
-	createdById: number;
-	createdAt: string;
-	updatedAt: string;
 }
 
 export interface Demanda {
