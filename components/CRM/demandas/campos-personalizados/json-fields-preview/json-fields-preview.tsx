@@ -1,4 +1,4 @@
-import { ctx } from "../ctx.mock";
+import { ctx } from "./ctx.mock";
 
 import { Button, Form } from "antd";
 import { useState } from "react";
@@ -20,7 +20,7 @@ function JsonFieldsPreview() {
 		setFormData(newFormData);
 	};
 
-	if (!fields || fields.length === 0) {
+	if (!fields || Object.keys(fields).length === 0) {
 		return null;
 	}
 
@@ -33,7 +33,7 @@ function JsonFieldsPreview() {
 						flexDirection: "column",
 					}}
 				>
-					{fields.map((field, index) => (
+					{fields?.map((field, index) => (
 						<Form.Item
 							key={field?.name || index}
 							name={field?.name}

@@ -1,6 +1,17 @@
-applyTo: "\*"
+applyTo: "\*\*"
 
 # NocoBase Component Generator - Copilot Instructions
+
+## Instruções Gerais
+
+- Responda sempre em português BR.
+- Preferencialmente utilizar nomes de variáveis e funções em inglês, a menos que se trate de termos técnicos específicos do domínio.
+- Forneça instruções detalhadas e específicas.
+- Não gere arquivos de documentação ou de testes a menos que seja solicitado.
+- Inclua o mínimo de comentários de código, use somente quando muito necessário.
+- Use uma linguagem clara e concisa.
+- Estruture as instruções em seções lógicas com títulos apropriados.
+- Priorize boas práticas de desenvolvimento e padrões de codificação.
 
 ## Visão Geral do Projeto
 
@@ -10,16 +21,6 @@ Este é um gerador/bundler de componentes React para NocoBase que permite:
 - Visualizar componentes em tempo real com hot-reload
 - Fazer bundle de componentes para um único arquivo JavaScript compatível com NocoBase
 - Transformar imports de bibliotecas externas para usar o contexto
-
-## Instruções Gerais
-
-- Responda sempre em português BR.
-- Forneça instruções detalhadas e específicas.
-- Não gere arquivos de documentação ou de testes a menos que seja solicitado.
-- Inclua o mínimo de comentários de código, use somente quando muito necessário.
-- Use uma linguagem clara e concisa.
-- Estruture as instruções em seções lógicas com títulos apropriados.
-- Priorize boas práticas de desenvolvimento e padrões de codificação.
 
 ## Padrões de Código
 
@@ -87,6 +88,17 @@ Este é um gerador/bundler de componentes React para NocoBase que permite:
 - Seja consistente no tipo de retorno
 - Retorne cedo para reduzir aninhamento (early return pattern)
 - Evite múltiplos pontos de retorno quando tornar o código confuso
+
+### React (JSX/TSX)
+
+- Não inclua o import React from 'react' em arquivos React 17+
+- Use function components e hooks preferencialmente
+- Mantenha componentes pequenos e focados
+- Use PropTypes ou TypeScript para tipagem de props
+- Evite state desnecessário, derive dados quando possível
+- Use keys únicas em listas
+- Separe lógica de apresentação e container quando fizer sentido
+- Nesse projeto, utilize "export default" somente no arquivo principal do componente. Nos arquivos auxiliares, utilize "export" nomeado.
 
 ## Arquitetura do Projeto
 

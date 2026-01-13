@@ -25,6 +25,11 @@ export interface SetorDemanda {
 	tipos: TipoDemanda[];
 }
 
+export interface TipoDemandaPreset {
+	f_descricao?: string;
+	f_campos: CamposTipo[];
+}
+
 export interface TipoDemanda {
 	id: number;
 	f_sla: number;
@@ -35,10 +40,7 @@ export interface TipoDemanda {
 	updatedAt: string;
 	createdById: number;
 	createdAt: string;
-	f_fk_tipo_preset: {
-		f_campos: CamposTipo[];
-		f_descricao?: string;
-	} | null;
+	f_fk_tipo_preset: TipoDemandaPreset | null;
 }
 
 export type CamposTipo = {
@@ -49,3 +51,10 @@ export type CamposTipo = {
 	placeholder?: string;
 	options?: string[];
 };
+
+export type FilledFormData =
+	| {
+			fieldsSnapshot?: CamposTipo[] | null;
+			data?: Record<string, any> | null;
+	  }
+	| string;

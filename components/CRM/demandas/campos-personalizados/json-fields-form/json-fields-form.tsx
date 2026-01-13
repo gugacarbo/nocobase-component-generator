@@ -1,6 +1,6 @@
 import { useUpdateFormValue } from "@nocobase/hooks/use-update-form-value";
 import { useForm } from "@/nocobase/utils/useForm";
-import { ctx } from "../ctx.mock";
+import { ctx } from "./ctx.mock";
 
 import { useEffect, useState } from "react";
 import { Form } from "antd";
@@ -16,12 +16,10 @@ function JsonFieldsForm() {
 	const [fields, setFields] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 
-	// Carregar tipos de demanda
 	useEffect(() => {
 		getData(ctx).then(setTypesList);
 	}, []);
 
-	// Atualizar campos quando o tipo de demanda mudar
 	useEffect(() => {
 		const nv = 1; //no-bundle
 		//bundle-only: const nv = value
@@ -36,27 +34,6 @@ function JsonFieldsForm() {
 			}
 		}
 	}, [value, typesList]);
-
-	// Carregar dados iniciais do formulário
-	// useEffect(() => {
-	// 	try {
-	// 		const currentFormValue = ctx.getValue?.();
-	// 		if (currentFormValue && typeof currentFormValue === "object") {
-	// 			setFormData(currentFormValue.data || currentFormValue);
-	// 			if (currentFormValue.fieldsSnapshot) {
-	// 				setFieldsSnapshot(currentFormValue.fieldsSnapshot);
-	// 			}
-	// 		} else if (typeof currentFormValue === "string") {
-	// 			const parsed = JSON.parse(currentFormValue);
-	// 			setFormData(parsed.data || parsed);
-	// 			if (parsed.fieldsSnapshot) {
-	// 				setFieldsSnapshot(parsed.fieldsSnapshot);
-	// 			}
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Erro ao carregar dados iniciais:", error);
-	// 	}
-	// }, []);
 
 	// Sincronizar com mudanças externas
 	useUpdateFormValue((ev: Event) => {

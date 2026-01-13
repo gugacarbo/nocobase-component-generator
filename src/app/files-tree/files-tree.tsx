@@ -15,7 +15,7 @@ function FilesTree() {
 		setCurrentPath,
 	} = useAppContext();
 
-	const [viewMode, setViewMode] = useState<"folder" | "tree">(selectedComponent ? "tree" : "folder");
+	const [viewMode, setViewMode] = useState<"folder" | "tree">("tree");
 
 	const treeData = buildTree(components);
 
@@ -91,7 +91,6 @@ function FilesTree() {
 				)}
 			</div>
 			<div className="pr-5">
-
 				<BundleComponent
 					components={components}
 					selectedComponent={selectedComponent}
