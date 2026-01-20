@@ -5,6 +5,7 @@ import { useState } from "react";
 import { renderField } from "../components/render-field";
 import { useForm } from "@/nocobase/utils/useForm";
 import FullDiv from "@components/CRM/ui/full-div";
+import { getFieldValidationRules } from "../validation-rules";
 
 function JsonFieldsPreview() {
 	const fields = ctx.value;
@@ -43,12 +44,10 @@ function JsonFieldsPreview() {
 									{field.label || field?.name}
 								</span>
 							}
-							rules={[
-								{
-									required: field?.required ?? false,
-									message: "Este campo é obrigatório",
-								},
-							]}
+							rules={getFieldValidationRules(
+								field.type,
+								field?.required ?? false,
+							)}
 						>
 							{renderField({
 								field,

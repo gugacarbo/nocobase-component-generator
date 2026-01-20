@@ -7,6 +7,7 @@ import { Form } from "antd";
 import { renderField } from "../components/render-field";
 import { getData } from "../get-data";
 import { CamposTipo, TipoDemanda } from "@components/CRM/@types";
+import { getFieldValidationRules } from "../validation-rules";
 
 function JsonFieldsForm() {
 	const value = ctx.getValue();
@@ -91,12 +92,10 @@ function JsonFieldsForm() {
 								{field.label || field?.name}
 							</span>
 						}
-						rules={[
-							{
-								required: field?.required ?? false,
-								message: "Este campo é obrigatório",
-							},
-						]}
+						rules={getFieldValidationRules(
+							field.type,
+							field?.required ?? false,
+						)}
 					>
 						{renderField({
 							field,

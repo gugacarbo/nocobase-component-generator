@@ -20,6 +20,7 @@ function Dash() {
 	}
 
 	const clientesOk = allClientes.length - data.length;
+
 	const porcentagemProblemas = calcularPorcentagemProblemas(
 		allClientes.length,
 		data.length,

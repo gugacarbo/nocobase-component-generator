@@ -11,7 +11,17 @@ async function getClientes(parceiros: (string | number)[]): Promise<Cliente[]> {
 			filter: {
 				f_fk_parceiro: parceiros,
 			},
-			fields: ["id", "f_cpf_cnpj", "f_nome_razao"],
+			fields: [
+				"id",
+				"f_cpf_cnpj",
+				"f_nome_razao",
+				"f_cidade",
+				"f_cep",
+				"f_endereco",
+				"f_numero",
+				"f_bairro",
+				"f_uf",
+			],
 		},
 	});
 	return res.data?.data || [];

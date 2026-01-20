@@ -3,7 +3,7 @@ import { Spin } from "antd";
 import { CamposTipo } from "@components/CRM/@types";
 import { ctx } from "./ctx.mock";
 import { FieldCard } from "./field-card";
-import FullDiv from "@components/CRM/ui/full-div";
+import { FullDiv } from "@components/CRM/ui/full-div";
 
 function JsonFieldsViewer() {
 	const [campos, setCampos] = useState<CamposTipo[]>([]);
