@@ -8,9 +8,7 @@ interface FieldsManagerProviderProps {
 	children: React.ReactNode;
 }
 
-export const FieldsManagerProvider = ({
-	children,
-}: FieldsManagerProviderProps) => {
+function FieldsManagerProvider({ children }: FieldsManagerProviderProps) {
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
 	const [fields, setFields] = useState<Field[]>(() => {
@@ -68,6 +66,24 @@ export const FieldsManagerProvider = ({
 		setFields(newFields);
 	};
 
+	const moveField = (index: number, direction: "up" | "down") => {
+		if (direction === "up" && index > 0) {
+			const newFields = [...fields];
+			[newFields[index - 1], newFields[index]] = [
+				newFields[index],
+				newFields[index - 1],
+			];
+			setFields(newFields);
+		} else if (direction === "down" && index < fields.length - 1) {
+			const newFields = [...fields];
+			[newFields[index], newFields[index + 1]] = [
+				newFields[index + 1],
+				newFields[index],
+			];
+			setFields(newFields);
+		}
+	};
+
 	const toggleActiveKeys = () => {
 		if (activeKeys.length > 0) {
 			setActiveKeys([]);
@@ -84,6 +100,7 @@ export const FieldsManagerProvider = ({
 				setFields,
 				removeField,
 				updateField,
+				moveField,
 				activeKeys,
 				setActiveKeys,
 				toggleActiveKeys,
@@ -92,4 +109,6 @@ export const FieldsManagerProvider = ({
 			{children}
 		</FieldsManagerContext.Provider>
 	);
-};
+}
+
+export { FieldsManagerProvider };

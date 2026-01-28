@@ -20,6 +20,10 @@ function DeleteFieldCard({
 			cancelText="Não"
 		>
 			<Button
+				onClick={e => {
+					e.preventDefault();
+					e.stopPropagation();
+				}}
 				icon={<DeleteOutlined />}
 				type="default"
 				size={size === "sm" ? "small" : "middle"}

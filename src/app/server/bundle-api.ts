@@ -1,8 +1,8 @@
 import * as path from "path";
 import * as fs from "fs/promises";
 import { fileURLToPath } from "url";
-import { SimpleBundler } from "../bundler/core/SimpleBundler";
-import { StringUtils } from "../common/utils/StringUtils";
+import { SimpleBundler } from "../../bundler/core/SimpleBundler";
+import { StringUtils } from "../../common/utils/StringUtils";
 import { Logger } from "@/common/Logger";
 import { APP_CONFIG } from "@/config/config";
 
@@ -95,7 +95,7 @@ function getPaths(componentPath: string) {
 	const componentSubDirTmp = path.posix.dirname(componentSubPath);
 	const componentSubDir = componentSubDirTmp === "." ? "" : componentSubDirTmp;
 
-	const projectRoot = path.resolve(__dirname, "../../");
+	const projectRoot = path.resolve(__dirname, "../../../");
 	const componentFilePath = path.resolve(projectRoot, componentPath);
 	const outputDir = path.resolve(projectRoot, "output", componentSubDir);
 

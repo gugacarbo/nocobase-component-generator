@@ -65,6 +65,78 @@ export class FileLoader {
 	}
 
 	/**
+	 * Extrai imports com seus nomes importados
+	 * Retorna um mapa: caminho do import -> lista de nomes importados
+	 */
+	public static extractImportsWithNames(
+		content: string,
+	): Map<string, string[]> {
+		const importsMap = new Map<string, string[]>();
+		const importRegex =
+			/import\s+(?:(\{[^}]*\})|(\*\s+as\s+\w+)|(\w+))(?:\s*,\s*(?:(\{[^}]*\})|(\*\s+as\s+\w+)))*\s+from\s+['"]([^'"]+)['"]/g;
+
+		let match;
+		while ((match = importRegex.exec(content)) !== null) {
+			const importPath = match[6];
+			if (
+				!PathUtils.isRelativePath(importPath) &&
+				!PathUtils.isAlias(importPath)
+			) {
+				continue;
+			}
+
+			const names: string[] = [];
+
+			if (match[1]) {
+				const namedImports = match[1].replace(/[{}]/g, "").split(",");
+				namedImports.forEach(name => {
+					const trimmed = name.trim();
+					if (trimmed) {
+						const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
+						if (asMatch) {
+							names.push(asMatch[1]);
+						} else {
+							names.push(trimmed);
+						}
+					}
+				});
+			}
+
+			if (match[3]) {
+				names.push(match[3]);
+			}
+
+			if (match[4]) {
+				const namedImports = match[4].replace(/[{}]/g, "").split(",");
+				namedImports.forEach(name => {
+					const trimmed = name.trim();
+					if (trimmed) {
+						const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
+						if (asMatch) {
+							names.push(asMatch[1]);
+						} else {
+							names.push(trimmed);
+						}
+					}
+				});
+			}
+
+			if (importsMap.has(importPath)) {
+				const existing = importsMap.get(importPath)!;
+				names.forEach(n => {
+					if (!existing.includes(n)) {
+						existing.push(n);
+					}
+				});
+			} else {
+				importsMap.set(importPath, names);
+			}
+		}
+
+		return importsMap;
+	}
+
+	/**
 	 * Carrega informações de um arquivo
 	 */
 	public static loadFileInfo(filePath: string, srcDir: string): FileInfo {
@@ -126,6 +198,7 @@ export class FileLoader {
 
 	/**
 	 * Carrega um arquivo e suas dependências recursivamente (helper privado)
+	 * Resolve re-exports de barrel files (index.ts) automaticamente
 	 */
 	private static loadFileWithDependencies(
 		filePath: string,
@@ -139,15 +212,20 @@ export class FileLoader {
 		const fileInfo = this.loadFileInfo(filePath, baseDir);
 		filesMap.set(filePath, fileInfo);
 
-		fileInfo.imports.forEach(importPath => {
-			const resolvedPath = DependencyResolver.resolveImportPath(
+		const importsWithNames = this.extractImportsWithNames(fileInfo.content);
+
+		importsWithNames.forEach((importedNames, importPath) => {
+			const resolvedFiles = DependencyResolver.resolveImportWithReExports(
 				filePath,
 				importPath,
+				importedNames,
 			);
 
-			if (resolvedPath && fs.existsSync(resolvedPath)) {
-				this.loadFileWithDependencies(resolvedPath, baseDir, filesMap);
-			}
+			resolvedFiles.forEach(resolvedPath => {
+				if (resolvedPath && fs.existsSync(resolvedPath)) {
+					this.loadFileWithDependencies(resolvedPath, baseDir, filesMap);
+				}
+			});
 		});
 	}
 

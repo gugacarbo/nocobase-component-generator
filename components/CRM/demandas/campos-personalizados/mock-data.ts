@@ -1,6 +1,5 @@
 import { FilledFormData, TipoDemanda } from "@components/CRM/@types";
 
-// Mock data para tipos de demanda
 export const mockData: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 	{
 		id: 1,
@@ -34,10 +33,63 @@ export const mockData: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 					required: true,
 				},
 				{
-					name: "ativo",
-					label: "Ativo",
+					name: "pessoa_juridica",
+					label: "É Pessoa Jurídica?",
 					type: "checkbox",
+					required: false,
+					placeholder: "",
+				},
+				{
+					name: "cnpj",
+					label: "CNPJ",
+					type: "text",
 					required: true,
+					placeholder: "00.000.000/0000-00",
+					showWhen: {
+						conditions: [
+							{ field: "pessoa_juridica", operator: "equals", value: true },
+						],
+						logic: "and",
+					},
+				},
+				{
+					name: "razao_social",
+					label: "Razão Social",
+					type: "text",
+					required: true,
+					placeholder: "Nome da empresa",
+					showWhen: {
+						conditions: [
+							{ field: "pessoa_juridica", operator: "equals", value: true },
+						],
+						logic: "and",
+					},
+				},
+				{
+					name: "cpf",
+					label: "CPF",
+					type: "text",
+					required: true,
+					placeholder: "000.000.000-00",
+					showWhen: {
+						conditions: [
+							{ field: "pessoa_juridica", operator: "notEquals", value: true },
+						],
+						logic: "and",
+					},
+				},
+				{
+					name: "nome_completo",
+					label: "Nome Completo",
+					type: "text",
+					required: true,
+					placeholder: "Nome da pessoa",
+					showWhen: {
+						conditions: [
+							{ field: "pessoa_juridica", operator: "notEquals", value: true },
+						],
+						logic: "and",
+					},
 				},
 				{
 					name: "interesses",
@@ -74,6 +126,19 @@ export const mockData: Pick<TipoDemanda, "id" | "f_fk_tipo_preset">[] = [
 					required: true,
 					placeholder: "Digite o telefone",
 				},
+				{
+					name: "prioridade_alta",
+					label: "Detalhes da Urgência",
+					type: "textarea",
+					required: true,
+					placeholder: "Descreva o motivo da urgência",
+					showWhen: {
+						conditions: [
+							{ field: "prioridade", operator: "equals", value: "Urgente" },
+						],
+						logic: "and",
+					},
+				},
 			],
 		},
 	},
@@ -89,8 +154,10 @@ export const mockAnswersData = {
 	tipo_projeto: "Desenvolvimento",
 	data_prevista: "2026-03-15",
 	orcamento: 75000,
-	ativo: true,
-	tecnologias: ["React", "TypeScript", "Node.js", "PostgreSQL"],
+	pessoa_juridica: false,
+	cpf: "123.456.789-00",
+	nome_completo: "João da Silva",
+	interesses: ["React", "TypeScript", "Node.js", "PostgreSQL"],
 	observacoes:
 		"Cliente solicitou entrega prioritária devido ao lançamento de produto no próximo trimestre. Equipe já alocada para o projeto.",
 };

@@ -3,9 +3,10 @@ import { Field } from "../../types";
 import { SelectOptionsEditor } from "./field-card-inputs/select-options-editor/select-options-editor";
 import { FieldCardRequired } from "./field-card-inputs/field-card-required";
 import { FieldCardType } from "./field-card-inputs/field-card-type";
-import { DeleteFieldCard } from "../components/delete-field-card";
 import { FieldCardTitle } from "./field-card-inputs/field-card-title";
 import { FieldCardPlaceholder } from "./field-card-inputs/field-card-placeholder";
+import { ConditionEditor } from "./field-card-inputs/condition-editor/condition-editor";
+import { DeleteFieldCard } from "../components/delete-field-card";
 import { FieldContext } from "./field-context/field-context";
 
 interface FieldCardProps {
@@ -35,6 +36,9 @@ export function FieldCard({ field, index }: FieldCardProps) {
 					</Col>
 					<Col span={24}>
 						<SelectOptionsEditor />
+					</Col>
+					<Col span={24}>
+						<ConditionEditor />
 					</Col>
 				</Row>
 			</Card>

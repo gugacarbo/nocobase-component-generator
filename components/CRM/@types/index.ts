@@ -1,4 +1,5 @@
 import { Usuario as BaseUser } from "@components/@types/types";
+import { ShowWhenCondition } from "../demandas/campos-personalizados/types";
 
 export interface Usuario extends BaseUser {
 	f_fk_setor_x_colaborador_v2: SetorDemanda[];
@@ -50,6 +51,7 @@ export type CamposTipo = {
 	required?: boolean;
 	placeholder?: string;
 	options?: string[];
+	showWhen?: ShowWhenCondition;
 };
 
 export type FilledFormData =

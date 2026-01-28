@@ -1,2 +1,29 @@
 {
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "prettier.useTabs": true,
+    "prettier.semi": true,
+    "prettier.bracketSpacing": true,
+    "prettier.arrowParens": "avoid",
+    "prettier.trailingComma": "all",
+    "typescript.preferences.autoImportFileExcludePatterns": [
+        "@radix-ui",
+        "/@radix-ui",
+        "*/@radix-ui",
+        "*/@radix-ui/*",
+        "*@radix-ui/*",
+        "/@radix-ui*",
+    ],
+    "cSpell.language": "en,pt,pt_BR",
+    "editor.formatOnSave": false
 }

@@ -1,115 +1,123 @@
 import { CamposTipo } from "@components/CRM/@types";
-import { Input, Select, Checkbox, Radio, Switch } from "antd";
+
+import {
+	TextInput,
+	EmailInput,
+	TelInput,
+	NumberInput,
+	TextAreaInput,
+	DateInput,
+} from "./field-inputs/text-inputs";
+
+import {
+	SelectInput,
+	RadioInput,
+	CheckboxGroupInput,
+	SwitchInput,
+} from "./field-inputs/select-inputs";
+
+interface RenderFieldProps {
+	field: CamposTipo;
+	formData: Record<string, any>;
+	handleChange: (fieldName: string, value: any) => void;
+}
 
 export function renderField({
 	field,
 	formData,
 	handleChange,
-}: {
-	field: CamposTipo;
-	formData: Record<string, any>;
-	handleChange: (fieldName: string, value: any) => void;
-}) {
+}: RenderFieldProps) {
 	const { name, label, type, placeholder, options } = field;
-	const fieldValue = formData[name] ?? "";
-
-	const commonProps = {
-		placeholder: placeholder || `Digite ${label?.toLowerCase()}`,
-		value: fieldValue,
-		style: { width: "100%" },
-	};
+	const value = formData[name] ?? "";
+	const defaultPlaceholder = placeholder || `Digite ${label?.toLowerCase()}`;
+	const onChange = (val: any) => handleChange(name, val);
 
 	switch (type) {
 		case "email":
 			return (
-				<Input
-					type="email"
-					{...commonProps}
-					onChange={e => handleChange(name, e.target.value)}
+				<EmailInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
+
 		case "text":
+			return (
+				<TextInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
+				/>
+			);
+
 		case "tel":
 			return (
-				<Input
-					{...commonProps}
-					type={type}
-					onChange={e => handleChange(name, e.target.value)}
+				<TelInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
 
 		case "number":
 			return (
-				<Input
-					{...commonProps}
-					type="number"
-					onChange={e => handleChange(name, e.target.value)}
+				<NumberInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
 
 		case "textarea":
 			return (
-				<Input.TextArea
-					{...commonProps}
-					rows={4}
-					onChange={e => handleChange(name, e.target.value)}
+				<TextAreaInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
 
 		case "select":
 			return (
-				<Select
-					{...commonProps}
-					onChange={val => handleChange(name, val)}
-					options={options?.map(opt => ({ label: opt, value: opt })) || []}
+				<SelectInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
+					options={options}
 				/>
 			);
 
 		case "date":
 			return (
-				<Input
-					type="date"
-					style={{ width: "100%" }}
-					placeholder={placeholder}
-					value={fieldValue ?? null}
-					// format="DD/MM/YYYY"
-					// onChange={(_, dateString) => handleChange(name, dateString)}
-					onChange={e => handleChange(name, e.target.value)}
+				<DateInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
 
 		case "checkbox":
-			return (
-				<Switch
-					checked={fieldValue === true}
-					onChange={checked => handleChange(name, checked)}
-				/>
-			);
+			return <SwitchInput value={value} onChange={onChange} />;
 
 		case "radio":
-			return (
-				<Radio.Group
-					onChange={e => handleChange(name, e.target.value)}
-					value={fieldValue}
-					options={options?.map(opt => ({ label: opt, value: opt })) || []}
-				/>
-			);
+			return <RadioInput value={value} onChange={onChange} options={options} />;
 
 		case "checkbox-group":
 			return (
-				<Checkbox.Group
-					style={{ width: "100%" }}
-					onChange={checkedValues => handleChange(name, checkedValues)}
-					value={Array.isArray(fieldValue) ? fieldValue : []}
-					options={options?.map(opt => ({ label: opt, value: opt })) || []}
+				<CheckboxGroupInput
+					value={value}
+					onChange={onChange}
+					options={options}
 				/>
 			);
 
 		default:
 			return (
-				<Input
-					{...commonProps}
-					onChange={e => handleChange(name, e.target.value)}
+				<TextInput
+					value={value}
+					placeholder={defaultPlaceholder}
+					onChange={onChange}
 				/>
 			);
 	}

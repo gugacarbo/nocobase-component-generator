@@ -9,6 +9,7 @@ export interface FieldsManagerContextType {
 	addField: () => void;
 	removeField: (index: number) => void;
 	updateField: (index: number, key: string, value: any) => void;
+	moveField: (index: number, direction: "up" | "down") => void;
 	toggleActiveKeys: () => void;
 }
 

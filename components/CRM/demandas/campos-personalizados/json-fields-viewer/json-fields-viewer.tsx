@@ -4,11 +4,14 @@ import { CamposTipo } from "@components/CRM/@types";
 import { ctx } from "./ctx.mock";
 import { FieldCard } from "./field-card";
 import { FullDiv } from "@components/CRM/ui/full-div";
+import { useConditionalFields } from "../hooks/use-conditional-fields";
 
 function JsonFieldsViewer() {
 	const [campos, setCampos] = useState<CamposTipo[]>([]);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 	const [loading, setLoading] = useState(true);
+
+	const { visibleFields } = useConditionalFields(campos, formData);
 
 	useEffect(() => {
 		try {
@@ -37,7 +40,7 @@ function JsonFieldsViewer() {
 		);
 	}
 
-	if (!campos || campos.length === 0) {
+	if (!visibleFields || visibleFields.length === 0) {
 		return null;
 	}
 
@@ -50,7 +53,7 @@ function JsonFieldsViewer() {
 					width: "100%",
 				}}
 			>
-				{campos.map((campo, index) => (
+				{visibleFields.map((campo, index) => (
 					<FieldCard
 						key={campo.name || index}
 						campo={campo}
