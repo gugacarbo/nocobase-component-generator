@@ -24,7 +24,7 @@ export interface BundlePipelineContext {
 	sortedFiles: string[];
 	fileContents: Map<string, string>;
 	files: Map<string, FileInfo>;
-	mainComponent: string | null;
+	mainComponent: string;
 	externalImports: Map<string, Set<string>>;
 }
 
@@ -45,4 +45,45 @@ export interface BundleResult {
 	sizeKB: number;
 	files: string[];
 	mainComponent?: string;
+}
+
+/**
+ * Informações sobre um import analisado
+ */
+export interface ImportInfo {
+	moduleName: string;
+	importedNames: string[];
+	isExternal: boolean;
+	isDefault: boolean;
+	hasNamedImports: boolean;
+	isTypeOnly?: boolean;
+}
+
+/**
+ * Informações sobre re-export
+ */
+export interface ReExportInfo {
+	exportedName: string;
+	originalName: string;
+	sourceModule: string;
+	resolvedPath: string | null;
+}
+
+/**
+ * Resultado da análise de declarações
+ */
+export interface DeclarationAnalysis {
+	declared: Set<string>;
+	used: Set<string>;
+	unused: Set<string>;
+}
+
+/**
+ * Opções de configuração do bundler
+ */
+export interface BundlerOptions {
+	verbose?: boolean;
+	exportTypescript?: boolean;
+	skipTreeShaking?: boolean;
+	skipFormatting?: boolean;
 }

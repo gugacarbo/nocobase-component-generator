@@ -14,24 +14,20 @@ function FolderView({
 	onFileSelect,
 	onFolderClick,
 }: FolderViewProps) {
-	return (
-		nodes
-			.sort((a, b) => {
-				if (a.isFile === b.isFile) return a.name.localeCompare(b.name);
-				return a.isFile ? 1 : -1;
-			})
-			.map((node, index) => (
-				<NodeItem
-					key={`${node.name}-${index}`}
-					node={node}
-					selectedComponent={selectedComponent}
-					onFileSelect={onFileSelect}
-					onFolderClick={onFolderClick}
-				/>
-			))
-	);
+	return nodes
+		.sort((a, b) => {
+			if (a.isFile === b.isFile) return a.name.localeCompare(b.name);
+			return a.isFile ? 1 : -1;
+		})
+		.map((node, index) => (
+			<NodeItem
+				key={`${node.name}-${index}`}
+				node={node}
+				selectedComponent={selectedComponent}
+				onFileSelect={onFileSelect}
+				onFolderClick={onFolderClick}
+			/>
+		));
 }
-
-
 
 export { FolderView };

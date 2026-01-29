@@ -32,6 +32,7 @@ export class CommentProcessor {
 			const bundleOnlyMatch = line.match(
 				APP_CONFIG.bundler.BUNDLE_ONLY_PATTERN,
 			);
+
 			if (bundleOnlyMatch) {
 				const indent = line.match(/^(\s*)/)?.[1] || "";
 				processedLines.push(indent + bundleOnlyMatch[1]);

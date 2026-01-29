@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "@/config/config";
-import { PathUtils } from "@/bundler";
+import { PathUtils } from "@common/utils";
 
 let extensionPatternCache: RegExp | null = null;
 

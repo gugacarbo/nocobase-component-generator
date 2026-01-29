@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ComponentInfo } from "../../types";
 import { APP_CONFIG } from "@/config/config";
 import { AppContext } from "./context";
-import { PathUtils } from "@/bundler";
+import { PathUtils } from "@common/utils";
 import { getComponentPathInfo, removeExtension } from "../../utils/path-utils";
 import { Logger } from "@/common/Logger";
 

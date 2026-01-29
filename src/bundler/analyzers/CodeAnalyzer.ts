@@ -10,13 +10,19 @@ export class CodeAnalyzer {
 	/**
 	 * Identifica declarações não utilizadas
 	 */
-	public static findUnusedDeclarations(content: string): Set<string> {
+	public static findUnusedDeclarations(
+		content: string,
+		mainComponent: string,
+	): Set<string> {
 		const declared = this.analyzeDeclared(content);
 		const used = this.analyzeUsage(content);
 		const unused = new Set<string>();
 
 		declared.forEach(name => {
-			if (!used.has(name) && !StringUtils.isPascalCase(name)) {
+			if (
+				!used.has(name) &&
+				!StringUtils.equalsIgnoreCase(name, mainComponent)
+			) {
 				unused.add(name);
 			}
 		});
@@ -29,6 +35,7 @@ export class CodeAnalyzer {
 	 */
 	public static analyzeDeclared(content: string): Set<string> {
 		const declared = new Set<string>();
+
 		const sourceFile = ts.createSourceFile(
 			APP_CONFIG.bundler.TEMP_FILE_NAME,
 			content,
@@ -42,6 +49,7 @@ export class CodeAnalyzer {
 			if (ts.isFunctionDeclaration(node) && node.name) {
 				declared.add(node.name.text);
 			}
+
 			// Variáveis e constantes
 			else if (ts.isVariableStatement(node)) {
 				node.declarationList.declarations.forEach(decl => {
@@ -50,6 +58,7 @@ export class CodeAnalyzer {
 					}
 				});
 			}
+
 			// Variáveis individuais
 			else if (ts.isVariableDeclaration(node)) {
 				if (ts.isIdentifier(node.name)) {

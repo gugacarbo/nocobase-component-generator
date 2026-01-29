@@ -10,6 +10,7 @@ import {
 	SwitcherOutlined,
 	UnorderedListOutlined,
 } from "@ant-design/icons";
+
 import { FieldType } from "./types";
 
 export const FIELD_TYPES_GROUPED: {

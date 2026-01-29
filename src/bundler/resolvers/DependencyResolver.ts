@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import { FileInfo } from "../core/types";
-import { PathUtils } from "../../common/utils/PathUtils";
-import { APP_CONFIG } from "@/config/config";
 import { Logger } from "@/common/Logger";
 import { ReExportAnalyzer } from "../analyzers/ReExportAnalyzer";
+import { ModuleResolver } from "./ModuleResolver";
+import { ImportExtractor } from "../analyzers/ImportExtractor";
 
 /**
  * Resolve dependências entre arquivos
@@ -12,53 +12,13 @@ import { ReExportAnalyzer } from "../analyzers/ReExportAnalyzer";
 export class DependencyResolver {
 	/**
 	 * Resolve o caminho real de um import relativo
+	 * @deprecated Use ModuleResolver.resolve() ao invés
 	 */
 	public static resolveImportPath(
 		fromFile: string,
 		importPath: string,
 	): string | null {
-		const fromDir = PathUtils.dirname(fromFile);
-		// 1. Tenta resolver como alias
-		let resolvedPath: string | null = null;
-		if (PathUtils.isAlias(importPath)) {
-			resolvedPath = PathUtils.resolveAlias(importPath);
-			if (resolvedPath) {
-				// Tenta resolver a partir da raiz do projeto
-				resolvedPath = PathUtils.resolve(process.cwd(), resolvedPath);
-			}
-		} else {
-			// 2. Caminho relativo normal
-			resolvedPath = PathUtils.resolve(fromDir, importPath);
-		}
-
-		// Se é um diretório, procura por index.*
-		if (resolvedPath && fs.existsSync(resolvedPath)) {
-			const stat = fs.statSync(resolvedPath);
-			if (stat.isDirectory()) {
-				for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
-					const indexPath = PathUtils.join(resolvedPath, `index${ext}`);
-					if (fs.existsSync(indexPath)) {
-						return indexPath;
-					}
-				}
-			}
-		}
-
-		// Tenta adicionar extensões
-		if (resolvedPath) {
-			for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
-				const pathWithExt = resolvedPath + ext;
-				if (fs.existsSync(pathWithExt)) {
-					return pathWithExt;
-				}
-			}
-			// Se já existe como está
-			if (fs.existsSync(resolvedPath)) {
-				return resolvedPath;
-			}
-		}
-
-		return null;
+		return ModuleResolver.resolve(fromFile, importPath);
 	}
 
 	/**
@@ -69,74 +29,6 @@ export class DependencyResolver {
 		const sorted: string[] = [];
 		const visiting = new Set<string>();
 		const processedFiles: Set<string> = new Set();
-
-		const extractImportsWithNames = (
-			content: string,
-		): Map<string, string[]> => {
-			const importsMap = new Map<string, string[]>();
-			const importRegex =
-				/import\s+(?:(\{[^}]*\})|(\*\s+as\s+\w+)|(\w+))(?:\s*,\s*(?:(\{[^}]*\})|(\*\s+as\s+\w+)))*\s+from\s+['"]([^'"]+)['"]/g;
-
-			let match;
-			while ((match = importRegex.exec(content)) !== null) {
-				const importPath = match[6];
-				if (
-					!PathUtils.isRelativePath(importPath) &&
-					!PathUtils.isAlias(importPath)
-				) {
-					continue;
-				}
-
-				const names: string[] = [];
-
-				if (match[1]) {
-					const namedImports = match[1].replace(/[{}]/g, "").split(",");
-					namedImports.forEach(name => {
-						const trimmed = name.trim();
-						if (trimmed) {
-							const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
-							if (asMatch) {
-								names.push(asMatch[1]);
-							} else {
-								names.push(trimmed);
-							}
-						}
-					});
-				}
-
-				if (match[3]) {
-					names.push(match[3]);
-				}
-
-				if (match[4]) {
-					const namedImports = match[4].replace(/[{}]/g, "").split(",");
-					namedImports.forEach(name => {
-						const trimmed = name.trim();
-						if (trimmed) {
-							const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
-							if (asMatch) {
-								names.push(asMatch[1]);
-							} else {
-								names.push(trimmed);
-							}
-						}
-					});
-				}
-
-				if (importsMap.has(importPath)) {
-					const existing = importsMap.get(importPath)!;
-					names.forEach(n => {
-						if (!existing.includes(n)) {
-							existing.push(n);
-						}
-					});
-				} else {
-					importsMap.set(importPath, names);
-				}
-			}
-
-			return importsMap;
-		};
 
 		const visit = (filePath: string) => {
 			if (processedFiles.has(filePath)) {
@@ -158,7 +50,9 @@ export class DependencyResolver {
 				return;
 			}
 
-			const importsWithNames = extractImportsWithNames(fileInfo.content);
+			const importsWithNames = ImportExtractor.extractWithNames(
+				fileInfo.content,
+			);
 
 			importsWithNames.forEach((importedNames, importPath) => {
 				const resolvedFiles = this.resolveImportWithReExports(
@@ -179,7 +73,6 @@ export class DependencyResolver {
 			sorted.push(filePath);
 		};
 
-		// Visita todos os arquivos
 		Array.from(files.keys()).forEach(filePath => {
 			visit(filePath);
 		});
@@ -232,7 +125,7 @@ export class DependencyResolver {
 		importPath: string,
 		importedNames?: string[],
 	): string[] {
-		const resolvedPath = this.resolveImportPath(fromFile, importPath);
+		const resolvedPath = ModuleResolver.resolve(fromFile, importPath);
 
 		if (!resolvedPath) {
 			return [];

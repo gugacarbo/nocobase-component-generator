@@ -1,3 +1,4 @@
+import { FileOutlined } from "@ant-design/icons";
 import { TreeNode } from "../../types";
 import { TreeView } from "./tree-view";
 
@@ -12,7 +13,6 @@ interface FolderTreeItemProps {
 	currentPath: string[];
 }
 
-
 function FolderTreeItem({
 	node,
 	level,
@@ -24,8 +24,6 @@ function FolderTreeItem({
 
 	currentPath,
 }: FolderTreeItemProps) {
-
-
 	return (
 		<>
 			<button
@@ -41,8 +39,7 @@ function FolderTreeItem({
 				</div>
 				{node.fileCount !== undefined && node.fileCount > 0 && (
 					<span className="text-xs text-gray-500 shrink-0">
-						{node.fileCount}{" "}
-						{node.fileCount === 1 ? "arquivo" : "arquivos"}
+						{node.fileCount} <FileOutlined />
 					</span>
 				)}
 			</button>
@@ -54,7 +51,6 @@ function FolderTreeItem({
 					level={level + 1}
 					currentPath={currentPath}
 					parentPath={[...parentPath, node.name]}
-
 				/>
 			)}
 		</>

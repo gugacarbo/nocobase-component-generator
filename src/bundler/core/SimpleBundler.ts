@@ -135,6 +135,7 @@ export class SimpleBundler {
 		Logger.info.verbose(
 			`Gerando bundle ${options.isJavascript ? "JavaScript" : "TypeScript"}`,
 		);
+
 		let content = "";
 
 		//* 1. Cabeçalho
@@ -151,7 +152,7 @@ export class SimpleBundler {
 		codeContent = NocoBaseAdapter.processComments(codeContent);
 
 		//* 4. Tree shaking (remove código não utilizado)
-		codeContent = TreeShaker.shake(codeContent);
+		codeContent = TreeShaker.shake(codeContent, context.mainComponent);
 
 		//* 5. Extrai defaultProps do código
 		const { defaultProps, contentWithout } =

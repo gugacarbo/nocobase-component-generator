@@ -1,8 +1,5 @@
-import {
-	HomeOutlined,
-	UnorderedListOutlined,
-	FolderOutlined,
-} from "@ant-design/icons";
+import { HomeOutlined, FolderOutlined } from "@ant-design/icons";
+import { FolderTreeIcon } from "lucide-react";
 
 interface NavigationButtonsProps {
 	currentPath: string[];
@@ -42,10 +39,12 @@ function NavigationButtons({
 						: "Visualizar em pastas"
 				}
 			>
-				{viewMode === "folder" ? <UnorderedListOutlined /> : <FolderOutlined />}
+				{viewMode === "folder" ? (
+					<FolderTreeIcon className="size-4" strokeWidth={1.5} />
+				) : (
+					<FolderOutlined />
+				)}
 			</button>
-
-
 		</div>
 	);
 }

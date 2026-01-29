@@ -2,13 +2,8 @@ import * as ts from "typescript";
 import * as fs from "fs";
 import { APP_CONFIG } from "@/config/config";
 import { PathUtils } from "@common/utils/PathUtils";
-
-export interface ReExportInfo {
-	exportedName: string;
-	originalName: string;
-	sourceModule: string;
-	resolvedPath: string | null;
-}
+import { ModuleResolver } from "../resolvers/ModuleResolver";
+import { ReExportInfo } from "../core/types";
 
 export class ReExportAnalyzer {
 	/**
@@ -102,7 +97,7 @@ export class ReExportAnalyzer {
 				continue;
 			}
 
-			const resolvedPath = this.resolveModulePath(
+			const resolvedPath = ModuleResolver.resolvePath(
 				indexDir,
 				reExport.sourceModule,
 			);
@@ -215,46 +210,5 @@ export class ReExportAnalyzer {
 		}
 
 		return results;
-	}
-
-	private static resolveModulePath(
-		fromDir: string,
-		modulePath: string,
-	): string | null {
-		let resolvedPath: string | null = null;
-
-		if (PathUtils.isAlias(modulePath)) {
-			resolvedPath = PathUtils.resolveAlias(modulePath);
-			if (resolvedPath) {
-				resolvedPath = PathUtils.resolve(process.cwd(), resolvedPath);
-			}
-		} else {
-			resolvedPath = PathUtils.resolve(fromDir, modulePath);
-		}
-
-		if (!resolvedPath) return null;
-
-		if (fs.existsSync(resolvedPath)) {
-			const stat = fs.statSync(resolvedPath);
-			if (stat.isDirectory()) {
-				for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
-					const indexPath = PathUtils.join(resolvedPath, `index${ext}`);
-					if (fs.existsSync(indexPath)) {
-						return indexPath;
-					}
-				}
-			} else {
-				return resolvedPath;
-			}
-		}
-
-		for (const ext of APP_CONFIG.bundler.IMPORT_EXTENSIONS) {
-			const pathWithExt = resolvedPath + ext;
-			if (fs.existsSync(pathWithExt)) {
-				return pathWithExt;
-			}
-		}
-
-		return null;
 	}
 }

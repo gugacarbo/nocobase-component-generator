@@ -4,6 +4,7 @@ import { Logger } from "@/common/Logger";
 import { FileInfo, FileLoadContext } from "../core/types";
 import { DependencyResolver } from "../resolvers/DependencyResolver";
 import { FileValidator } from "../utils/FileValidator";
+import { ImportExtractor } from "../analyzers/ImportExtractor";
 
 /**
  * Responsável por carregar arquivos e diretórios
@@ -47,93 +48,18 @@ export class FileLoader {
 	 * Extrai imports de um arquivo
 	 */
 	public static extractImports(content: string): string[] {
-		const imports: string[] = [];
-		const importRegex =
-			/import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)(?:\s*,\s*(?:\{[^}]*\}|\*\s+as\s+\w+|\w+))*\s+from\s+)?['"]([^'"]+)['"]/g;
-
-		let match;
-		while ((match = importRegex.exec(content)) !== null) {
-			const importPath = match[1];
-			if (
-				PathUtils.isRelativePath(importPath) ||
-				PathUtils.isAlias(importPath)
-			) {
-				imports.push(importPath);
-			}
-		}
-		return imports;
+		return ImportExtractor.extractPaths(content);
 	}
 
 	/**
 	 * Extrai imports com seus nomes importados
 	 * Retorna um mapa: caminho do import -> lista de nomes importados
+	 * @deprecated Use ImportExtractor.extractWithNames() ao invés
 	 */
 	public static extractImportsWithNames(
 		content: string,
 	): Map<string, string[]> {
-		const importsMap = new Map<string, string[]>();
-		const importRegex =
-			/import\s+(?:(\{[^}]*\})|(\*\s+as\s+\w+)|(\w+))(?:\s*,\s*(?:(\{[^}]*\})|(\*\s+as\s+\w+)))*\s+from\s+['"]([^'"]+)['"]/g;
-
-		let match;
-		while ((match = importRegex.exec(content)) !== null) {
-			const importPath = match[6];
-			if (
-				!PathUtils.isRelativePath(importPath) &&
-				!PathUtils.isAlias(importPath)
-			) {
-				continue;
-			}
-
-			const names: string[] = [];
-
-			if (match[1]) {
-				const namedImports = match[1].replace(/[{}]/g, "").split(",");
-				namedImports.forEach(name => {
-					const trimmed = name.trim();
-					if (trimmed) {
-						const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
-						if (asMatch) {
-							names.push(asMatch[1]);
-						} else {
-							names.push(trimmed);
-						}
-					}
-				});
-			}
-
-			if (match[3]) {
-				names.push(match[3]);
-			}
-
-			if (match[4]) {
-				const namedImports = match[4].replace(/[{}]/g, "").split(",");
-				namedImports.forEach(name => {
-					const trimmed = name.trim();
-					if (trimmed) {
-						const asMatch = trimmed.match(/(\w+)\s+as\s+(\w+)/);
-						if (asMatch) {
-							names.push(asMatch[1]);
-						} else {
-							names.push(trimmed);
-						}
-					}
-				});
-			}
-
-			if (importsMap.has(importPath)) {
-				const existing = importsMap.get(importPath)!;
-				names.forEach(n => {
-					if (!existing.includes(n)) {
-						existing.push(n);
-					}
-				});
-			} else {
-				importsMap.set(importPath, names);
-			}
-		}
-
-		return importsMap;
+		return ImportExtractor.extractWithNames(content);
 	}
 
 	/**
@@ -212,7 +138,7 @@ export class FileLoader {
 		const fileInfo = this.loadFileInfo(filePath, baseDir);
 		filesMap.set(filePath, fileInfo);
 
-		const importsWithNames = this.extractImportsWithNames(fileInfo.content);
+		const importsWithNames = ImportExtractor.extractWithNames(fileInfo.content);
 
 		importsWithNames.forEach((importedNames, importPath) => {
 			const resolvedFiles = DependencyResolver.resolveImportWithReExports(

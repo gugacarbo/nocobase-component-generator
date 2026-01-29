@@ -1,4 +1,4 @@
-import { CodeOutlined } from "@ant-design/icons";
+import { CodeOutlined, CopyOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { useState, useEffect, useRef } from "react";
 
@@ -91,43 +91,38 @@ function CodeButtons({
 
 	return (
 		<div className="flex items-center">
-			{bundleCode && (
-				<Button
-					disabled={bundling}
-					style={{
-						borderRadius: bundleCode ? "6px 0px 0px 6px" : "6px",
-						border: "none",
-					}}
-					onClick={openModal}
-				>
-					<CodeOutlined />
-				</Button>
-			)}
+			<Button
+				disabled={bundling || !bundleCode}
+				style={{
+					borderRadius: "6px 0px 0px 6px",
+					border: "none",
+				}}
+				onClick={openModal}
+			>
+				<CodeOutlined />
+			</Button>
 			<Button
 				className="w-full"
 				onClick={handleBundle}
 				disabled={bundling}
 				style={{
-					borderRadius: bundleCode ? "0px" : "6px",
+					borderRadius: "0px",
 					border: "none",
 				}}
 			>
 				{bundling ? "Gerando..." : "📦 Bundle"}
 			</Button>
-			{bundleCode && (
-				<Button
-					disabled={bundling}
-					style={{
-						borderRadius: bundleCode ? "0px 6px 6px 0px" : "6px",
-						backgroundColor: autoCopy ? "#07884cff" : "#1976d2",
-						boxShadow: autoCopy ? "0 0 8px rgba(16, 185, 129, 0.3)" : undefined,
-						border: "none",
-					}}
-					onClick={handleCopy}
-				>
-					{copied ? "✓" : error ? "✕" : autoCopy ? "🔄" : "📋"}
-				</Button>
-			)}
+			<Button
+				disabled={bundling || !bundleCode}
+				style={{
+					borderRadius: "0px 6px 6px 0px",
+					color: autoCopy ? "#07884cff" : "#1976d2",
+					border: "none",
+				}}
+				onClick={handleCopy}
+			>
+				{copied ? "✓" : error ? "✕" : autoCopy ? "🔄" : <CopyOutlined />}
+			</Button>
 		</div>
 	);
 }

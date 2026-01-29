@@ -3,6 +3,7 @@ import { FileInfo } from "../core/types";
 import { TypeScriptRemover } from "./TypeScriptRemover";
 import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
 import { RegexPatterns } from "../utils/RegexPatterns";
+import { ExportProcessor } from "./ExportProcessor";
 
 /**
  * Responsável por processar e limpar conteúdo de arquivos
@@ -44,18 +45,13 @@ export class ContentProcessor {
 	): string {
 		let cleaned = content;
 
-		// Remove todos os imports usando regex centralizada
 		cleaned = cleaned.replace(RegexPatterns.IMPORT_STATEMENT, "");
+		cleaned = ExportProcessor.removeExports(cleaned);
 
-		// Remove exports
-		cleaned = this.removeExports(cleaned);
-
-		// Remove TypeScript se solicitado
 		if (removeTypes) {
 			cleaned = TypeScriptRemover.removeTypes(cleaned, fileName);
 		}
 
-		// Normaliza quebras de linha
 		cleaned = cleaned.replace(/\n\s*\n\s*\n/g, "\n\n");
 
 		return cleaned.trim();
@@ -68,63 +64,14 @@ export class ContentProcessor {
 		defaultProps: string;
 		contentWithout: string;
 	} {
-		const defaultPropsRegex = /(?:export )?const defaultProps = \{[\s\S]*?\};/;
-		const match = content.match(defaultPropsRegex);
-
-		if (!match) {
-			return { defaultProps: "", contentWithout: content };
-		}
-
-		const defaultPropsDeclaration = match[0].replace(/export\s+/, "").trim();
-		const contentWithout = content
-			.replace(defaultPropsRegex, "")
-			.replace(/\n\s*\n\s*\n/g, "\n\n")
-			.trim();
-
-		return { defaultProps: defaultPropsDeclaration, contentWithout };
+		return ExportProcessor.extractDefaultProps(content);
 	}
 
 	/**
 	 * Extrai defaultProps e move para o início do conteúdo
 	 */
 	public static reorderDefaultProps(content: string): string {
-		const defaultPropsRegex = /const defaultProps = \{[\s\S]*?\};/;
-		const match = content.match(defaultPropsRegex);
-
-		if (!match) {
-			return content;
-		}
-
-		const defaultPropsDeclaration = match[0];
-		const contentWithoutDefaultProps = content
-			.replace(defaultPropsRegex, "")
-			.trim();
-
-		return `${defaultPropsDeclaration}\n\n${contentWithoutDefaultProps}`;
-	}
-
-	/**
-	 * Remove todas as declarações de export
-	 */
-	private static removeExports(content: string): string {
-		let cleaned = content;
-
-		// Remove export { ... } primeiro
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_BLOCK, "");
-
-		// Remove export default + identificador
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_DEFAULT, "");
-
-		// Remove export async (antes de export named)
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_ASYNC, "async ");
-
-		// Remove export default inline
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_INLINE, "");
-
-		// Remove export named (const, let, var, function, class, etc)
-		cleaned = cleaned.replace(RegexPatterns.EXPORT_NAMED, "");
-
-		return cleaned;
+		return ExportProcessor.reorderDefaultProps(content);
 	}
 
 	/**

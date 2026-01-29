@@ -11,7 +11,9 @@
     "dev:server": "tsx watch src/app/server/index.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "bundle": "tsx src/scripts/bundle.ts"
+    "bundle": "tsx src/scripts/bundle.ts",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@ant-design/icons": "~6.1.0",
@@ -21,6 +23,8 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",
     "handlebars": "^4.7.8",
+    "lucide-react": "^0.563.0",
+    "prism-react-renderer": "^2.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^3.4.0",
@@ -32,12 +36,14 @@
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "4.0.18",
     "esbuild": "^0.19.10",
     "express": "^4.18.2",
     "prettier": "^3.1.1",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "7.3.1",
+    "vitest": "^4.0.18"
   },
   "packageManager": "pnpm@10.25.0",
   "keywords": [

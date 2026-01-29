@@ -20,7 +20,7 @@ function DefaultInput() {
 	return (
 		<Input
 			//bundle-only: {...ctx.model.props}
-			value={value}
+			value={value as string}
 			onChange={onChange}
 		/>
 	);

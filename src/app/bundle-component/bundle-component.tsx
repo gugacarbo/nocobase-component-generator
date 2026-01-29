@@ -3,7 +3,7 @@ import { ComponentInfo } from "../types";
 import { CodeModal } from "./code-modal/code-modal";
 import { APP_CONFIG } from "@/config/config";
 import { CodeButtons } from "./code-buttons";
-import { PathUtils, StringUtils } from "@/bundler";
+import { PathUtils, StringUtils } from "@common/utils";
 
 function BundleComponent({
 	components,

@@ -4,6 +4,12 @@ import { CodeAnalyzer } from "../analyzers/CodeAnalyzer";
 import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 import { APP_CONFIG } from "@/config/config";
 
+interface NodeToRemove {
+	start: number;
+	end: number;
+	name: string;
+}
+
 /**
  * Remove código não utilizado (tree shaking / dead code elimination)
  */
@@ -11,9 +17,12 @@ export class TreeShaker {
 	/**
 	 * Remove declarações não utilizadas do código
 	 */
-	public static shake(content: string): string {
+	public static shake(content: string, mainComponent: string): string {
 		try {
-			const unused = CodeAnalyzer.findUnusedDeclarations(content);
+			const unused = CodeAnalyzer.findUnusedDeclarations(
+				content,
+				mainComponent,
+			);
 
 			if (unused.size === 0) {
 				return content;
@@ -22,6 +31,7 @@ export class TreeShaker {
 			Logger.info.verbose(
 				`Removendo ${unused.size} declarações não utilizadas`,
 			);
+
 			const codeContent = this.removeUnusedCode(content, unused);
 
 			const usedIdentifiers = CodeAnalyzer.analyzeUsage(codeContent);
@@ -35,7 +45,8 @@ export class TreeShaker {
 	}
 
 	/**
-	 * Remove código não utilizado
+	 * Remove código não utilizado de forma segura
+	 * Coleta todos os nós e remove do final para o início para não afetar índices
 	 */
 	public static removeUnusedCode(content: string, unused: Set<string>): string {
 		const sourceFile = ts.createSourceFile(
@@ -46,12 +57,16 @@ export class TreeShaker {
 			ts.ScriptKind.TSX,
 		);
 
-		const nodesToRemove: ts.Node[] = [];
+		const nodesToRemove: NodeToRemove[] = [];
 
 		const visit = (node: ts.Node) => {
 			if (ts.isFunctionDeclaration(node) && node.name) {
 				if (unused.has(node.name.text)) {
-					nodesToRemove.push(node);
+					nodesToRemove.push({
+						start: node.getStart(sourceFile),
+						end: node.getEnd(),
+						name: node.name.text,
+					});
 				}
 			} else if (ts.isVariableStatement(node)) {
 				const hasUnused = node.declarationList.declarations.some(decl => {
@@ -61,11 +76,22 @@ export class TreeShaker {
 					return false;
 				});
 				if (hasUnused) {
-					nodesToRemove.push(node);
+					const declName = node.declarationList.declarations[0];
+					nodesToRemove.push({
+						start: node.getStart(sourceFile),
+						end: node.getEnd(),
+						name: ts.isIdentifier(declName.name)
+							? declName.name.text
+							: "unknown",
+					});
 				}
 			} else if (ts.isClassDeclaration(node) && node.name) {
 				if (unused.has(node.name.text)) {
-					nodesToRemove.push(node);
+					nodesToRemove.push({
+						start: node.getStart(sourceFile),
+						end: node.getEnd(),
+						name: node.name.text,
+					});
 				}
 			}
 
@@ -74,15 +100,18 @@ export class TreeShaker {
 
 		visit(sourceFile);
 
-		// Remove os nodos marcados
-		let result = content;
-		nodesToRemove.reverse().forEach(node => {
-			const start = node.getStart(sourceFile);
-			const end = node.getEnd();
-			result = result.substring(0, start) + result.substring(end);
-		});
+		if (nodesToRemove.length === 0) {
+			return content;
+		}
 
-		// Limpa linhas vazias excessivas
+		nodesToRemove.sort((a, b) => b.start - a.start);
+
+		let result = content;
+		for (const node of nodesToRemove) {
+			result = result.substring(0, node.start) + result.substring(node.end);
+			Logger.info.verbose(`Tree-shake: removido "${node.name}"`);
+		}
+
 		result = result.replace(/\n\s*\n\s*\n/g, "\n\n");
 
 		return result.trim();

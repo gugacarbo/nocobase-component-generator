@@ -1,3 +1,4 @@
+import { CodeWrapper } from "./code-wrapper";
 import { CopyCodeButton } from "./copy-code-button";
 
 export function CodeModal({
@@ -40,9 +41,7 @@ export function CodeModal({
 						</button>
 					</div>
 				</div>
-				<pre className="flex-1 overflow-auto p-5 m-0 text-[#d4d4d4] font-mono text-[13px] leading-relaxed whitespace-pre">
-					<code className="block">{code}</code>
-				</pre>
+				<CodeWrapper code={code} />
 			</div>
 		</div>
 	);
