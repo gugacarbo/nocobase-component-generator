@@ -4,7 +4,7 @@ import { FileInfo } from "../core/types";
 import { Logger } from "@/common/Logger";
 import { ReExportAnalyzer } from "../analyzers/ReExportAnalyzer";
 import { ModuleResolver } from "./ModuleResolver";
-import { ImportExtractor } from "../analyzers/ImportExtractor";
+import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 
 /**
  * Resolve dependências entre arquivos
@@ -50,7 +50,7 @@ export class DependencyResolver {
 				return;
 			}
 
-			const importsWithNames = ImportExtractor.extractWithNames(
+			const importsWithNames = ImportAnalyzer.extractWithNames(
 				fileInfo.content,
 			);
 

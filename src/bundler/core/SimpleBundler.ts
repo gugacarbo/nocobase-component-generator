@@ -16,268 +16,301 @@ import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 import { NocoBaseAdapter } from "../adapters/NocoBaseAdapter";
 import { ContentProcessor } from "../processors/ContentProcessor";
 import { FileWriter } from "../processors/FileWriter";
+import { CommentProcessor } from "../processors/CommentProcessor";
+import { ExportProcessor } from "../processors/ExportProcessor";
+import { BundleComposer } from "./BundleComposer";
 
-/**
- * Bundler simplificado otimizado para componentes React/NocoBase
- *
- * Implementa pipeline de bundling com:
- * - Carregamento paralelo de arquivos
- * - Análise de dependências
- * - Tree-shaking
- * - Transformações NocoBase
- * - Geração de bundles TypeScript e JavaScript
- */
-export class SimpleBundler {
-	private readonly srcPath: string;
-	private readonly outputDir: string;
-	private readonly isFile: boolean;
+export interface BundlerFactory {
+	withOptions(options: Partial<BundlerConfig>): BundlerFactory;
+	bundle(): Promise<BundleResult>;
+	getContext(): BundlePipelineContext | null;
+}
 
-	/** Mapa de arquivos carregados (path → FileInfo) */
-	private files: Map<string, FileInfo> = new Map();
-	private firstFileRelativePath: string = "";
-	private readonly options: BundlerConfig;
+interface BundlerState {
+	files: Map<string, FileInfo>;
+	firstFileRelativePath: string;
+	context: BundlePipelineContext | null;
+}
 
-	constructor(
-		srcPath: string,
-		outputDir: string,
-		options?: Partial<BundlerConfig>,
-	) {
-		if (!srcPath || srcPath.trim() === "") {
-			throw new Error("srcPath não pode ser vazio");
-		}
+export function createBundler(
+	srcPath: string,
+	outputDir: string,
+): BundlerFactory {
+	validatePaths(srcPath, outputDir);
 
-		if (!outputDir || outputDir.trim() === "") {
-			throw new Error("outputDir não pode ser vazio");
-		}
+	const isFile = FileLoader.fileExists(srcPath);
+	let options: BundlerConfig = { ...APP_CONFIG.bundler };
+	const state: BundlerState = {
+		files: new Map(),
+		firstFileRelativePath: "",
+		context: null,
+	};
 
-		const srcExists =
-			FileLoader.fileExists(srcPath) || FileLoader.directoryExists(srcPath);
-		if (!srcExists) {
-			throw new Error(`Path não encontrado: ${srcPath}`);
-		}
+	const factory: BundlerFactory = {
+		withOptions(newOptions: Partial<BundlerConfig>) {
+			options = { ...options, ...newOptions };
+			return factory;
+		},
 
-		this.srcPath = srcPath;
-		this.outputDir = outputDir;
-		this.isFile = FileLoader.fileExists(srcPath);
-		this.options = { ...APP_CONFIG.bundler, ...options };
-	}
+		async bundle(): Promise<BundleResult> {
+			try {
+				Logger.start("Iniciando processo de bundling");
 
-	/**
-	 * Executa o processo completo de bundling
-	 * Pipeline: Carregamento → Análise → Ordenação → Geração
-	 */
-	public async bundle(): Promise<void> {
-		try {
-			Logger.start("Iniciando processo de bundling");
+				await loadFiles(srcPath, isFile, state);
 
-			// Carregamento paralelo de arquivos
-			await this.loadFilesAsync();
+				if (state.files.size === 0) {
+					throw new Error("Nenhum arquivo suportado encontrado para processar");
+				}
 
-			if (this.files.size === 0) {
-				throw new Error("Nenhum arquivo suportado encontrado para processar");
+				Logger.success.verbose(`${state.files.size} arquivos carregados`);
+
+				state.context = createPipelineContext(state.files);
+				Logger.info.verbose(
+					`Componente principal: ${state.context.mainComponent || "não detectado"}`,
+				);
+
+				const fileName = ContentProcessor.getOutputFileName(
+					state.context.mainComponent,
+				);
+
+				Logger.section("Gerando bundles");
+				const result = await generateBundles(
+					fileName,
+					state.context,
+					outputDir,
+					state.firstFileRelativePath,
+					options,
+				);
+
+				Logger.success("Bundling concluído com sucesso!");
+				return result;
+			} catch (error) {
+				const err = error instanceof Error ? error : new Error(String(error));
+				Logger.error("Erro durante bundling", err);
+				throw err;
 			}
+		},
 
-			Logger.success.verbose(`${this.files.size} arquivos carregados`);
+		getContext(): BundlePipelineContext | null {
+			return state.context;
+		},
+	};
 
-			// Criar contexto de pipeline compartilhado
-			const pipelineContext = this.createPipelineContext();
-			Logger.info.verbose(
-				`Componente principal: ${pipelineContext.mainComponent || "não detectado"}`,
-			);
+	return factory;
+}
 
-			const fileName = ContentProcessor.getOutputFileName(
-				pipelineContext.mainComponent,
-			);
-
-			Logger.section("Gerando bundles");
-			await this.generateBundles(fileName, pipelineContext);
-
-			Logger.success("Bundling concluído com sucesso!");
-		} catch (error) {
-			const err = error instanceof Error ? error : new Error(String(error));
-			Logger.error("Erro durante bundling", err);
-			throw err;
-		}
+function validatePaths(srcPath: string, outputDir: string): void {
+	if (!srcPath || srcPath.trim() === "") {
+		throw new Error("srcPath não pode ser vazio");
 	}
 
-	/**
-	 * Cria contexto de pipeline compartilhado
-	 * Evita análise redundante entre geração de bundles TS e JS
-	 */
-	private createPipelineContext(): BundlePipelineContext {
-		Logger.info.verbose("Criando contexto de pipeline");
-
-		const sortedFiles = DependencyResolver.sortFilesByDependency(this.files);
-		const fileContents = ContentProcessor.getFileContents(
-			this.files,
-			sortedFiles,
-		);
-		const mainComponent = ComponentAnalyzer.findMainComponent(fileContents);
-		const externalImports = ImportAnalyzer.analyzeExternalImports(fileContents);
-
-		return {
-			sortedFiles,
-			fileContents,
-			files: this.files,
-			mainComponent,
-			externalImports,
-		};
+	if (!outputDir || outputDir.trim() === "") {
+		throw new Error("outputDir não pode ser vazio");
 	}
 
-	/**
-	 * Pipeline de geração de bundle
-	 * Cabeçalho → Imports → Concatenação → Comentários → Tree Shaking → Transformações → Export
-	 */
-	private async generateBundle(
-		options: BundleOptions,
-		context: BundlePipelineContext,
-	): Promise<BundleResult> {
-		Logger.info.verbose(
-			`Gerando bundle ${options.isJavascript ? "JavaScript" : "TypeScript"}`,
-		);
+	const srcExists =
+		FileLoader.fileExists(srcPath) || FileLoader.directoryExists(srcPath);
+	if (!srcExists) {
+		throw new Error(`Path não encontrado: ${srcPath}`);
+	}
+}
 
-		let content = "";
+async function loadFiles(
+	srcPath: string,
+	isFile: boolean,
+	state: BundlerState,
+): Promise<void> {
+	Logger.info.verbose("Carregando arquivos...");
 
-		//* 1. Cabeçalho
-		content += NocoBaseAdapter.generateBundleHeader();
+	const result = isFile
+		? FileLoader.loadSingleFile(srcPath)
+		: FileLoader.loadDirectory(srcPath);
 
-		//* 2. Concatena arquivos e extrai defaultProps
-		let codeContent = ContentProcessor.concatenateFiles(
-			context.sortedFiles,
-			context.files,
-			options.isJavascript,
-		);
+	state.files = result.files;
+	state.firstFileRelativePath = result.firstFileRelativePath;
+}
 
-		//* 3. Processa comentários especiais (//bundle-only, //no-bundle)
-		codeContent = NocoBaseAdapter.processComments(codeContent);
+function createPipelineContext(
+	files: Map<string, FileInfo>,
+): BundlePipelineContext {
+	Logger.info.verbose("Criando contexto de pipeline");
 
-		//* 4. Tree shaking (remove código não utilizado)
-		codeContent = TreeShaker.shake(codeContent, context.mainComponent);
+	const sortedFiles = DependencyResolver.sortFilesByDependency(files);
 
-		//* 5. Extrai defaultProps do código
-		const { defaultProps, contentWithout } =
-			ContentProcessor.extractDefaultProps(codeContent);
-
-		//* 6. defaultProps (se existir)
-		if (defaultProps) {
-			content += defaultProps + "\n\n";
+	// Extrai conteúdo dos arquivos ordenados
+	const fileContents = new Map<string, string>();
+	sortedFiles.forEach(filePath => {
+		const fileInfo = files.get(filePath);
+		if (fileInfo) {
+			fileContents.set(filePath, fileInfo.content);
 		}
+	});
 
-		//* 7. Export do componente principal
-		if (context.mainComponent) {
-			content += ContentProcessor.generateExport(
+	const mainComponent = ComponentAnalyzer.findMainComponent(fileContents);
+	const externalImports = ImportAnalyzer.analyzeExternalImports(fileContents);
+
+	return {
+		sortedFiles,
+		fileContents,
+		files,
+		mainComponent,
+		externalImports,
+	};
+}
+
+function generateBundle(
+	bundleOptions: BundleOptions,
+	context: BundlePipelineContext,
+): BundleResult {
+	Logger.info.verbose(
+		`Gerando bundle ${bundleOptions.isJavascript ? "JavaScript" : "TypeScript"}`,
+	);
+
+	// Usa o BundleComposer para construir o pipeline de forma modular
+	const composer = new BundleComposer();
+
+	composer
+		.addHeader()
+		.addFilesConcatenation(context, bundleOptions.isJavascript)
+		.addCommentProcessing()
+		.addTreeShaking(context.mainComponent)
+		.addDefaultProps();
+
+	if (context.mainComponent) {
+		const { defaultProps } = ExportProcessor.extractDefaultProps("");
+		composer.addComponentExport(
+			context.mainComponent,
+			bundleOptions.isJavascript,
+			defaultProps,
+		);
+	}
+
+	composer.addExternalImports(context.externalImports);
+
+	if (bundleOptions.isJavascript) {
+		composer.addNocoBaseTransformation();
+	}
+
+	Logger.info.verbose(`Pipeline: ${composer.getStages().join(" → ")}`);
+
+	// Nota: A versão síncrona não pode ser usada com compose() async
+	// Mantemos uma versão simplificada para compatibilidade
+	let content = "";
+
+	content += NocoBaseAdapter.generateBundleHeader();
+
+	let codeContent = ContentProcessor.concatenateFiles(
+		context.sortedFiles,
+		context.files,
+		bundleOptions.isJavascript,
+	);
+
+	codeContent = CommentProcessor.processComments(codeContent);
+	codeContent = TreeShaker.shake(codeContent, context.mainComponent);
+
+	const { defaultProps, contentWithout } =
+		ExportProcessor.extractDefaultProps(codeContent);
+
+	if (defaultProps) {
+		content += defaultProps + "\n\n";
+	}
+
+	if (context.mainComponent) {
+		if (bundleOptions.isJavascript) {
+			content += NocoBaseAdapter.generateRender(
 				context.mainComponent,
-				options.isJavascript,
 				defaultProps,
 			);
+		} else {
+			content += NocoBaseAdapter.generateExport(context.mainComponent);
 		}
-
-		//* 8. Imports externos (usa análise pré-computada do contexto)
-		const importStatements = ImportAnalyzer.generateImportStatements(
-			context.externalImports,
-		);
-
-		content += importStatements;
-
-		//* 9. Adiciona código sem defaultProps
-		content += contentWithout;
-
-		//* 10. Transformações NocoBase (apenas para JavaScript)
-		if (options.isJavascript) {
-			content = NocoBaseAdapter.transformImports(content);
-		}
-
-		if (!content || content.trim() === "") {
-			throw new Error("Bundle gerado está vazio");
-		}
-
-		Logger.success.verbose(
-			`Bundle gerado: ${(content.length / 1024).toFixed(2)} KB`,
-		);
-
-		return {
-			content,
-			fileCount: context.sortedFiles.length,
-			sizeKB: content.length / 1024,
-			files: context.sortedFiles,
-			mainComponent: context.mainComponent || undefined,
-		};
 	}
 
-	/**
-	 * Carrega arquivos de forma assíncrona
-	 * Preparado para processamento paralelo futuro
-	 */
-	private async loadFilesAsync(): Promise<void> {
-		Logger.info.verbose("Carregando arquivos...");
+	const importStatements = ImportAnalyzer.generateImportStatements(
+		context.externalImports,
+	);
 
-		const result = this.isFile
-			? FileLoader.loadSingleFile(this.srcPath)
-			: FileLoader.loadDirectory(this.srcPath);
+	content += importStatements;
+	content += contentWithout;
 
-		this.files = result.files;
-		this.firstFileRelativePath = result.firstFileRelativePath;
+	if (bundleOptions.isJavascript) {
+		content = NocoBaseAdapter.transformImports(content);
 	}
 
-	/**
-	 * Gera bundles TypeScript (opcional) e JavaScript
-	 * Utiliza contexto compartilhado para evitar reprocessamento
-	 */
-	private async generateBundles(
-		fileName: string,
-		context: BundlePipelineContext,
-	): Promise<void> {
-		const bundles: Array<{
-			options: BundleOptions;
-			enabled: boolean;
-			type: "TypeScript" | "JavaScript";
-		}> = [
-			{
-				options: {
-					isJavascript: false,
-					outputFileName: `${fileName}.tsx`,
-				},
-				enabled: this.options.exportTypescript,
-				type: "TypeScript",
+	if (!content || content.trim() === "") {
+		throw new Error("Bundle gerado está vazio");
+	}
+
+	Logger.success.verbose(
+		`Bundle gerado: ${(content.length / 1024).toFixed(2)} KB`,
+	);
+
+	return {
+		content,
+		fileCount: context.sortedFiles.length,
+		sizeKB: content.length / 1024,
+		files: context.sortedFiles,
+		mainComponent: context.mainComponent || undefined,
+	};
+}
+
+async function generateBundles(
+	fileName: string,
+	context: BundlePipelineContext,
+	outputDir: string,
+	firstFileRelativePath: string,
+	options: BundlerConfig,
+): Promise<BundleResult> {
+	const bundles: Array<{
+		options: BundleOptions;
+		enabled: boolean;
+		type: "TypeScript" | "JavaScript";
+	}> = [
+		{
+			options: {
+				isJavascript: false,
+				outputFileName: `${fileName}.tsx`,
 			},
-			{
-				options: {
-					isJavascript: true,
-					outputFileName: `${fileName}${APP_CONFIG.bundler.OUTPUT_EXTENSION}`,
-				},
-				enabled: true,
-				type: "JavaScript",
+			enabled: options.exportTypescript,
+			type: "TypeScript",
+		},
+		{
+			options: {
+				isJavascript: true,
+				outputFileName: `${fileName}${APP_CONFIG.bundler.OUTPUT_EXTENSION}`,
 			},
-		];
+			enabled: true,
+			type: "JavaScript",
+		},
+	];
 
-		const results: BundleResult[] = [];
+	const results: BundleResult[] = [];
 
-		// Gera bundles em sequência (contexto já está otimizado)
-		for (const bundle of bundles) {
-			if (!bundle.enabled) continue;
+	for (const bundle of bundles) {
+		if (!bundle.enabled) continue;
 
-			Logger.info(`Gerando bundle ${bundle.type}...`);
-			const result = await this.generateBundle(bundle.options, context);
+		Logger.info(`Gerando bundle ${bundle.type}...`);
+		const result = generateBundle(bundle.options, context);
 
-			await FileWriter.saveBundle(
-				result,
-				bundle.options.outputFileName,
-				this.outputDir,
-				this.firstFileRelativePath,
-			);
-
-			results.push(result);
-			Logger.success(`Bundle ${bundle.type} gerado com sucesso`);
-		}
-
-		// Relatório final
-		const [tsResult, jsResult] =
-			results.length === 2 ? results : [undefined, results[0]];
-		BundleReporter.printReport(
-			tsResult,
-			jsResult,
-			context.sortedFiles,
-			context.files,
+		await FileWriter.saveBundle(
+			result,
+			bundle.options.outputFileName,
+			outputDir,
+			firstFileRelativePath,
 		);
+
+		results.push(result);
+		Logger.success(`Bundle ${bundle.type} gerado com sucesso`);
 	}
+
+	const [tsResult, jsResult] =
+		results.length === 2 ? results : [undefined, results[0]];
+	BundleReporter.printReport(
+		tsResult,
+		jsResult,
+		context.sortedFiles,
+		context.files,
+	);
+
+	return jsResult!;
 }

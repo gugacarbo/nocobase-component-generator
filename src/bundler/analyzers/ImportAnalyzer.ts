@@ -3,14 +3,19 @@ import { APP_CONFIG } from "@/config/config";
 import { ImportInfo } from "../core/types";
 import { ModuleResolver } from "../resolvers/ModuleResolver";
 
+export interface ExtractedImport {
+	path: string;
+	names: string[];
+	defaultName: string | null;
+	namespaceAlias: string | null;
+	isTypeOnly: boolean;
+}
+
 /**
- * Analisador especializado em imports
- * Extrai, analisa, transforma e gerencia declarações de import
+ * Analisador centralizado de imports
+ * Extrai, analisa, transforma e gerencia declarações de import usando AST
  */
 export class ImportAnalyzer {
-	/**
-	 * Analisa todos os arquivos e extrai informações de imports externos
-	 */
 	public static analyzeExternalImports(
 		files: Map<string, string>,
 	): Map<string, Set<string>> {
@@ -33,9 +38,6 @@ export class ImportAnalyzer {
 		return externalImports;
 	}
 
-	/**
-	 * Extrai todos os imports de um conteúdo usando AST
-	 */
 	public static extractImports(content: string): ImportInfo[] {
 		const imports: ImportInfo[] = [];
 		const sourceFile = ts.createSourceFile(
@@ -60,9 +62,85 @@ export class ImportAnalyzer {
 		return imports;
 	}
 
-	/**
-	 * Gera declarações de import formatadas
-	 */
+	public static extractDetailed(content: string): ExtractedImport[] {
+		const imports: ExtractedImport[] = [];
+		const sourceFile = ts.createSourceFile(
+			APP_CONFIG.bundler.TEMP_FILE_NAME,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX,
+		);
+
+		const visit = (node: ts.Node) => {
+			if (ts.isImportDeclaration(node)) {
+				const importInfo = this.parseDetailedImport(node);
+				if (importInfo) {
+					imports.push(importInfo);
+				}
+			}
+			ts.forEachChild(node, visit);
+		};
+
+		visit(sourceFile);
+		return imports;
+	}
+
+	public static extractLocal(content: string): ExtractedImport[] {
+		return this.extractDetailed(content).filter(imp =>
+			ModuleResolver.isLocal(imp.path),
+		);
+	}
+
+	public static extractPaths(content: string): string[] {
+		return this.extractLocal(content).map(imp => imp.path);
+	}
+
+	public static extractWithNames(content: string): Map<string, string[]> {
+		const result = new Map<string, string[]>();
+		const imports = this.extractLocal(content);
+
+		for (const imp of imports) {
+			const allNames = [...imp.names];
+			if (imp.defaultName) allNames.push(imp.defaultName);
+			if (imp.namespaceAlias) allNames.push(imp.namespaceAlias);
+
+			if (result.has(imp.path)) {
+				const existing = result.get(imp.path)!;
+				allNames.forEach(name => {
+					if (!existing.includes(name)) existing.push(name);
+				});
+			} else {
+				result.set(imp.path, allNames);
+			}
+		}
+
+		return result;
+	}
+
+	public static groupByModule(
+		imports: ExtractedImport[],
+	): Map<string, ExtractedImport> {
+		const grouped = new Map<string, ExtractedImport>();
+
+		for (const imp of imports) {
+			const existing = grouped.get(imp.path);
+			if (existing) {
+				existing.names = [...new Set([...existing.names, ...imp.names])];
+				if (imp.defaultName && !existing.defaultName) {
+					existing.defaultName = imp.defaultName;
+				}
+				if (imp.namespaceAlias && !existing.namespaceAlias) {
+					existing.namespaceAlias = imp.namespaceAlias;
+				}
+			} else {
+				grouped.set(imp.path, { ...imp });
+			}
+		}
+
+		return grouped;
+	}
+
 	public static generateImportStatements(
 		imports: Map<string, Set<string>>,
 	): string {
@@ -79,9 +157,6 @@ export class ImportAnalyzer {
 		return statements.length > 0 ? statements.join("\n") + "\n\n" : "";
 	}
 
-	/**
-	 * Remove imports não utilizados do código
-	 */
 	public static removeUnusedImports(
 		content: string,
 		usedIdentifiers: Set<string>,
@@ -131,9 +206,6 @@ export class ImportAnalyzer {
 		return filteredLines.join("\n");
 	}
 
-	/**
-	 * Faz parse de uma declaração de import usando AST
-	 */
 	private static parseImportDeclaration(
 		node: ts.ImportDeclaration,
 	): ImportInfo | null {
@@ -180,10 +252,43 @@ export class ImportAnalyzer {
 		};
 	}
 
-	/**
-	 * Formata uma declaração de import
-	 * Diferencia corretamente default vs named imports baseado em análise AST
-	 */
+	private static parseDetailedImport(
+		node: ts.ImportDeclaration,
+	): ExtractedImport | null {
+		if (!ts.isStringLiteral(node.moduleSpecifier)) {
+			return null;
+		}
+
+		const path = node.moduleSpecifier.text;
+		const result: ExtractedImport = {
+			path,
+			names: [],
+			defaultName: null,
+			namespaceAlias: null,
+			isTypeOnly: false,
+		};
+
+		if (!node.importClause) return result;
+
+		result.isTypeOnly = node.importClause.isTypeOnly || false;
+
+		if (node.importClause.name) {
+			result.defaultName = node.importClause.name.text;
+		}
+
+		if (node.importClause.namedBindings) {
+			if (ts.isNamedImports(node.importClause.namedBindings)) {
+				node.importClause.namedBindings.elements.forEach(element => {
+					result.names.push(element.name.text);
+				});
+			} else if (ts.isNamespaceImport(node.importClause.namedBindings)) {
+				result.namespaceAlias = node.importClause.namedBindings.name.text;
+			}
+		}
+
+		return result;
+	}
+
 	private static formatImportStatement(
 		moduleName: string,
 		names: string[],

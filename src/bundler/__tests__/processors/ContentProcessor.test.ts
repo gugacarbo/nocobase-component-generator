@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ContentProcessor } from "../../processors/ContentProcessor";
+import { ExportProcessor } from "../../processors/ExportProcessor";
 import { FileInfo } from "../../core/types";
 
 describe("ContentProcessor", () => {
@@ -73,7 +74,7 @@ const b = 2;
 		});
 	});
 
-	describe("extractDefaultProps", () => {
+	describe("ExportProcessor.extractDefaultProps", () => {
 		it("deve extrair defaultProps do código", () => {
 			const code = `
 const defaultProps = {
@@ -83,7 +84,7 @@ const defaultProps = {
 
 const Component = () => <div>Hello</div>;
 `;
-			const result = ContentProcessor.extractDefaultProps(code);
+			const result = ExportProcessor.extractDefaultProps(code);
 
 			expect(result.defaultProps).toContain("defaultProps");
 			expect(result.defaultProps).toContain("title: 'Default Title'");
@@ -93,7 +94,7 @@ const Component = () => <div>Hello</div>;
 
 		it("deve lidar com código sem defaultProps", () => {
 			const code = `const Component = () => <div>Hello</div>;`;
-			const result = ContentProcessor.extractDefaultProps(code);
+			const result = ExportProcessor.extractDefaultProps(code);
 
 			expect(result.defaultProps).toBe("");
 			expect(result.contentWithout).toBe(code);
@@ -105,41 +106,10 @@ export const defaultProps = {
 	title: 'Default',
 };
 `;
-			const result = ContentProcessor.extractDefaultProps(code);
+			const result = ExportProcessor.extractDefaultProps(code);
 
 			expect(result.defaultProps).not.toContain("export");
 			expect(result.defaultProps).toContain("const defaultProps");
-		});
-	});
-
-	describe("getFileContents", () => {
-		it("deve retornar mapa de conteúdos dos arquivos ordenados", () => {
-			const files = new Map<string, FileInfo>([
-				[
-					"file1.tsx",
-					{
-						path: "file1.tsx",
-						content: "content1",
-						imports: [],
-						relativePath: "file1.tsx",
-					},
-				],
-				[
-					"file2.tsx",
-					{
-						path: "file2.tsx",
-						content: "content2",
-						imports: [],
-						relativePath: "file2.tsx",
-					},
-				],
-			]);
-			const sortedFiles = ["file1.tsx", "file2.tsx"];
-
-			const contents = ContentProcessor.getFileContents(files, sortedFiles);
-
-			expect(contents.get("file1.tsx")).toBe("content1");
-			expect(contents.get("file2.tsx")).toBe("content2");
 		});
 	});
 

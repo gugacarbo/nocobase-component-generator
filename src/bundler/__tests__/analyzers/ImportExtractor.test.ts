@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { ImportExtractor } from "../../analyzers/ImportExtractor";
+import { ImportAnalyzer } from "../../analyzers/ImportAnalyzer";
 
-describe("ImportExtractor", () => {
-	describe("extract", () => {
+describe("ImportAnalyzer - ExtractDetailed", () => {
+	describe("extractDetailed", () => {
 		it("deve extrair imports nomeados", () => {
 			const code = `import { useState, useEffect } from 'react';`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(1);
 			expect(imports[0].path).toBe("react");
@@ -16,7 +16,7 @@ describe("ImportExtractor", () => {
 
 		it("deve extrair import default", () => {
 			const code = `import React from 'react';`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(1);
 			expect(imports[0].path).toBe("react");
@@ -26,7 +26,7 @@ describe("ImportExtractor", () => {
 
 		it("deve extrair import misto (default + nomeado)", () => {
 			const code = `import React, { useState, useEffect } from 'react';`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(1);
 			expect(imports[0].path).toBe("react");
@@ -37,7 +37,7 @@ describe("ImportExtractor", () => {
 
 		it("deve extrair import namespace", () => {
 			const code = `import * as React from 'react';`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(1);
 			expect(imports[0].path).toBe("react");
@@ -46,7 +46,7 @@ describe("ImportExtractor", () => {
 
 		it("deve detectar type imports", () => {
 			const code = `import type { FC, ReactNode } from 'react';`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(1);
 			expect(imports[0].isTypeOnly).toBe(true);
@@ -60,7 +60,7 @@ describe("ImportExtractor", () => {
 				import { Button, Input } from 'antd';
 				import { formatDate } from './utils';
 			`;
-			const imports = ImportExtractor.extract(code);
+			const imports = ImportAnalyzer.extractDetailed(code);
 
 			expect(imports).toHaveLength(3);
 			expect(imports.map(i => i.path)).toEqual(["react", "antd", "./utils"]);
@@ -76,7 +76,7 @@ describe("ImportExtractor", () => {
 				import { helper } from '../helpers';
 				import { config } from '@/config';
 			`;
-			const imports = ImportExtractor.extractLocal(code);
+			const imports = ImportAnalyzer.extractLocal(code);
 
 			expect(imports).toHaveLength(3);
 			expect(imports.map(i => i.path)).toEqual([
@@ -87,27 +87,13 @@ describe("ImportExtractor", () => {
 		});
 	});
 
-	describe("extractExternal", () => {
-		it("deve retornar apenas imports externos", () => {
-			const code = `
-				import { useState } from 'react';
-				import { Button } from 'antd';
-				import { formatDate } from './utils';
-			`;
-			const imports = ImportExtractor.extractExternal(code);
-
-			expect(imports).toHaveLength(2);
-			expect(imports.map(i => i.path)).toEqual(["react", "antd"]);
-		});
-	});
-
 	describe("extractWithNames", () => {
 		it("deve retornar mapa de imports com nomes", () => {
 			const code = `
 				import { formatDate, capitalize } from './utils';
 				import Helper from './helper';
 			`;
-			const importsMap = ImportExtractor.extractWithNames(code);
+			const importsMap = ImportAnalyzer.extractWithNames(code);
 
 			expect(importsMap.get("./utils")).toEqual(["formatDate", "capitalize"]);
 			expect(importsMap.get("./helper")).toEqual(["Helper"]);
@@ -133,7 +119,7 @@ describe("ImportExtractor", () => {
 				},
 			];
 
-			const grouped = ImportExtractor.groupByModule(imports);
+			const grouped = ImportAnalyzer.groupByModule(imports);
 
 			expect(grouped.size).toBe(1);
 			expect(grouped.get("react")?.names).toContain("useState");

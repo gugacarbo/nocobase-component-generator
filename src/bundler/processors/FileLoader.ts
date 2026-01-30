@@ -4,7 +4,7 @@ import { Logger } from "@/common/Logger";
 import { FileInfo, FileLoadContext } from "../core/types";
 import { DependencyResolver } from "../resolvers/DependencyResolver";
 import { FileValidator } from "../utils/FileValidator";
-import { ImportExtractor } from "../analyzers/ImportExtractor";
+import { ImportAnalyzer } from "../analyzers/ImportAnalyzer";
 
 /**
  * Responsável por carregar arquivos e diretórios
@@ -27,11 +27,11 @@ export class FileLoader {
 				const stat = fs.statSync(filePath);
 
 				if (stat.isDirectory()) {
-					if (!this.shouldExcludeDir(filePath)) {
+					if (!FileValidator.shouldExcludeDir(filePath)) {
 						this.findFiles(filePath, fileList);
 					}
-				} else if (this.isSupportedFile(file)) {
-					if (!this.shouldExcludeFile(file)) {
+				} else if (FileValidator.isSupportedFile(file)) {
+					if (!FileValidator.shouldExcludeFile(file)) {
 						fileList.push(filePath);
 					}
 				}
@@ -45,24 +45,6 @@ export class FileLoader {
 	}
 
 	/**
-	 * Extrai imports de um arquivo
-	 */
-	public static extractImports(content: string): string[] {
-		return ImportExtractor.extractPaths(content);
-	}
-
-	/**
-	 * Extrai imports com seus nomes importados
-	 * Retorna um mapa: caminho do import -> lista de nomes importados
-	 * @deprecated Use ImportExtractor.extractWithNames() ao invés
-	 */
-	public static extractImportsWithNames(
-		content: string,
-	): Map<string, string[]> {
-		return ImportExtractor.extractWithNames(content);
-	}
-
-	/**
 	 * Carrega informações de um arquivo
 	 */
 	public static loadFileInfo(filePath: string, srcDir: string): FileInfo {
@@ -73,7 +55,7 @@ export class FileLoader {
 				Logger.warning(`Arquivo vazio ignorado: ${filePath}`);
 			}
 
-			const imports = this.extractImports(content);
+			const imports = ImportAnalyzer.extractPaths(content);
 			const relativePath = PathUtils.getRelativePath(srcDir, filePath);
 
 			return {
@@ -138,7 +120,7 @@ export class FileLoader {
 		const fileInfo = this.loadFileInfo(filePath, baseDir);
 		filesMap.set(filePath, fileInfo);
 
-		const importsWithNames = ImportExtractor.extractWithNames(fileInfo.content);
+		const importsWithNames = ImportAnalyzer.extractWithNames(fileInfo.content);
 
 		importsWithNames.forEach((importedNames, importPath) => {
 			const resolvedFiles = DependencyResolver.resolveImportWithReExports(
@@ -175,17 +157,5 @@ export class FileLoader {
 		} catch {
 			return false;
 		}
-	}
-
-	private static shouldExcludeFile(fileName: string): boolean {
-		return FileValidator.shouldExcludeFile(fileName);
-	}
-
-	private static shouldExcludeDir(dirPath: string): boolean {
-		return FileValidator.shouldExcludeDir(dirPath);
-	}
-
-	private static isSupportedFile(fileName: string): boolean {
-		return FileValidator.isSupportedFile(fileName);
 	}
 }

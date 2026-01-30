@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { NocoBaseAdapter } from "@bundler/adapters/NocoBaseAdapter";
+import { CommentProcessor } from "@bundler/processors/CommentProcessor";
+import { FileValidator } from "@bundler/utils/FileValidator";
+import { LibraryMapper } from "@bundler/utils/LibraryMapper";
 import { APP_CONFIG } from "@/config/config";
 
 describe("NocoBaseAdapter", () => {
-	describe("processComments", () => {
+	describe("CommentProcessor.processComments", () => {
 		it("deve manter código com //bundle-only", () => {
 			const code = `
                     const a = 1;
@@ -11,7 +14,7 @@ describe("NocoBaseAdapter", () => {
                     const c = 3;
                 `;
 
-			const result = NocoBaseAdapter.processComments(code);
+			const result = CommentProcessor.processComments(code);
 
 			expect(result).not.toContain("//bundle-only: const b = 2;");
 			expect(result).toContain("const b = 2;");
@@ -24,7 +27,7 @@ describe("NocoBaseAdapter", () => {
                 const c = 3;
             `;
 
-			const result = NocoBaseAdapter.processComments(code);
+			const result = CommentProcessor.processComments(code);
 
 			expect(result).not.toContain("const debug = true;");
 			expect(result).toContain("const a = 1;");
@@ -40,7 +43,7 @@ describe("NocoBaseAdapter", () => {
                 const both = true;
             `;
 
-			const result = NocoBaseAdapter.processComments(code);
+			const result = CommentProcessor.processComments(code);
 
 			expect(result).toContain("const prod = true;");
 			expect(result).toContain("const prod2 = false;");
@@ -144,7 +147,6 @@ describe("NocoBaseAdapter", () => {
 		});
 	});
 
-	//! May Remove
 	describe("generateExport", () => {
 		it("deve gerar export statement para bundle Typescript", () => {
 			const exportStmt = NocoBaseAdapter.generateExport("MyComponent");
@@ -153,37 +155,37 @@ describe("NocoBaseAdapter", () => {
 		});
 	});
 
-	describe("shouldIgnoreFile", () => {
+	describe("FileValidator.isMockOrTestFile", () => {
 		it("deve retornar true para arquivos de teste e mock", () => {
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.test.ts")).toBe(true);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.test.js")).toBe(true);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.mock.ts")).toBe(true);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.mock.js")).toBe(true);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.mock.tsx")).toBe(true);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.mock.jsx")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.test.ts")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.test.js")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.mock.ts")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.mock.js")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.mock.tsx")).toBe(true);
+			expect(FileValidator.isMockOrTestFile("component.mock.jsx")).toBe(true);
 		});
 
 		it("deve retornar false para arquivos normais", () => {
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.ts")).toBe(false);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.js")).toBe(false);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.tsx")).toBe(false);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.jsx")).toBe(false);
-			expect(NocoBaseAdapter.shouldIgnoreFile("component.json")).toBe(false);
+			expect(FileValidator.isMockOrTestFile("component.ts")).toBe(false);
+			expect(FileValidator.isMockOrTestFile("component.js")).toBe(false);
+			expect(FileValidator.isMockOrTestFile("component.tsx")).toBe(false);
+			expect(FileValidator.isMockOrTestFile("component.jsx")).toBe(false);
+			expect(FileValidator.isMockOrTestFile("component.json")).toBe(false);
 		});
 	});
 
-	describe("shouldIgnoreModule", () => {
+	describe("FileValidator.shouldIgnoreModule", () => {
 		it("deve retornar false para módulos normais (IGNORED_MODULES vazio por padrão)", () => {
-			expect(NocoBaseAdapter.shouldIgnoreModule("react")).toBe(false);
-			expect(NocoBaseAdapter.shouldIgnoreModule("@nocobase/test")).toBe(false);
+			expect(FileValidator.shouldIgnoreModule("react")).toBe(false);
+			expect(FileValidator.shouldIgnoreModule("@nocobase/test")).toBe(false);
 		});
 	});
 
-	describe("getLibraryKey", () => {
+	describe("LibraryMapper.getLibraryKey", () => {
 		it("deve retornar chave para biblioteca conhecida", () => {
 			const keyMaps = APP_CONFIG.bundler.LIBRARY_MAPPINGS;
 			for (const [libName, expectedKey] of Object.entries(keyMaps)) {
-				const key = NocoBaseAdapter.getLibraryKey(libName);
+				const key = LibraryMapper.getLibraryKey(libName);
 				expect(key).toBe(expectedKey);
 			}
 		});
